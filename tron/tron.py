@@ -45,7 +45,7 @@ class Tron:
         self.full_node = full_node
         self.solidity_node = solidity_node
 
-        if not private_key:
+        if private_key:
             self.private_key = private_key
 
     @staticmethod
@@ -694,8 +694,8 @@ class Tron:
             >>> tron.is_connected()
 
         """
-        full_node=False
-        solidity_node=False
+        full_node = False
+        solidity_node = False
 
         if self.full_node:
             full_node = self.full_node.is_connected()
