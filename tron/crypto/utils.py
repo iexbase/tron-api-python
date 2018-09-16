@@ -1,3 +1,8 @@
 
 def is_integer(var):
-    return isinstance(var, int)
+    try:
+        complex(var)
+    except ValueError:
+        return False
+
+    return True
