@@ -5,7 +5,7 @@ from urllib3 import get_host
 import json
 
 
-class Http:
+class HttpProvider:
     def __init__(self, host, timeout=30000, user=False, password=False, headers=None, status_page="/"):
 
         if headers is None:
