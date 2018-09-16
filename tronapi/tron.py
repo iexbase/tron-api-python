@@ -34,8 +34,7 @@ log = logging.getLogger('tron')
 
 class Tron:
 
-    def __init__(self, full_node, solidity_node=None, private_key=None):
-
+    def __init__(self, full_node, solidity_node=None, event_server=None, private_key=None):
         if isinstance(full_node, str):
             full_node = HttpProvider(full_node)
 
@@ -44,6 +43,7 @@ class Tron:
 
         self.full_node = full_node
         self.solidity_node = solidity_node
+        self.event_server = event_server
 
         if private_key:
             self.private_key = private_key
@@ -66,7 +66,7 @@ class Tron:
         return isinstance(provider, HttpProvider)
 
     def get_current_block(self):
-        """ Последний номер блока
+        """Последний номер блока
 
         Этот метод дает возжность получать новые блоки из блокчейна Tron
 

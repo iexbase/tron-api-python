@@ -10,7 +10,7 @@ except ImportError:
 
 py_version = platform.python_version()
 
-_TRON_VERSION = '1.0.2'
+_TRON_VERSION = '1.0.4'
 
 REQUIRED = [
     'urllib3'
@@ -31,5 +31,5 @@ setuptools.setup(
     author_email='steein.shamsudin@gmail.com',
     install_requires=REQUIRED,
     license='MIT',
-    keywords='tron-api, tron-api-python, iexbase'
+    keywords='tron tron-api tron-api-python iexbase'
 )
