@@ -24,10 +24,10 @@
 
 import base58
 import logging
-from tron.crypto import utils
 import math
 
-from tron.providers import HttpProvider
+from tronapi.crypto import utils
+from tronapi.providers import HttpProvider
 
 log = logging.getLogger('tron')
 

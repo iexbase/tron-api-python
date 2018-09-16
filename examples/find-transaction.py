@@ -1,4 +1,4 @@
-from tron.tron import Tron
+from tronapi.tron import Tron
 
 tron = Tron('https://api.trongrid.io:8090')
 result = tron.get_transaction('TxId')

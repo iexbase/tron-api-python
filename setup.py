@@ -10,26 +10,26 @@ except ImportError:
 
 py_version = platform.python_version()
 
-_TRON_VERSION = '1.0'
+_TRON_VERSION = '1.0.2'
 
 REQUIRED = [
     'urllib3'
 ]
 
-with open('README.rst') as fileobj:
+with open('README.md') as fileobj:
     README = fileobj.read()
 
 setuptools.setup(
-    name='tron-api',
+    name='tronapi',
     version=_TRON_VERSION,
+    include_package_data=True,
+    packages=setuptools.find_packages(),
     description='A Python API for interacting with Tron (TRX)',
     long_description=README,
     url='https://github.com/iexbase/tron-api-python',
     author='Shamsudin Serderov',
     author_email='steein.shamsudin@gmail.com',
     install_requires=REQUIRED,
-    packages=setuptools.find_packages(),
-    include_package_data=True,
     license='MIT',
-    keywords=['tron-api', 'tron-api-python', 'iexbase']
+    keywords='tron-api, tron-api-python, iexbase'
 )

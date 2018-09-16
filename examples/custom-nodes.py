@@ -1,5 +1,5 @@
-from tron.providers import HttpProvider
-from tron.tron import Tron
+from tronapi.providers import HttpProvider
+from tronapi.tron import Tron
 
 # Recommend FullNode: http://13.125.210.234:8090
 
