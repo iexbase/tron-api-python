@@ -6,7 +6,8 @@ import json
 
 
 class HttpProvider:
-    def __init__(self, host, timeout=30000, user=False, password=False, headers=None, status_page="/"):
+    def __init__(self, host, timeout=30000, user=False, password=False, headers=None,
+                 status_page='/wallet/getnowblock'):
 
         if headers is None:
             headers = {}
@@ -42,3 +43,19 @@ class HttpProvider:
             response = self.client.request(method=method, url=url, fields=body).data.decode('utf-8')
 
         return json.loads(response)
+
+    def is_connected(self):
+        """Проверка соединения с подключенного нода
+
+        Examples:
+            >>> tron.full_node.is_connected()
+
+        Returns:
+            True успешно подключено.
+        """
+
+        if self.host:
+            response = self.request(self.status_page)
+            return 'blockID' in response
+        else:
+            return False

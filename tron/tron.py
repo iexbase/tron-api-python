@@ -44,7 +44,26 @@ class Tron:
 
         self.full_node = full_node
         self.solidity_node = solidity_node
-        self.private_key = private_key
+
+        if not private_key:
+            self.private_key = private_key
+
+    @staticmethod
+    def is_valid_provider(provider):
+        """Проверить провайдера
+
+        Args:
+            provider(str): Провайдер
+
+        Examples:
+            >>> fullNode = HttpProvider('host')
+            >>> tron.is_valid_provider(fullNode)
+
+        Returns:
+           True в случае успеха, False в противном случае.
+
+        """
+        return isinstance(provider, HttpProvider)
 
     def get_current_block(self):
         """ Последний номер блока
@@ -667,3 +686,24 @@ class Tron:
 
         """
         return base58.b58encode_check(bytes.fromhex(address))
+
+    def is_connected(self):
+        """Проверка всех подключенных нодов
+
+        Examples:
+            >>> tron.is_connected()
+
+        """
+        full_node=False
+        solidity_node=False
+
+        if self.full_node:
+            full_node = self.full_node.is_connected()
+
+        if self.solidity_node:
+            solidity_node = self.solidity_node.is_connected()
+
+        return {
+            'fullNode': full_node,
+            'solidityNode': solidity_node
+        }
