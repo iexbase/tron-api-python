@@ -1,39 +1,20 @@
 # -*- coding: utf-8 -*-
-# MIT License
+##############################################################################
+# Copyright 2018-present, iEXBase, Inc.
+# All rights reserved.
 #
-# Copyright (c) 2018 iEXBase
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-"""Класс для работы с API Tron"""
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
+##############################################################################
 
 import base58
-import logging
 import math
 
 from tronapi.crypto import utils
 from tronapi.providers import HttpProvider
 
-log = logging.getLogger('tron')
-
 
 class Tron:
-
     def __init__(self, full_node, solidity_node=None, event_server=None, private_key=None):
         if isinstance(full_node, str):
             full_node = HttpProvider(full_node)
@@ -50,14 +31,10 @@ class Tron:
 
     @staticmethod
     def is_valid_provider(provider):
-        """Проверить провайдера
+        """Проверка провайдера
 
         Args:
             provider(str): Провайдер
-
-        Examples:
-            >>> fullNode = HttpProvider('host')
-            >>> tron.is_valid_provider(fullNode)
 
         Returns:
            True в случае успеха, False в противном случае.
@@ -66,12 +43,7 @@ class Tron:
         return isinstance(provider, HttpProvider)
 
     def get_current_block(self):
-        """Последний номер блока
-
-        Этот метод дает возжность получать новые блоки из блокчейна Tron
-
-        :return: array
-        """
+        """Последний номер блока"""
         return self.full_node.request('/wallet/getnowblock')
 
     def get_block(self, block=None):
@@ -79,14 +51,6 @@ class Tron:
 
         Args:
             block (int | str): Номер или Хэш блока
-
-        Examples:
-            >>> tron.get_block('latest')
-            >>> tron.get_block(2395501)
-            >>> tron.get_block('0000000000248d6d1d18ba4f1edb250f2afb64b923fd660f567965c4d42ec5ca ')
-
-        Returns:
-            Результат в формате массива
 
         """
         if block is None:
@@ -106,12 +70,6 @@ class Tron:
         Args:
             hash_block (str): Хэш блока
 
-        Examples:
-            >>> tron.get_block_by_hash('0000000000248d6d1d18ba4f1edb250f2afb64b923fd660f567965c4d42ec5ca ')
-
-        Returns:
-            Результат в формате массива
-
         """
         return self.full_node.request('/wallet/getblockbyid', {
             'value': hash_block
@@ -122,12 +80,6 @@ class Tron:
 
         Args:
             block_id (int): Номер блока
-
-        Examples:
-            >>> tron.get_block_by_hash(2395501)
-
-        Returns:
-            Результат в формате массива
 
         """
         if not utils.is_integer(block_id) or block_id < 0:
@@ -143,12 +95,6 @@ class Tron:
         Args:
             block (int | str): Номер или Хэш блока
 
-        Examples:
-            >>> tron.get_block_transaction_count(2395501)
-
-        Returns:
-            Результат в формате массива
-
         """
         transaction = self.get_block(block)['transactions']
 
@@ -163,12 +109,6 @@ class Tron:
         Args:
             block (int | str): Номер или Хэш блока
             index (int) Позиция транзакции
-
-        Examples:
-            >>> tron.get_transaction_from_block(2395501, 1)
-
-        Returns:
-            Результат в формате массива
 
         """
         if not utils.is_integer(index) or index < 0:
@@ -187,12 +127,6 @@ class Tron:
         Args:
             transaction_id (str): Хэш транзакции
 
-        Examples:
-            >>> tron.get_transaction('28969675be4e8ad8319f2f30d1f213211d37ba4c7ee08b84a333bb7910c89aaa')
-
-        Returns:
-            Результат в формате массива
-
         """
         response: object = self.full_node.request('/wallet/gettransactionbyid', {
             'value': transaction_id
@@ -209,12 +143,6 @@ class Tron:
         Args:
             address (str): Адрес учетной записи
 
-        Examples:
-            >>> tron.get_account('TV3NmH1enpu4X5Hur8Z16eCyNymTqKXQDP')
-
-        Returns:
-            Результат в формате массива
-
         """
         return self.full_node.request('/wallet/getaccount', {
             'address': self.to_hex(address)
@@ -226,12 +154,6 @@ class Tron:
         Args:
             address (str): Адрес учетной записи
 
-        Examples:
-            >>> tron.get_balance('TV3NmH1enpu4X5Hur8Z16eCyNymTqKXQDP')
-
-        Returns:
-            Результат в формате массива
-
         """
         response = self.get_account(address)
 
@@ -242,12 +164,6 @@ class Tron:
 
         Args:
             address (str): Адрес учетной записи
-
-        Examples:
-            >>> tron.get_band_width('TV3NmH1enpu4X5Hur8Z16eCyNymTqKXQDP')
-
-        Returns:
-            Результат в формате массива
 
         """
         return self.full_node.request('/wallet/getaccountnet', {
@@ -278,9 +194,6 @@ class Tron:
             to_address (str): Адрес получателя
             amount (float): Сумма отправки
 
-        Examples:
-            >>> tron.send_transaction('from_address', 'to_address', 15.95)
-
         Returns:
             Возвращает детали отправляемой транзакции
             [result=1] - Успешно отправлено
@@ -301,8 +214,6 @@ class Tron:
     def _create_transaction(self, from_address, to_address, amount):
         """Создаем неподписанную транзакцию
 
-        Note: Это первый этап создании траназкции
-
         Args:
             from_address (str): Адрес отправителя
             to_address (str): Адрес получателя
@@ -321,13 +232,10 @@ class Tron:
     def _sign_transaction(self, transaction):
         """Подписываем транзакцию
 
-        Транзакции подписываются только с использованием приватного ключа
+        Note: Транзакции подписываются только с использованием приватного ключа
 
         Args:
             transaction (object): Детали транзакции
-
-        Returns:
-            Возвращаем детали транзакции c подписью [signature]
 
         """
         if 'signature' in transaction:
@@ -345,9 +253,6 @@ class Tron:
 
         Args:
             signed (object): Детали подписанной транзакции
-
-        Returns:
-            Возвращаем всю необходимую информацию в массив
 
         """
         if not type({}) is dict:
@@ -367,12 +272,6 @@ class Tron:
             address (str): Адрес учетной записи
             name (str): Новое имя
 
-        Examples:
-            >>> tron.update_account('address', 'iEXBaseTron')
-
-        Returns:
-            Результат в формате массива
-
         """
         transaction = self.full_node.request('/wallet/updateaccount', {
             'account_name': self.string_utf8_to_hex(name),
@@ -391,12 +290,6 @@ class Tron:
             address (str): Адрес учетной записи
             new_account_address (str): Новый адрес
 
-        Examples:
-            >>> tron.register_account('address', 'new_account_addrss')
-
-        Returns:
-            Результат в формате массива
-
         """
         return self.full_node.request('/wallet/createaccount', {
             'owner_address': self.to_hex(address),
@@ -412,12 +305,6 @@ class Tron:
             address (str): Адрес учетной записи
             url (str): Адрес сайта
 
-        Examples:
-            >>> tron.apply_for_super_representative('address', 'url')
-
-        Returns:
-            Результат в формате массива
-
         """
         return self.full_node.request('/wallet/createwitness', {
             'owner_address': self.to_hex(address),
@@ -425,15 +312,7 @@ class Tron:
         }, 'post')
 
     def list_nodes(self):
-        """Список доступных нодов
-
-        Examples:
-            >>> tron.list_nodes()
-
-        Returns:
-            Результат в формате массива
-
-        """
+        """Список доступных нодов"""
         return self.full_node.request('/wallet/listnodes')
 
     def get_tokens_issued_by_address(self, address):
@@ -441,12 +320,6 @@ class Tron:
 
         Args:
             address (str): Адрес учетной записи
-
-        Examples:
-            >>> tron.get_tokens_issued_by_address('address')
-
-        Returns:
-            Результат в формате массива
 
         """
         return self.full_node.request('/wallet/getassetissuebyaccount', {
@@ -459,12 +332,6 @@ class Tron:
         Args:
             token_id (str): ID токена
 
-        Examples:
-            >>> tron.get_token_from_id('token')
-
-        Returns:
-            Результат в формате массива
-
         """
         return self.full_node.request('/wallet/getassetissuebyname', {
             'value': self.string_utf8_to_hex(token_id)
@@ -476,12 +343,6 @@ class Tron:
         Args:
             start (int): Начало
             end (int): Конец
-
-        Examples:
-            >>> tron.get_block_range(2, 10)
-
-        Returns:
-            Результат в формате массива
 
         """
         if not utils.is_integer(start) or start < 0:
@@ -501,12 +362,6 @@ class Tron:
         Args:
             limit (int): Количество блоков
 
-        Examples:
-            >>> tron.get_latest_blocks(2, 10)
-
-        Returns:
-            Результат в формате массива
-
         """
         if not utils.is_integer(limit) or limit <= 0:
             exit('Invalid limit provided')
@@ -521,9 +376,6 @@ class Tron:
         Examples:
             >>> tron.list_super_representatives()
 
-        Returns:
-            Результат в формате массива
-
         """
         return self.full_node.request('/wallet/listwitnesses')['witnesses']
 
@@ -533,12 +385,6 @@ class Tron:
         Args:
             limit (int): Количество токенов на странице
             offset (int): Страницы
-
-        Examples:
-            >>> tron.list_tokens(10, 1)
-
-        Returns:
-            Результат в формате массива
 
         """
         if not utils.is_integer(limit) or (limit and offset < 1):
@@ -556,15 +402,7 @@ class Tron:
         }, 'post')
 
     def time_until_next_vote_cycle(self):
-        """Возвращает время в миллисекундах до следующего подсчета голосов SR
-
-        Examples:
-            >>> tron.time_until_next_vote_cycle()
-
-        Returns:
-            Возвращает (timestamp)
-
-        """
+        """Возвращает время в миллисекундах до следующего подсчета голосов SR"""
         num = self.full_node.request('/wallet/getnextmaintenancetime')['num']
 
         if num == -1:
@@ -579,13 +417,6 @@ class Tron:
             address (str): Адрес учетной записи
             hex (bool): Формат адреса
 
-        Examples:
-            >>> tron.validate_address('address') # base58Check
-            >>> tron.validate_address('address', True) # hexString
-
-        Returns:
-            Результат в формате строки
-
         """
         if hex:
             address = self.to_hex(address)
@@ -595,15 +426,7 @@ class Tron:
         }, 'post')
 
     def generate_address(self):
-        """Генерация нового адреса
-
-        Examples:
-            >>> tron.generate_address()
-
-        Returns:
-            Возвращает результат в массиве
-
-        """
+        """Генерация нового адреса"""
         return self.full_node.request('/wallet/generateaddress')
 
     @staticmethod
@@ -613,87 +436,51 @@ class Tron:
         Args:
             name (str): Строка
 
-        Examples:
-            >>> tron.string_utf8_to_hex('hello')
-
-        Returns:
-            Возвращает hex формат строки
-
         """
-
         return bytes(name, encoding='utf-8').hex()
 
     @staticmethod
     def to_tron(amount):
-        """ Преобразовываем сумму в формат Tron
+        """Преобразовываем сумму в формат Tron
 
         Args:
             amount (float): Сумма
-
-        Examples:
-            >>> tron.to_tron(1)
-
-        Returns:
-            Возвращает 1000000
 
         """
         return abs(amount) * pow(10, 6)
 
     @staticmethod
     def from_tron(amount):
-        """ Преобразовываем сумму из формата Tron
+        """Преобразовываем сумму из формата Tron
 
         Args:
             amount (int): Сумма
-
-        Examples:
-            >>> tron.from_tron(1000000)
-
-        Returns:
-            Возвращает сумму в формате 1
 
         """
         return abs(amount) / pow(10, 6)
 
     @staticmethod
     def to_hex(address):
-        """ Получить адресную запись hexString
+        """Получить адресную запись hexString
 
         Args:
             address (str): Строки, которые необходимо зашифровать
-
-        Examples:
-            >>> tron.to_hex('TT67rPNwgmpeimvHUMVzFfKsjL9GZ1wGw8')
-
-        Returns:
-            Возвращает 41BBC8C05F1B09839E72DB044A6AA57E2A5D414A10
 
         """
         return base58.b58decode_check(address).hex().upper()
 
     @staticmethod
     def from_hex(address):
-        """ Отменить шестнадцатеричную строку
+        """Отменить шестнадцатеричную строку
 
         Args:
             address (str): шестнадцатеричная строка
-
-        Examples:
-            >>> tron.from_hex('41BBC8C05F1B09839E72DB044A6AA57E2A5D414A10')
-
-        Returns:
-            Возвращает TT67rPNwgmpeimvHUMVzFfKsjL9GZ1wGw8
 
         """
         return base58.b58encode_check(bytes.fromhex(address))
 
     def is_connected(self):
-        """Проверка всех подключенных нодов
-
-        Examples:
-            >>> tron.is_connected()
-
-        """
+        """Проверка всех подключенных нодов"""
         full_node = False
         solidity_node = False
 
