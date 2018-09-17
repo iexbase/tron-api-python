@@ -1,4 +1,5 @@
-# tron-api-python
+# TRON API for Python
+A Pyton API for interacting with the Tron (TRX)
 
 ## Install
 
@@ -12,12 +13,11 @@ from tronapi.providers import HttpProvider
 from tronapi.tron import Tron
 
 full_node = HttpProvider('http://13.125.210.234:8090')
-address = 'tron address'
 
 tron = Tron(full_node)
 tron.private_key = 'private_key'
 
-print(tron.get_balance(address))
+print(tron.get_balance('address'))
 ```
 ### cli
 ```bash
