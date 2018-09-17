@@ -24,3 +24,8 @@ print(tron.get_balance('address'))
 >>> python cli.py send from to amount private_key
 >>> python cli.py --generateaddress
 >>> python cli.py --node=customnode --getbalance address
+```
+
+
+## Donations
+**Tron(TRX)**: TRWBqiqoFZysoAeyR1J35ibuyc8EvhUAoY
