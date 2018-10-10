@@ -25,6 +25,7 @@ class Tron:
         self.full_node = full_node
         self.solidity_node = solidity_node
         self.event_server = event_server
+        self.data = None
 
         if private_key:
             self.private_key = private_key
@@ -241,6 +242,9 @@ class Tron:
         if 'signature' in transaction:
             exit('Transaction is already signed')
 
+        if self.data is not None:
+            transaction['raw_data']['data'] = self.string_utf8_to_hex(self.data)
+
         return self.full_node.request('/wallet/gettransactionsign', {
             'transaction': transaction,
             'privateKey': self.private_key
@@ -447,7 +451,7 @@ class Tron:
             amount (float): Сумма
 
         """
-        return abs(amount) * pow(10, 6)
+        return math.floor(amount * 1e6)
 
     @staticmethod
     def from_tron(amount):
