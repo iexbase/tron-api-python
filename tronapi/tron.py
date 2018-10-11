@@ -148,14 +148,17 @@ class Tron:
             'address': self.to_hex(address)
         }, 'post')
 
-    def get_balance(self, address):
+    def get_balance(self, address, from_tron: bool = False):
         """Получение баланса
 
         Args:
             address (str): Адрес учетной записи
+            from_tron (bool): Преобразовать в обычный формат
 
         """
         response = self.get_account(address)
+        if from_tron:
+            return self.from_tron(response['balance'])
 
         return response['balance']
 
@@ -223,9 +226,19 @@ class Tron:
             Возвращает неподписанную транзакцию
 
         """
+
+        if type(amount) != float or amount < 0:
+            raise Exception('Invalid amount provided')
+
+        _to = self.to_hex(to_address)
+        _from = self.from_hex(from_address)
+
+        if _to == _from:
+            raise Exception('Cannot transfer TRX to the same account')
+
         return self.full_node.request('/wallet/createtransaction', {
-            'to_address': self.to_hex(to_address),
-            'owner_address': self.to_hex(from_address),
+            'to_address': _to,
+            'owner_address': _from,
             'amount': self.to_tron(amount)
         }, 'post')
 
