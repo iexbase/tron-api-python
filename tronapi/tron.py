@@ -25,7 +25,6 @@ class Tron:
         self.full_node = full_node
         self.solidity_node = solidity_node
         self.event_server = event_server
-        self.data = None
 
         if private_key:
             self.private_key = private_key
@@ -55,7 +54,7 @@ class Tron:
 
         """
         if block is None:
-            exit('No block identifier provided')
+            raise Exception('No block identifier provided')
 
         if block == 'latest':
             return self.get_current_block()
@@ -84,7 +83,7 @@ class Tron:
 
         """
         if not utils.is_integer(block_id) or block_id < 0:
-            exit('Invalid block number provided')
+            raise Exception('Invalid block number provided')
 
         return self.full_node.request('/wallet/getblockbynum', {
             'num': int(block_id)
@@ -113,12 +112,12 @@ class Tron:
 
         """
         if not utils.is_integer(index) or index < 0:
-            exit('Invalid transaction index provided')
+            raise Exception('Invalid transaction index provided')
 
         transactions = self.get_block(block)['transactions']
 
         if not transactions or len(transactions) < index:
-            exit('Transaction not found in block')
+            raise Exception('Transaction not found in block')
 
         return transactions[index]
 
@@ -134,7 +133,7 @@ class Tron:
         }, 'post')
 
         if not response:
-            exit('Transaction not found')
+            raise Exception('Transaction not found')
 
         return response
 
@@ -201,7 +200,7 @@ class Tron:
 
         """
         if not self.private_key:
-            exit('Missing private key')
+            raise Exception('Missing private key')
 
         transaction = self._create_transaction(from_address, to_address, amount)
         sign = self._sign_transaction(transaction)
@@ -240,10 +239,7 @@ class Tron:
 
         """
         if 'signature' in transaction:
-            exit('Transaction is already signed')
-
-        if self.data is not None:
-            transaction['raw_data']['data'] = self.string_utf8_to_hex(self.data)
+            raise Exception('Transaction is already signed')
 
         return self.full_node.request('/wallet/gettransactionsign', {
             'transaction': transaction,
@@ -260,10 +256,10 @@ class Tron:
 
         """
         if not type({}) is dict:
-            exit('Invalid transaction provided')
+            raise Exception('Invalid transaction provided')
 
         if 'signature' not in signed:
-            exit('Transaction is not signed')
+            raise Exception('Transaction is not signed')
 
         return self.full_node.request('/wallet/broadcasttransaction', signed, 'post')
 
@@ -350,10 +346,10 @@ class Tron:
 
         """
         if not utils.is_integer(start) or start < 0:
-            exit('Invalid start of range provided')
+            raise Exception('Invalid start of range provided')
 
         if not utils.is_integer(end) or end <= start:
-            exit('Invalid end of range provided')
+            raise Exception('Invalid end of range provided')
 
         return self.full_node.request('/wallet/getblockbylimitnext', {
             'startNum': int(start),
@@ -368,7 +364,7 @@ class Tron:
 
         """
         if not utils.is_integer(limit) or limit <= 0:
-            exit('Invalid limit provided')
+            raise Exception('Invalid limit provided')
 
         return self.full_node.request('/wallet/getblockbylatestnum', {
             'limit': limit
@@ -392,10 +388,10 @@ class Tron:
 
         """
         if not utils.is_integer(limit) or (limit and offset < 1):
-            exit('Invalid limit provided')
+            raise Exception('Invalid limit provided')
 
         if not utils.is_integer(offset) or offset < 0:
-            exit('Invalid offset provided')
+            raise Exception('Invalid offset provided')
 
         if not limit:
             return self.full_node.request('/wallet/getassetissuelist')['assetIssue']
