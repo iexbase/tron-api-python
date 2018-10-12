@@ -23,7 +23,7 @@ class HttpProvider:
         scheme, base_url, port = get_host(host)
 
         if isnan(timeout) or timeout < 0:
-            exit('Invalid timeout duration provided')
+            raise Exception('Invalid timeout duration provided')
 
         if scheme == 'http':
             self.client = urllib3.HTTPConnectionPool(host=base_url, port=port, timeout=timeout, headers=headers)
@@ -33,9 +33,8 @@ class HttpProvider:
     def request(self, url, body=None, method='GET'):
 
         method = method.lower()
-
         if method not in ['get', 'post']:
-            exit('The method is not defined')
+            raise Exception('The method is not defined')
 
         if method == 'post':
             response = self.client.request(method=method, url=url, body=json.dumps(body)).data.decode('utf-8')
@@ -45,15 +44,7 @@ class HttpProvider:
         return json.loads(response)
 
     def is_connected(self):
-        """Проверка соединения с подключенного нода
-
-        Examples:
-            >>> tron.full_node.is_connected()
-
-        Returns:
-            True успешно подключено.
-        """
-
+        """Проверка соединения с подключенного нода"""
         if self.host:
             response = self.request(self.status_page)
             return 'blockID' in response
