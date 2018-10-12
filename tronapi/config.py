@@ -1,1 +1,1 @@
-DEFAULT_FULL_NODE = "http://13.125.210.234:8090"
+DEFAULT_FULL_NODE = "https://api.trongrid.io"
