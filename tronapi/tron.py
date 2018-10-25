@@ -184,6 +184,16 @@ class Tron:
             offset (int): Страница
 
         """
+
+        if direction not in ['from', 'to']:
+            raise Exception('Invalid direction provided: Expected "to", "from"')
+
+        if not isinstance(limit, int) or limit < 0 or (offset and limit) < 1:
+            raise Exception('Invalid limit provided')
+
+        if not isinstance(offset, int) or offset < 0:
+            raise Exception('Invalid offset provided')
+
         response = self.solidity_node.request('/walletextension/gettransactions{}this'.format(direction), {
             'account': {'address': self.to_hex(address)},
             'limit': limit,
