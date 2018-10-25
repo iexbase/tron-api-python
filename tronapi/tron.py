@@ -140,7 +140,7 @@ class Tron:
             transaction_id (str): Хэш транзакции
 
         """
-        response: object = self.full_node.request('/wallet/gettransactionbyid', {
+        response = self.full_node.request('/wallet/gettransactionbyid', {
             'value': transaction_id
         }, 'post')
 
@@ -160,7 +160,7 @@ class Tron:
             'address': self.to_hex(address)
         }, 'post')
 
-    def get_balance(self, address, from_tron: bool = False):
+    def get_balance(self, address, from_tron=False):
         """Получение баланса
 
         Args:
