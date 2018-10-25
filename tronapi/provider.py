@@ -5,6 +5,8 @@ from urllib3 import get_host
 import json
 
 
+urllib3.disable_warnings()
+
 class HttpProvider:
     def __init__(self, host, timeout=30000, user=False, password=False, headers=None,
                  status_page='/wallet/getnowblock'):
@@ -31,7 +33,6 @@ class HttpProvider:
             self.client = urllib3.HTTPSConnectionPool(host=base_url, port=port, timeout=timeout, headers=headers)
 
     def request(self, url, body=None, method='GET'):
-
         method = method.lower()
         if method not in ['get', 'post']:
             raise Exception('The method is not defined')
