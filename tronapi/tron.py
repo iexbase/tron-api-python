@@ -243,7 +243,7 @@ class Tron:
             raise Exception('Invalid amount provided')
 
         _to = self.to_hex(to_address)
-        _from = self.from_hex(from_address)
+        _from = self.to_hex(from_address)
 
         if _to == _from:
             raise Exception('Cannot transfer TRX to the same account')
@@ -482,7 +482,7 @@ class Tron:
             amount (int): Сумма
 
         """
-        return abs(amount) / pow(10, 6)
+        return abs(amount) / 1e6
 
     @staticmethod
     def to_hex(address):
