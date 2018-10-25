@@ -174,6 +174,48 @@ class Tron:
 
         return response['balance']
 
+    def get_transactions_related(self, address, direction='to', limit=30, offset=0):
+        """Получение транзакций по направлениям "from" и "to"
+
+        Args:
+            address (str): Адрес учетной записи
+            direction (str): Тип направления
+            limit (int): Записей на странице
+            offset (int): Страница
+
+        """
+        response = self.solidity_node.request('/walletextension/gettransactions{}this'.format(direction), {
+            'account': {'address': self.to_hex(address)},
+            'limit': limit,
+            'offset': offset
+        }, 'post')
+
+        merge = dict(response)
+        merge.update({'direction': direction})
+        return merge
+
+    def get_transactions_to_address(self, address, limit, offset):
+        """Получение транзакций по направлении "to"
+
+        Args:
+            address (str): Адрес учетной записи
+            limit (int): Записей на странице
+            offset (int): Страница
+
+        """
+        return self.get_transactions_related(address, 'to', limit, offset)
+
+    def get_transactions_from_address(self, address, limit, offset):
+        """Получение транзакций по направлении "from"
+
+        Args:
+            address (str): Адрес учетной записи
+            limit (int): Записей на странице
+            offset (int): Страница
+
+        """
+        return self.get_transactions_related(address, 'from', limit, offset)
+
     def get_band_width(self, address):
         """Выбирает доступную пропускную способность для определенной учетной записи
 
