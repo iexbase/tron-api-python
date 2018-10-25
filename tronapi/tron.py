@@ -149,6 +149,42 @@ class Tron:
 
         return response
 
+    def get_transactions_from(self, address, offset=0, limit=100):
+        """ Returns the list of transactions sent by an address.
+
+        Args:
+            address (str): Account address.
+
+        """
+        if not self.solidity_node:
+            raise Exception('Solidity node it\'s required!')
+
+        return self.solidity_node.request('/walletextension/gettransactionsfromthis', {
+            'account': {
+                'address': self.to_hex(address),
+            },
+            'offset': offset,
+            'limit': limit,
+        }, 'post')
+
+    def get_transactions_to(self, address, offset=0, limit=100):
+        """ Returns the list of transactions received by an address.
+
+        Args:
+            address (str): Account address.
+
+        """
+        if not self.solidity_node:
+            raise Exception('Solidity node it\'s required!')
+
+        return self.solidity_node.request('/walletextension/gettransactionstothis', {
+            'account': {
+                'address': self.to_hex(address),
+            },
+            'offset': offset,
+            'limit': limit,
+        }, 'post')
+
     def get_account(self, address):
         """Информация об аккаунте
 
