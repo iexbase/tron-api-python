@@ -24,6 +24,9 @@ import math
 from tronapi.crypto import utils
 from tronapi.provider import HttpProvider
 
+# Серверный API от tron.network
+TRON_NODE = 'https://server.tron.network'
+
 
 class Tron:
 
@@ -37,6 +40,7 @@ class Tron:
 
         self.full_node = full_node
         self.solidity_node = solidity_node
+        self.tron_node = HttpProvider(TRON_NODE)
 
         if private_key:
             self.private_key = private_key
@@ -505,6 +509,10 @@ class Tron:
     def generate_address(self):
         """Генерация нового адреса"""
         return self.full_node.request('/wallet/generateaddress')
+
+    def get_node_map(self):
+        """Получение карты все доступных узлов"""
+        return self.tron_node.request('/api/v2/node/nodemap')
 
     @staticmethod
     def string_utf8_to_hex(name):
