@@ -614,7 +614,11 @@ class Tron:
         if self.solidity_node:
             solidity_node = self.solidity_node.is_connected()
 
+        if self.tron_node:
+            tron_node = self.tron_node.is_connected()
+
         return {
-            'fullNode': full_node,
-            'solidityNode': solidity_node
+            'full_node': full_node,
+            'solidity_node': solidity_node,
+            'tron_node': tron_node
         }
