@@ -563,7 +563,7 @@ class Tron:
 
     @staticmethod
     def string_utf8_to_hex(name):
-        """ Преобразование строки в формат Hex
+        """Преобразование строки в формат Hex
 
         Args:
             name (str): Строка
