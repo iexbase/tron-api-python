@@ -237,7 +237,7 @@ class Tron:
             offset (int): Страница
 
         """
-        return self.get_transactions_related(address, 'to', limit, offset)
+        return self.get_transactions_related(address, 'from', limit, offset)
 
     def get_band_width(self, address):
         """Выбирает доступную пропускную способность для определенной учетной записи
