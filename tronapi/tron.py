@@ -217,7 +217,7 @@ class Tron:
         merge.update({'direction': direction})
         return merge
 
-    def get_transactions_to_address(self, address, limit=20, offset=1):
+    def get_transactions_to_address(self, address, limit=20, offset=0):
         """Получение транзакций по направлении "to"
 
         Args:
@@ -228,7 +228,7 @@ class Tron:
         """
         return self.get_transactions_related(address, 'to', limit, offset)
 
-    def get_transactions_from_address(self, address, limit=20, offset=1):
+    def get_transactions_from_address(self, address, limit=20, offset=0):
         """Получение транзакций по направлении "from"
 
         Args:
