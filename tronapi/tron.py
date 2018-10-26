@@ -557,6 +557,10 @@ class Tron:
         """Информация о балансах"""
         return self.tron_node.request('/api/v2/node/balance_info')
 
+    def get_list_exchangers(self):
+        """Получение списка обменников"""
+        return self.full_node.request('/wallet/listexchanges')
+
     @staticmethod
     def string_utf8_to_hex(name):
         """ Преобразование строки в формат Hex
