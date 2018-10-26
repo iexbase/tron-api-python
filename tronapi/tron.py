@@ -553,6 +553,10 @@ class Tron:
         """Получение карты все доступных узлов"""
         return self.tron_node.request('/api/v2/node/nodemap')
 
+    def get_balance_info(self):
+        """Информация о балансах"""
+        return self.tron_node.request('/api/v2/node/balance_info')
+
     @staticmethod
     def string_utf8_to_hex(name):
         """ Преобразование строки в формат Hex
