@@ -559,7 +559,7 @@ class Tron:
 
     def get_list_exchangers(self):
         """Получение списка обменников"""
-        return self.full_node.request('/wallet/listexchanges')
+        return self.full_node.request('/wallet/listexchanges', {}, 'post')
 
     @staticmethod
     def string_utf8_to_hex(name):
