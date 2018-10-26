@@ -212,9 +212,8 @@ class Tron:
             'offset': offset
         }, 'post')
 
-        merge = dict(response)
-        merge.update({'direction': direction})
-        return merge
+        response.update({'direction': direction})
+        return response
 
     def get_transactions_to_address(self, address, limit=20, offset=0):
         """Получение транзакций по направлении "to"
