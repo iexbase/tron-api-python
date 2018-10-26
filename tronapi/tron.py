@@ -17,8 +17,6 @@
 """
     Tron API from Python
 """
-import itertools
-from operator import itemgetter
 
 import base58
 import math
