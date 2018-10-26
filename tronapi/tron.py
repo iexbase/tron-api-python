@@ -217,7 +217,7 @@ class Tron:
         merge.update({'direction': direction})
         return merge
 
-    def get_transactions_to_address(self, address, limit, offset):
+    def get_transactions_to_address(self, address, limit=20, offset=1):
         """Получение транзакций по направлении "to"
 
         Args:
@@ -228,7 +228,7 @@ class Tron:
         """
         return self.get_transactions_related(address, 'to', limit, offset)
 
-    def get_transactions_from_address(self, address, limit, offset):
+    def get_transactions_from_address(self, address, limit=20, offset=1):
         """Получение транзакций по направлении "from"
 
         Args:
@@ -237,7 +237,7 @@ class Tron:
             offset (int): Страница
 
         """
-        return self.get_transactions_related(address, 'from', limit, offset)
+        return self.get_transactions_related(address, 'to', limit, offset)
 
     def get_band_width(self, address):
         """Выбирает доступную пропускную способность для определенной учетной записи
