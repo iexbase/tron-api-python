@@ -24,6 +24,9 @@ import math
 from tronapi.crypto import utils
 from tronapi.provider import HttpProvider
 
+# Серверный API от tron.network
+TRON_NODE = 'https://server.tron.network'
+
 
 class Tron:
 
@@ -37,6 +40,7 @@ class Tron:
 
         self.full_node = full_node
         self.solidity_node = solidity_node
+        self.tron_node = HttpProvider(TRON_NODE)
 
         if private_key:
             self.private_key = private_key
@@ -194,6 +198,18 @@ class Tron:
         if not isinstance(offset, int) or offset < 0:
             raise Exception('Invalid offset provided')
 
+        if direction not in ['from', 'to', 'all']:
+            raise Exception('Invalid direction provided: Expected "to", "from" or "all"')
+
+        if direction == 'all':
+            from_direction = {'from': self.get_transactions_related(address, 'from', limit, offset)}
+            to_direction = {'to': self.get_transactions_related(address, 'to', limit, offset)}
+
+            callback = from_direction
+            callback.update(to_direction)
+
+            return callback
+
         response = self.solidity_node.request('/walletextension/gettransactions{}this'.format(direction), {
             'account': {'address': self.to_hex(address)},
             'limit': limit,
@@ -252,6 +268,36 @@ class Tron:
         response = self.full_node.request('/wallet/totaltransaction')
 
         return response['num']
+
+    def send(self, from_address, to_address, amount):
+        """Отправляем средства на счет Tron (option 2)
+
+        Args:
+            from_address (str): Адрес отправителя
+            to_address (str): Адрес получателя
+            amount (float): Сумма отправки
+
+        Returns:
+            Возвращает детали отправляемой транзакции
+            [result=1] - Успешно отправлено
+
+        """
+        return self.send_transaction(from_address, to_address, amount)
+
+    def send_trx(self, from_address, to_address, amount):
+        """Отправляем средства на счет Tron (option 3)
+
+        Args:
+            from_address (str): Адрес отправителя
+            to_address (str): Адрес получателя
+            amount (float): Сумма отправки
+
+        Returns:
+            Возвращает детали отправляемой транзакции
+            [result=1] - Успешно отправлено
+
+        """
+        return self.send_transaction(from_address, to_address, amount)
 
     def send_transaction(self, from_address, to_address, amount):
         """Отправляем транзакцию в Blockchain
@@ -505,6 +551,10 @@ class Tron:
     def generate_address(self):
         """Генерация нового адреса"""
         return self.full_node.request('/wallet/generateaddress')
+
+    def get_node_map(self):
+        """Получение карты все доступных узлов"""
+        return self.tron_node.request('/api/v2/node/nodemap')
 
     @staticmethod
     def string_utf8_to_hex(name):
