@@ -257,6 +257,36 @@ class Tron:
 
         return response['num']
 
+    def send(self, from_address, to_address, amount):
+        """Отправляем средства на счет Tron (option 2)
+
+        Args:
+            from_address (str): Адрес отправителя
+            to_address (str): Адрес получателя
+            amount (float): Сумма отправки
+
+        Returns:
+            Возвращает детали отправляемой транзакции
+            [result=1] - Успешно отправлено
+
+        """
+        return self.send_transaction(from_address, to_address, amount)
+
+    def send_trx(self, from_address, to_address, amount):
+        """Отправляем средства на счет Tron (option 3)
+
+        Args:
+            from_address (str): Адрес отправителя
+            to_address (str): Адрес получателя
+            amount (float): Сумма отправки
+
+        Returns:
+            Возвращает детали отправляемой транзакции
+            [result=1] - Успешно отправлено
+
+        """
+        return self.send_transaction(from_address, to_address, amount)
+
     def send_transaction(self, from_address, to_address, amount):
         """Отправляем транзакцию в Blockchain
 
