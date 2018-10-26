@@ -21,11 +21,9 @@
 import base58
 import math
 
+from tronapi import config
 from tronapi.crypto import utils
 from tronapi.provider import HttpProvider
-
-# Server API from tron.network
-TRON_NODE = 'https://server.tron.network'
 
 
 class Tron:
@@ -40,7 +38,7 @@ class Tron:
 
         self.full_node = full_node
         self.solidity_node = solidity_node
-        self.tron_node = HttpProvider(TRON_NODE)
+        self.tron_node = HttpProvider(config.DEFAULT_TRON_NODE)
 
         if private_key:
             self.private_key = private_key
@@ -229,7 +227,7 @@ class Tron:
         response.update({'direction': direction})
         return response
 
-    def get_transactions_to_address(self, address, limit=20, offset=0):
+    def get_transactions_to_address(self, address, limit=30, offset=0):
         """Query the list of transactions received by an address
 
         Args:
@@ -243,7 +241,7 @@ class Tron:
         """
         return self.get_transactions_related(address, 'to', limit, offset)
 
-    def get_transactions_from_address(self, address, limit=20, offset=0):
+    def get_transactions_from_address(self, address, limit=30, offset=0):
         """Query the list of transactions sent by an address
 
         Args:
