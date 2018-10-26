@@ -553,9 +553,17 @@ class Tron:
         """Получение карты все доступных узлов"""
         return self.tron_node.request('/api/v2/node/nodemap')
 
+    def get_balance_info(self):
+        """Информация о балансах"""
+        return self.tron_node.request('/api/v2/node/balance_info')
+
+    def get_list_exchangers(self):
+        """Получение списка обменников"""
+        return self.full_node.request('/wallet/listexchanges', {}, 'post')
+
     @staticmethod
     def string_utf8_to_hex(name):
-        """ Преобразование строки в формат Hex
+        """Преобразование строки в формат Hex
 
         Args:
             name (str): Строка
@@ -607,6 +615,7 @@ class Tron:
         """Проверка всех подключенных нодов"""
         full_node = False
         solidity_node = False
+        tron_node = False
 
         if self.full_node:
             full_node = self.full_node.is_connected()
@@ -614,7 +623,11 @@ class Tron:
         if self.solidity_node:
             solidity_node = self.solidity_node.is_connected()
 
+        if self.tron_node:
+            tron_node = self.tron_node.is_connected()
+
         return {
-            'fullNode': full_node,
-            'solidityNode': solidity_node
+            'full_node': full_node,
+            'solidity_node': solidity_node,
+            'tron_node': tron_node
         }
