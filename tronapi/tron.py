@@ -607,6 +607,7 @@ class Tron:
         """Проверка всех подключенных нодов"""
         full_node = False
         solidity_node = False
+        tron_node = False
 
         if self.full_node:
             full_node = self.full_node.is_connected()
