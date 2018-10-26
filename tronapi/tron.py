@@ -17,6 +17,8 @@
 """
     Tron API from Python
 """
+import itertools
+from operator import itemgetter
 
 import base58
 import math
@@ -189,14 +191,23 @@ class Tron:
 
         """
 
-        if direction not in ['from', 'to']:
-            raise Exception('Invalid direction provided: Expected "to", "from"')
-
         if not isinstance(limit, int) or limit < 0 or (offset and limit) < 1:
             raise Exception('Invalid limit provided')
 
         if not isinstance(offset, int) or offset < 0:
             raise Exception('Invalid offset provided')
+
+        if direction not in ['from', 'to', 'all']:
+            raise Exception('Invalid direction provided: Expected "to", "from" or "all"')
+
+        if direction == 'all':
+            from_direction = {'from': self.get_transactions_related(address, 'from', limit, offset)}
+            to_direction = {'to': self.get_transactions_related(address, 'to', limit, offset)}
+
+            callback = from_direction
+            callback.update(to_direction)
+
+            return callback
 
         response = self.solidity_node.request('/walletextension/gettransactions{}this'.format(direction), {
             'account': {'address': self.to_hex(address)},
