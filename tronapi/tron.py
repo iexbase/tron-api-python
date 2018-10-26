@@ -24,7 +24,7 @@ import math
 from tronapi.crypto import utils
 from tronapi.provider import HttpProvider
 
-# Серверный API от tron.network
+# Server API from tron.network
 TRON_NODE = 'https://server.tron.network'
 
 
@@ -47,26 +47,30 @@ class Tron:
 
     @staticmethod
     def is_valid_provider(provider):
-        """Проверка провайдера
+        """Check connected provider
 
         Args:
-            provider(str): Провайдер
+            provider(str): Provider
 
         Returns:
-           True в случае успеха, False в противном случае.
+           True if successful, False otherwise.
 
         """
         return isinstance(provider, HttpProvider)
 
     def get_current_block(self):
-        """Последний номер блока"""
+        """Query the latest block
+
+        Returns:
+            Latest block on full node
+        """
         return self.full_node.request('/wallet/getnowblock')
 
     def get_block(self, block=None):
-        """Получаем детали блока с помощью HashString или blockNumber
+        """Get block details using HashString or blockNumber
 
         Args:
-            block (int | str): Номер или Хэш блока
+            block (int|str): Number or Hash Block
 
         """
         if block is None:
@@ -81,10 +85,13 @@ class Tron:
         return self.get_block_by_number(block)
 
     def get_block_by_hash(self, hash_block):
-        """Получаем детали блока по хэшу
+        """Query block by ID
 
         Args:
-            hash_block (str): Хэш блока
+            hash_block (str): Block ID
+
+        Returns:
+            Block Object
 
         """
         return self.full_node.request('/wallet/getblockbyid', {
@@ -92,10 +99,13 @@ class Tron:
         })
 
     def get_block_by_number(self, block_id):
-        """Получаем детали блока по номеру
+        """Query block by height
 
         Args:
-            block_id (int): Номер блока
+            block_id (int): height of the block
+
+        Returns:
+            Block object
 
         """
         if not utils.is_integer(block_id) or block_id < 0:
@@ -106,25 +116,28 @@ class Tron:
         })
 
     def get_block_transaction_count(self, block=None):
-        """Получаем детали блока по номеру
+        """Total number of transactions in a block
 
         Args:
-            block (int | str): Номер или Хэш блока
+            block (int | str): Number or Hash Block
 
         """
-        transaction = self.get_block(block)['transactions']
+        transaction = self.get_block(block)
 
-        if transaction == 0:
+        if 'transactions' not in transaction:
+            raise Exception('Parameter "transactions" not found')
+
+        if transaction is None:
             return 0
 
         return len(transaction)
 
     def get_transaction_from_block(self, block=None, index=0):
-        """Получаем детали транзакции из Блока
+        """Get transaction details from Block
 
         Args:
-            block (int | str): Номер или Хэш блока
-            index (int) Позиция транзакции
+            block (int|str): Number or Hash Block
+            index (int) Position
 
         """
         if not utils.is_integer(index) or index < 0:
@@ -138,10 +151,10 @@ class Tron:
         return transactions[index]
 
     def get_transaction(self, transaction_id):
-        """Получаем информацию о транзакции по TxID
+        """Query transaction based on id
 
         Args:
-            transaction_id (str): Хэш транзакции
+            transaction_id (str): transaction id
 
         """
         response = self.full_node.request('/wallet/gettransactionbyid', {
@@ -154,10 +167,10 @@ class Tron:
         return response
 
     def get_account(self, address):
-        """Информация об аккаунте
+        """Query information about an account
 
         Args:
-            address (str): Адрес учетной записи
+            address (str): Address
 
         """
         return self.full_node.request('/wallet/getaccount', {
@@ -165,11 +178,11 @@ class Tron:
         }, 'post')
 
     def get_balance(self, address, from_tron=False):
-        """Получение баланса
+        """Getting a balance
 
         Args:
-            address (str): Адрес учетной записи
-            from_tron (bool): Преобразовать в обычный формат
+            address (str): Address
+            from_tron (bool): Convert to float format
 
         """
         response = self.get_account(address)
@@ -178,14 +191,15 @@ class Tron:
 
         return response['balance']
 
-    def get_transactions_related(self, address, direction='to', limit=30, offset=0):
-        """Получение транзакций по направлениям "from" и "to"
+    def get_transactions_related(self, address, direction='all', limit=30, offset=0):
+        """Getting data in the "from", "to" and "all" directions
 
         Args:
-            address (str): Адрес учетной записи
-            direction (str): Тип направления
-            limit (int): Записей на странице
-            offset (int): Страница
+            address (str): Address
+            direction (str): Type direction
+            address (str): address
+            limit (int): number of transactions expected to be returned
+            offset (int): index of the starting transaction
 
         """
 
@@ -216,32 +230,50 @@ class Tron:
         return response
 
     def get_transactions_to_address(self, address, limit=20, offset=0):
-        """Получение транзакций по направлении "to"
+        """Query the list of transactions received by an address
 
         Args:
-            address (str): Адрес учетной записи
-            limit (int): Записей на странице
-            offset (int): Страница
+            address (str): address
+            limit (int): number of transactions expected to be returned
+            offset (int): index of the starting transaction
+
+        Returns:
+            Transactions list
 
         """
         return self.get_transactions_related(address, 'to', limit, offset)
 
     def get_transactions_from_address(self, address, limit=20, offset=0):
-        """Получение транзакций по направлении "from"
+        """Query the list of transactions sent by an address
 
         Args:
-            address (str): Адрес учетной записи
-            limit (int): Записей на странице
-            offset (int): Страница
+            address (str): address
+            limit (int): number of transactions expected to be returned
+            offset (int): index of the starting transaction
+
+        Returns:
+            Transactions list
 
         """
         return self.get_transactions_related(address, 'from', limit, offset)
 
     def get_band_width(self, address):
-        """Выбирает доступную пропускную способность для определенной учетной записи
+        """Query bandwidth information.
 
         Args:
-            address (str): Адрес учетной записи
+            address (str): address
+
+        Returns:
+            Bandwidth information for the account.
+            If a field doesn't appear, then the corresponding value is 0.
+            {
+                "freeNetUsed": 557,
+                "freeNetLimit": 5000,
+                "NetUsed": 353,
+                "NetLimit": 5239157853,
+                "TotalNetLimit": 43200000000,
+                "TotalNetWeight": 41228
+            }
 
         """
         return self.full_node.request('/wallet/getaccountnet', {
@@ -249,15 +281,15 @@ class Tron:
         })
 
     def get_transaction_count(self):
-        """Получаем общий счетчик транзакций
+        """Count all transactions on the network
 
-        Note: Считывается все транзакции блокчейн сети Tron
+        Note: Possible delays
 
         Examples:
             >>> tron.get_transaction_count()
 
         Returns:
-            Получение результата в виде строки
+            Total number of transactions.
 
         """
         response = self.full_node.request('/wallet/totaltransaction')
@@ -265,46 +297,46 @@ class Tron:
         return response['num']
 
     def send(self, from_address, to_address, amount):
-        """Отправляем средства на счет Tron (option 2)
+        """Send funds to the Tron account (option 2)
 
         Args:
-            from_address (str): Адрес отправителя
-            to_address (str): Адрес получателя
-            amount (float): Сумма отправки
+            from_address (str): From address
+            to_address (str): To address
+            amount (float): Value
 
         Returns:
-            Возвращает детали отправляемой транзакции
-            [result=1] - Успешно отправлено
+            Returns the details of the transaction being sent.
+             [result = 1] - Successfully sent
 
         """
         return self.send_transaction(from_address, to_address, amount)
 
     def send_trx(self, from_address, to_address, amount):
-        """Отправляем средства на счет Tron (option 3)
+        """Send funds to the Tron account (option 3)
 
         Args:
-            from_address (str): Адрес отправителя
-            to_address (str): Адрес получателя
-            amount (float): Сумма отправки
+            from_address (str): From address
+            to_address (str): To address
+            amount (float): Value
 
         Returns:
-            Возвращает детали отправляемой транзакции
-            [result=1] - Успешно отправлено
+            Returns the details of the transaction being sent.
+             [result = 1] - Successfully sent
 
         """
         return self.send_transaction(from_address, to_address, amount)
 
     def send_transaction(self, from_address, to_address, amount):
-        """Отправляем транзакцию в Blockchain
+        """Send transaction to Blockchain
 
         Args:
-            from_address (str): Адрес отправителя
-            to_address (str): Адрес получателя
-            amount (float): Сумма отправки
+            from_address (str): From address
+            to_address (str): To address
+            amount (float): Value
 
         Returns:
-            Возвращает детали отправляемой транзакции
-            [result=1] - Успешно отправлено
+            Returns the details of the transaction being sent.
+             [result = 1] - Successfully sent
 
         """
         if not self.private_key:
@@ -320,15 +352,16 @@ class Tron:
         return result
 
     def _create_transaction(self, from_address, to_address, amount):
-        """Создаем неподписанную транзакцию
+        """Creates a transaction of transfer.
+        If the recipient address does not exist, a corresponding account will be created on the blockchain.
 
         Args:
-            from_address (str): Адрес отправителя
-            to_address (str): Адрес получателя
-            amount (float): Сумма отправки
+            from_address (str): from address
+            to_address (str): to address
+            amount (float): amount
 
         Returns:
-            Возвращает неподписанную транзакцию
+            Transaction contract data
 
         """
 
@@ -348,12 +381,14 @@ class Tron:
         }, 'post')
 
     def _sign_transaction(self, transaction):
-        """Подписываем транзакцию
-
-        Note: Транзакции подписываются только с использованием приватного ключа
+        """Sign the transaction, the api has the risk of leaking the private key,
+        please make sure to call the api in a secure environment
 
         Args:
-            transaction (object): Детали транзакции
+            transaction (object): transaction details
+
+        Returns:
+            Signed Transaction contract data
 
         """
         if 'signature' in transaction:
@@ -365,12 +400,13 @@ class Tron:
         }, 'post')
 
     def _send_raw_transaction(self, signed):
-        """Отправляем подписанную транзакцию
-
-        Note: Если транзакция подписана то отправляем в сеть tron
+        """Broadcast the signed transaction
 
         Args:
-            signed (object): Детали подписанной транзакции
+            signed (object): signed transaction contract data
+
+        Returns:
+            broadcast success or failure
 
         """
         if not type({}) is dict:
@@ -382,13 +418,16 @@ class Tron:
         return self.full_node.request('/wallet/broadcasttransaction', signed, 'post')
 
     def update_account(self, address, name):
-        """Изменить имя учетной записи
+        """Modify account name
 
-        Note: Имя пользователя разрешается редактировать только один раз
+        Note: Username is allowed to edit only once.
 
         Args:
-            address (str): Адрес учетной записи
-            name (str): Новое имя
+            address (str): address
+            name (str): name of the account
+
+        Returns:
+            modified Transaction Object
 
         """
         transaction = self.full_node.request('/wallet/updateaccount', {
@@ -402,11 +441,15 @@ class Tron:
         return response
 
     def register_account(self, address, new_account_address):
-        """Регистрация новой учетной записи в сети
+        """Create an account.
+        Uses an already activated account to create a new account
 
         Args:
-            address (str): Адрес учетной записи
-            new_account_address (str): Новый адрес
+            address (str): address
+            new_account_address (str): address of the new account
+
+        Returns:
+            Create account Transaction raw data
 
         """
         return self.full_node.request('/wallet/createaccount', {
@@ -415,13 +458,13 @@ class Tron:
         }, 'post')
 
     def apply_for_super_representative(self, address, url):
-        """Выдвигать кандидатуру супер представителя
+        """Apply to become a super representative
 
-        Note: Применяется, чтобы стать супер представителем. Стоимость 9999 TRX.
+        Note: Applied to become a super representative. Cost 9999 TRX.
 
         Args:
-            address (str): Адрес учетной записи
-            url (str): Адрес сайта
+            address (str): address
+            url (str): official website address
 
         """
         return self.full_node.request('/wallet/createwitness', {
@@ -430,14 +473,23 @@ class Tron:
         }, 'post')
 
     def list_nodes(self):
-        """Список доступных нодов"""
+        """List the nodes which the api fullnode is connecting on the network
+
+        Returns:
+            List of nodes
+
+        """
         return self.full_node.request('/wallet/listnodes')
 
     def get_tokens_issued_by_address(self, address):
-        """Попытки найти токен с адресом учетной записи, который его выпустил
+        """List the tokens issued by an account.
 
         Args:
-            address (str): Адрес учетной записи
+            address (str): address
+
+        Returns:
+            The token issued by the account.
+            An account can issue only one token.
 
         """
         return self.full_node.request('/wallet/getassetissuebyaccount', {
@@ -445,10 +497,10 @@ class Tron:
         }, 'post')
 
     def get_token_from_id(self, token_id):
-        """Попытки найти токен по имени
+        """Query token by name.
 
         Args:
-            token_id (str): ID токена
+            token_id (str): The name of the token
 
         """
         return self.full_node.request('/wallet/getassetissuebyname', {
@@ -456,11 +508,14 @@ class Tron:
         })
 
     def get_block_range(self, start, end):
-        """Получаем список блоков из определенного диапазона
+        """Query a range of blocks by block height
 
         Args:
-            start (int): Начало
-            end (int): Конец
+            start (int): starting block height, including this block
+            end (int): ending block height, excluding that block
+
+        Returns:
+            A list of Block Objects
 
         """
         if not utils.is_integer(start) or start < 0:
@@ -475,10 +530,13 @@ class Tron:
         }, 'post')['block']
 
     def get_latest_blocks(self, limit=1):
-        """Получаем список последних блоков
+        """Query the latest blocks
 
         Args:
-            limit (int): Количество блоков
+            limit (int): the number of blocks to query
+
+        Returns:
+            A list of Block Objects
 
         """
         if not utils.is_integer(limit) or limit <= 0:
@@ -489,20 +547,26 @@ class Tron:
         }, 'post')['block']
 
     def list_super_representatives(self):
-        """Получаем список суперпредставителей
+        """Query the list of Super Representatives
 
         Examples:
             >>> tron.list_super_representatives()
+
+        Returns:
+            List of all Super Representatives
 
         """
         return self.full_node.request('/wallet/listwitnesses')['witnesses']
 
     def list_tokens(self, limit=0, offset=0):
-        """Получаем список выпущенных токенов
+        """Query the list of Tokens with pagination
 
         Args:
-            limit (int): Количество токенов на странице
-            offset (int): Страницы
+            limit (int): index of the starting Token
+            offset (int): number of Tokens expected to be returned
+
+        Returns:
+            List of Tokens
 
         """
         if not utils.is_integer(limit) or (limit and offset < 1):
@@ -520,7 +584,12 @@ class Tron:
         }, 'post')
 
     def time_until_next_vote_cycle(self):
-        """Возвращает время в миллисекундах до следующего подсчета голосов SR"""
+        """Get the time of the next Super Representative vote
+
+        Returns:
+            Number of milliseconds until the next voting time.
+
+        """
         num = self.full_node.request('/wallet/getnextmaintenancetime')['num']
 
         if num == -1:
@@ -528,15 +597,15 @@ class Tron:
 
         return math.floor(num / 1000)
 
-    def validate_address(self, address, hex=False):
-        """Проверка адресов на действительность
+    def validate_address(self, address, is_hex=False):
+        """Validate address
 
         Args:
-            address (str): Адрес учетной записи
-            hex (bool): Формат адреса
+            address (str): The address, should be in base58checksum
+            is_hex (bool): hexString or base64 format
 
         """
-        if hex:
+        if is_hex:
             address = self.to_hex(address)
 
         return self.full_node.request('/wallet/validateaddress', {
@@ -544,73 +613,83 @@ class Tron:
         }, 'post')
 
     def generate_address(self):
-        """Генерация нового адреса"""
+        """Generates a random private key and address pair
+
+        Warning: Please control risks when using this API.
+        To ensure environmental security, please do not invoke APIs
+        provided by other or invoke this very API on a public network.
+
+        Returns:
+            Value is the corresponding address for the password, encoded in hex.
+            Convert it to base58 to use as the address.
+
+        """
         return self.full_node.request('/wallet/generateaddress')
 
     def get_node_map(self):
-        """Получение карты все доступных узлов"""
+        """Getting a map of all available nodes"""
         return self.tron_node.request('/api/v2/node/nodemap')
 
     def get_balance_info(self):
-        """Информация о балансах"""
+        """Balance Information"""
         return self.tron_node.request('/api/v2/node/balance_info')
 
     def get_list_exchangers(self):
-        """Получение списка обменников"""
+        """Getting a list of exchangers"""
         return self.full_node.request('/wallet/listexchanges', {}, 'post')
 
     @staticmethod
     def string_utf8_to_hex(name):
-        """Преобразование строки в формат Hex
+        """Convert a string to Hex format
 
         Args:
-            name (str): Строка
+            name (str): string
 
         """
         return bytes(name, encoding='utf-8').hex()
 
     @staticmethod
     def to_tron(amount):
-        """Преобразовываем сумму в формат Tron
+        """Convert float to trx format
 
         Args:
-            amount (float): Сумма
+            amount (float): Value
 
         """
         return math.floor(amount * 1e6)
 
     @staticmethod
     def from_tron(amount):
-        """Преобразовываем сумму из формата Tron
+        """Convert trx to float
 
         Args:
-            amount (int): Сумма
+            amount (int): Value
 
         """
         return abs(amount) / 1e6
 
     @staticmethod
     def to_hex(address):
-        """Получить адресную запись hexString
+        """Helper function that will convert a generic value to hex
 
         Args:
-            address (str): Строки, которые необходимо зашифровать
+            address (str): address
 
         """
         return base58.b58decode_check(address).hex().upper()
 
     @staticmethod
     def from_hex(address):
-        """Отменить шестнадцатеричную строку
+        """Helper function that will convert a generic value from hex
 
         Args:
-            address (str): шестнадцатеричная строка
+            address (str): address
 
         """
         return base58.b58encode_check(bytes.fromhex(address))
 
     def is_connected(self):
-        """Проверка всех подключенных нодов"""
+        """Check all connected nodes"""
         full_node = False
         solidity_node = False
         tron_node = False

@@ -4,8 +4,8 @@ import urllib3
 from urllib3 import get_host
 import json
 
-
 urllib3.disable_warnings()
+
 
 class HttpProvider:
     def __init__(self, host, timeout=30000, user=False, password=False, headers=None,
@@ -21,7 +21,7 @@ class HttpProvider:
         self.headers = headers
         self.status_page = status_page
 
-        # Разделяем хост
+        # We share the host
         scheme, base_url, port = get_host(host)
 
         if isnan(timeout) or timeout < 0:
@@ -45,7 +45,7 @@ class HttpProvider:
         return json.loads(response)
 
     def is_connected(self):
-        """Проверка соединения с подключенного нода"""
+        """Checking the connection from the connected node"""
         if self.host:
             response = self.request(self.status_page)
             return 'blockID' in response
