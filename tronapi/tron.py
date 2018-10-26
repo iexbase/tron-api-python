@@ -189,9 +189,6 @@ class Tron:
 
         """
 
-        if direction not in ['from', 'to']:
-            raise Exception('Invalid direction provided: Expected "to", "from"')
-
         if not isinstance(limit, int) or limit < 0:
             raise Exception('Invalid limit provided')
 
