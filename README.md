@@ -17,9 +17,9 @@ event_server = HttpProvider('https://api.trongrid.io')
 ```
 The provider above is optional, you can just use a url for the nodes instead, like here:
 ```python 
-full_node = https://api.trongrid.io
-solidity_node = https://api.trongrid.io
-event_server = https://api.trongrid.io
+full_node = 'https://api.trongrid.io'
+solidity_node = 'https://api.trongrid.io'
+event_server = 'https://api.trongrid.io'
 ```
 Now, instance a Tron class:
 ```python
