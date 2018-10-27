@@ -42,7 +42,7 @@ class HttpProvider:
         else:
             response = self.client.request(method=method, url=url, fields=body).data.decode('utf-8')
 
-        if isinstance(response, str):
+        if response == 'OK':
             return response
 
         return json.loads(response)

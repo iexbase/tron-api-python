@@ -299,6 +299,10 @@ class Tron:
 
         """
 
+        if not self.is_address(address):
+            raise Exception('Invalid address provided')
+
+
         return self.full_node.request('/wallet/getaccountresource', {
             'address': self.to_hex(address)
         })
@@ -310,7 +314,10 @@ class Tron:
             address (str): Address
 
         """
-        return self.full_node.request('/wallet/getaccount', {
+        if not self.is_address(address):
+            raise Exception('Invalid address provided')
+
+        return self.full_node.request('/walletsolidity/getaccount', {
             'address': self.to_hex(address)
         }, 'post')
 
@@ -354,6 +361,9 @@ class Tron:
             callback = from_direction
             callback.update(to_direction)
             return callback
+
+        if not self.is_address(address):
+            raise Exception('Invalid address provided')
 
         if not isinstance(limit, int) or limit < 0 or (offset and limit < 1):
             raise Exception('Invalid limit provided')
@@ -417,6 +427,10 @@ class Tron:
             }
 
         """
+
+        if not self.is_address(address):
+            raise Exception('Invalid address provided')
+
         return self.full_node.request('/wallet/getaccountnet', {
             'address': self.to_hex(address)
         })
@@ -482,6 +496,10 @@ class Tron:
         """
         if not self.private_key:
             raise Exception('Missing private key')
+
+        if not self.is_address(to_address):
+            raise Exception('Invalid address provided')
+
 
         transaction = self._create_transaction(from_address, to_address, amount)
         sign = self._sign_transaction(transaction)
@@ -639,7 +657,12 @@ class Tron:
             List of nodes
 
         """
-        return self.full_node.request('/wallet/listnodes')
+        response = self.full_node.request('/wallet/listnodes')
+        callback = map(lambda x: {
+            'address': self.to_utf8(x['address']['host'])+':'+str(x['address']['port'])
+        }, response['nodes'])
+
+        return list(callback)
 
     def get_tokens_issued_by_address(self, address):
         """List the tokens issued by an account.
@@ -652,6 +675,10 @@ class Tron:
             An account can issue only one token.
 
         """
+
+        if not self.is_address(address):
+            raise Exception('Invalid address provided')
+
         return self.full_node.request('/wallet/getassetissuebyaccount', {
             'address': self.to_hex(address)
         }, 'post')
@@ -784,7 +811,7 @@ class Tron:
             Convert it to base58 to use as the address.
 
         """
-        return self.full_node.request('/wallet/generateaddress')
+        return self.full_node.request('/wallet/generateaddress', {}, 'post')
 
     def get_node_map(self):
         """Getting a map of all available nodes"""
@@ -905,7 +932,7 @@ class Tron:
 
     @staticmethod
     def to_utf8(hex_string):
-        return binascii.unhexlify(hex_string)
+        return binascii.unhexlify(hex_string).decode('utf8')
 
     @staticmethod
     def from_utf8(string):
