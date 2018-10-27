@@ -317,7 +317,7 @@ class Tron:
         if not self.is_address(address):
             raise Exception('Invalid address provided')
 
-        return self.full_node.request('/walletsolidity/getaccount', {
+        return self.solidity_node.request('/walletsolidity/getaccount', {
             'address': self.to_hex(address)
         }, 'post')
 
