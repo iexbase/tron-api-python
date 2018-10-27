@@ -10,4 +10,4 @@ python:
 # command to install dependencies
 install: "pip install -U setuptools setuptools_scm"
 # command to run tests
-script: cd benchpress && python setup.py test
+script: python setup.py test
