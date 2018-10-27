@@ -9,21 +9,24 @@ A Python API for interacting with the Tron (TRX)
 
 
 ## Basic Usage
+Specify the API endpoints:
 
 ```python
-
-# Specify the API endpoints:
 full_node = HttpProvider('https://api.trongrid.io')
 solidity_node = HttpProvider('https://api.trongrid.io')
 event_server = HttpProvider('https://api.trongrid.io')
 ```
+
 The provider above is optional, you can just use a url for the nodes instead, like here:
+
 ```python 
 full_node = 'https://api.trongrid.io'
 solidity_node = 'https://api.trongrid.io'
 event_server = 'https://api.trongrid.io'
 ```
+
 Now, instance a Tron class:
+
 ```python
 private_key = '....'
 tron = Tron(full_node, 
