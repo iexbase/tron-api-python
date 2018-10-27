@@ -4,8 +4,7 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
-before_install:
-  - pip install --upgrade setuptools pip
-  - pip install --upgrade pylint pytest pytest-pylint pytest-runner
+
+
 install:
   - python setup.py develop
