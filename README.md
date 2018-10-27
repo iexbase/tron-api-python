@@ -29,7 +29,9 @@ tron = Tron(full_node,
             event_server, 
             private_key)         
 ```            
-A full example:
+
+**A full example:**
+
 ```python
 from tronapi.providers import HttpProvider
 from tronapi.tron import Tron
