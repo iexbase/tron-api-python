@@ -659,7 +659,7 @@ class Tron:
         """
         response = self.full_node.request('/wallet/listnodes')
         callback = map(lambda x: {
-            'address': self.to_utf8(x['address']['host'])+':'+str(x['address']['port'])
+            'address': '{}:{}'.format(self.to_utf8(x['address']['host']), str(x['address']['port']))
         }, response['nodes'])
 
         return list(callback)
