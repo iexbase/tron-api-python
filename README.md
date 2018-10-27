@@ -3,10 +3,9 @@ A Python API for interacting with the Tron (TRX)
 
 ## Install
 
-```bash
-> pip3 install tronapi
-```
-
+| Setup   | Command             | Notes
+| :------ | :------------------ | :---------
+| install | `pip install tronapi`  |
 
 
 ## Basic Usage
