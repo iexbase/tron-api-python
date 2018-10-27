@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 import platform
 
 try:
@@ -8,28 +9,37 @@ except ImportError:
     use_setuptools()
     import setuptools
 
+
 py_version = platform.python_version()
 
-_TRON_VERSION = '1.0.10'
-
-REQUIRED = [
-    'urllib3'
+PACKAGE_VERSION = '1.0.10'
+PACKAGE_REQUIRED = [
+    'urllib3',
+    'pycryptodome',
+    'base58'
 ]
 
-with open('README.md') as fileobj:
-    README = fileobj.read()
+this_dir = os.path.dirname(__file__)
+readme_filename = os.path.join(this_dir, 'README.md')
+
+with open(readme_filename) as f:
+    PACKAGE_LONG_DESCRIPTION = f.read()
+
 
 setuptools.setup(
     name='tronapi',
-    version=_TRON_VERSION,
-    include_package_data=True,
-    packages=setuptools.find_packages(),
+    version=PACKAGE_VERSION,
     description='A Python API for interacting with Tron (TRX)',
-    long_description=README,
+    long_description=PACKAGE_LONG_DESCRIPTION,
     url='https://github.com/iexbase/tron-api-python',
+
+    keywords='tron tron-api tron-api-python iexbase',
+
     author='Shamsudin Serderov',
     author_email='steein.shamsudin@gmail.com',
-    install_requires=REQUIRED,
-    license='MIT',
-    keywords='tron tron-api tron-api-python iexbase'
+    license='Apache Software License',
+
+    packages=setuptools.find_packages(),
+    include_package_data=True,
+    install_requires=PACKAGE_REQUIRED,
 )

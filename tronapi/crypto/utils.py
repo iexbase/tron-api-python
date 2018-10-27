@@ -1,3 +1,6 @@
+import sys
+
+
 def compat_bytes(item, encoding=None):
     """Этот метод требуется, потому что Python 2.7 `bytes`
     является просто псевдонимом для` str`. Без этого метода,
@@ -15,10 +18,9 @@ def compat_bytes(item, encoding=None):
             return bytes(item)
 
 
-def is_integer(var):
-    try:
-        complex(var)
-    except ValueError:
-        return False
+def is_numeric(x):
+    return isinstance(x, int)
 
-    return True
+
+def is_string(x):
+    return isinstance(x, bytes)

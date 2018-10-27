@@ -42,12 +42,18 @@ class HttpProvider:
         else:
             response = self.client.request(method=method, url=url, fields=body).data.decode('utf-8')
 
+        if isinstance(response, str):
+            return response
+
         return json.loads(response)
 
     def is_connected(self):
-        """Checking the connection from the connected node"""
-        if self.host:
-            response = self.request(self.status_page)
-            return 'blockID' in response
-        else:
-            return False
+        """Checking the connection from the connected node
+
+        Returns:
+            bool: True if successful, False otherwise.
+
+        """
+        response = self.request(self.status_page)
+
+        return 'blockID' in response

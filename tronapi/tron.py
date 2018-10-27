@@ -14,13 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-    Tron API from Python
-"""
+import binascii
+from _sha256 import sha256
 
 import base58
 import math
 
+from Crypto.Hash import keccak
 from tronapi import config
 from tronapi.crypto import utils
 from tronapi.provider import HttpProvider
@@ -28,7 +28,18 @@ from tronapi.provider import HttpProvider
 
 class Tron:
 
-    def __init__(self, full_node, solidity_node=None, private_key=None):
+    def __init__(self, full_node, solidity_node=None, event_server=None, private_key=None):
+        """A Python API for interacting with the Tron (TRX)
+
+        Args:
+            full_node (:obj:`str`): A provider connected to a valid full node
+            solidity_node (:obj:`str`): A provider connected to a valid solidity node
+            event_server (:obj:`str`, optional): Optional for smart contract events. Expects a valid event server URL
+            private_key (str): Optional default private key used when signing transactions
+
+        """
+        if not solidity_node:
+            solidity_node = config.DEFAULT_SOLIDITY_NODE
 
         if isinstance(full_node, str):
             full_node = HttpProvider(full_node)
@@ -36,25 +47,138 @@ class Tron:
         if isinstance(solidity_node, str):
             solidity_node = HttpProvider(solidity_node)
 
-        self.full_node = full_node
-        self.solidity_node = solidity_node
+        if isinstance(event_server, str):
+            event_server = HttpProvider(event_server)
+
+        self.__set_full_node(full_node)
+        self.__set_solidity_node(solidity_node)
+        self.__set_event_server(event_server)
+
         self.tron_node = HttpProvider(config.DEFAULT_TRON_NODE)
 
         if private_key:
             self.private_key = private_key
+
+    def __set_full_node(self, provider):
+        """Check specified "full node"
+
+        Args:
+            provider (HttpProvider): full node
+
+        """
+        if not self.is_valid_provider(provider):
+            raise Exception('Invalid full node provided')
+
+        self.full_node = provider
+        self.full_node.status_page = '/wallet/getnowblock'
+
+    def __set_solidity_node(self, provider):
+        """Check specified "solidity node"
+
+        Args:
+            provider (HttpProvider): solidity node
+
+        """
+        if not self.is_valid_provider(provider):
+            raise Exception('Invalid solidity node provided')
+
+        self.solidity_node = provider
+        self.solidity_node.status_page = '/walletsolidity/getnowblock'
+
+    def __set_event_server(self, server):
+        """Check specified "event server"
+
+        Args:
+            server (HttpProvider): event server
+
+        """
+        if server and not self.is_valid_provider(server):
+            raise Exception('Invalid event provided')
+
+        self.event_server = server
+
+    def is_event_connected(self):
+        """
+        Checks if is connected to the event server.
+
+        Returns:
+            bool: True if successful, False otherwise.
+
+        """
+        if not self.event_server:
+            return False
+
+        return self.event_server.request('/healthcheck') == 'OK'
 
     @staticmethod
     def is_valid_provider(provider):
         """Check connected provider
 
         Args:
-            provider(str): Provider
+            provider(HttpProvider): Provider
 
         Returns:
            True if successful, False otherwise.
 
         """
         return isinstance(provider, HttpProvider)
+
+    def get_event_result(self, contract_address=None, since=0, event_name=None, block_number=None):
+        """Will return all events matching the filters.
+
+        Args:
+            contract_address (str): Address to query for events.
+            since (int): Filter for events since certain timestamp.
+            event_name (str): Name of the event to filter by.
+            block_number (str): Specific block number to query
+
+        Examples:
+              >>> tron.get_event_result('TQyXdrUaZaw155WrB3F3HAZZ3EeiLVx4V2', 0)
+
+        """
+
+        if not self.event_server:
+            raise Exception('No event server configured')
+
+        if not self.is_address(contract_address):
+            raise Exception('Invalid contract address provided')
+
+        if event_name and not contract_address:
+            raise Exception('Usage of event name filtering requires a contract address')
+
+        if block_number and not event_name:
+            raise Exception('Usage of block number filtering requires an event name')
+
+        route_params = []
+
+        if contract_address:
+            route_params.append(contract_address)
+
+        if event_name:
+            route_params.append(event_name)
+
+        if block_number:
+            route_params.append(block_number)
+
+        route = '/'.join(route_params)
+        return self.event_server.request("/event/contract/{}?since={}".format(route, since))
+
+    def get_event_transaction_id(self, tx_id):
+        """Will return all events within a transactionID.
+
+        Args:
+            tx_id (str): TransactionID to query for events.
+
+        Examples:
+              >>> tron.get_event_transaction_id('660028584562b3ae687090f77e989bc7b0bc8b0a8f677524630002c06fd1d57c')
+
+        """
+
+        if not self.event_server:
+            raise Exception('No event server configured')
+
+        response = self.event_server.request('/event/transaction/' + tx_id)
+        return response
 
     def get_current_block(self):
         """Query the latest block
@@ -106,7 +230,7 @@ class Tron:
             Block object
 
         """
-        if not utils.is_integer(block_id) or block_id < 0:
+        if not utils.is_numeric(block_id) or block_id < 0:
             raise Exception('Invalid block number provided')
 
         return self.full_node.request('/wallet/getblockbynum', {
@@ -138,7 +262,7 @@ class Tron:
             index (int) Position
 
         """
-        if not utils.is_integer(index) or index < 0:
+        if not utils.is_numeric(index) or index < 0:
             raise Exception('Invalid transaction index provided')
 
         transactions = self.get_block(block)['transactions']
@@ -164,6 +288,21 @@ class Tron:
 
         return response
 
+    def get_account_resource(self, address):
+        """Query the resource information of the account
+
+        Args:
+            address (str): Address
+
+        Results:
+            Resource information of the account
+
+        """
+
+        return self.full_node.request('/wallet/getaccountresource', {
+            'address': self.to_hex(address)
+        })
+
     def get_account(self, address):
         """Query information about an account
 
@@ -184,6 +323,10 @@ class Tron:
 
         """
         response = self.get_account(address)
+
+        if 'balance' not in response:
+            return 0
+
         if from_tron:
             return self.from_tron(response['balance'])
 
@@ -455,6 +598,25 @@ class Tron:
             'account_address': self.to_hex(new_account_address)
         }, 'post')
 
+    def create_address(self, password):
+        """Create address from a specified password string (NOT PRIVATE KEY)
+
+        Args:
+            password (str): Enter password
+
+        Warning:
+            Please control risks when using this API. To ensure environmental security,
+            please do not invoke APIs provided by other or invoke this very API on a public network.
+
+        Results:
+            Value is the corresponding address for the password, encoded in hex.
+            Convert it to base58 to use as the address.
+
+        """
+        return self.full_node.request('/wallet/createaddress', {
+            'value': self.string_utf8_to_hex(password)
+        }, 'post')
+
     def apply_for_super_representative(self, address, url):
         """Apply to become a super representative
 
@@ -516,10 +678,10 @@ class Tron:
             A list of Block Objects
 
         """
-        if not utils.is_integer(start) or start < 0:
+        if not utils.is_numeric(start) or start < 0:
             raise Exception('Invalid start of range provided')
 
-        if not utils.is_integer(end) or end <= start:
+        if not utils.is_numeric(end) or end <= start:
             raise Exception('Invalid end of range provided')
 
         return self.full_node.request('/wallet/getblockbylimitnext', {
@@ -537,7 +699,7 @@ class Tron:
             A list of Block Objects
 
         """
-        if not utils.is_integer(limit) or limit <= 0:
+        if not utils.is_numeric(limit) or limit <= 0:
             raise Exception('Invalid limit provided')
 
         return self.full_node.request('/wallet/getblockbylatestnum', {
@@ -567,10 +729,10 @@ class Tron:
             List of Tokens
 
         """
-        if not utils.is_integer(limit) or (limit and offset < 1):
+        if not utils.is_numeric(limit) or (limit and offset < 1):
             raise Exception('Invalid limit provided')
 
-        if not utils.is_integer(offset) or offset < 0:
+        if not utils.is_numeric(offset) or offset < 0:
             raise Exception('Invalid offset provided')
 
         if not limit:
@@ -632,8 +794,22 @@ class Tron:
         """Balance Information"""
         return self.tron_node.request('/api/v2/node/balance_info')
 
+    def get_chain_parameters(self):
+        """Getting chain parameters"""
+        return self.full_node.request('/wallet/getchainparameters', {}, 'post')
+
+    def get_exchange_by_id(self, exchange_id):
+        """Find exchange by id
+
+        Args:
+             id (str): exchange_id
+        """
+        return self.full_node.request('/wallet/getexchangebyid', {
+            'id': exchange_id
+        }, 'post')
+
     def get_list_exchangers(self):
-        """Getting a list of exchangers"""
+        """Get list exchangers"""
         return self.full_node.request('/wallet/listexchanges', {}, 'post')
 
     @staticmethod
@@ -666,6 +842,22 @@ class Tron:
         """
         return abs(amount) / 1e6
 
+    def is_address(self, address):
+        """Helper function that will check if a given address is valid.
+
+        Args:
+            address (str): Address to validate if it's a proper TRON address.
+
+        """
+        if not isinstance(address, str):
+            return False
+
+        if len(address) == 42:
+            address = self.from_hex(address).decode('utf8')
+
+        bc = base58.b58decode(address)
+        return bc[-4:] == sha256(sha256(bc[:-4]).digest()).digest()[:4]
+
     @staticmethod
     def to_hex(address):
         """Helper function that will convert a generic value to hex
@@ -686,23 +878,52 @@ class Tron:
         """
         return base58.b58encode_check(bytes.fromhex(address))
 
+    @staticmethod
+    def sha3(string, prefix=False):
+        """Helper function that will sha3 any value using keccak256
+
+        Args:
+            string (str): String to hash.
+            prefix (bool): If true, adds '0x'
+
+        """
+        keccak_hash = keccak.new(digest_bits=256)
+        keccak_hash.update(bytes(string, encoding='utf8'))
+
+        if prefix:
+            return '0x' + keccak_hash.hexdigest()
+
+        return keccak_hash.hexdigest()
+
+    @staticmethod
+    def to_ascii(s):
+        return binascii.a2b_hex(s)
+
+    @staticmethod
+    def from_ascii(string):
+        return binascii.b2a_hex(bytes(string, encoding="utf8"))
+
+    @staticmethod
+    def to_utf8(hex_string):
+        return binascii.unhexlify(hex_string)
+
+    @staticmethod
+    def from_utf8(string):
+        return binascii.hexlify(bytes(string, encoding="utf8"))
+
+    @staticmethod
+    def from_decimal(value):
+        return hex(value)
+
+    @staticmethod
+    def to_decimal(value):
+        return int((str(value)), 10)
+
     def is_connected(self):
         """Check all connected nodes"""
-        full_node = False
-        solidity_node = False
-        tron_node = False
-
-        if self.full_node:
-            full_node = self.full_node.is_connected()
-
-        if self.solidity_node:
-            solidity_node = self.solidity_node.is_connected()
-
-        if self.tron_node:
-            tron_node = self.tron_node.is_connected()
 
         return {
-            'full_node': full_node,
-            'solidity_node': solidity_node,
-            'tron_node': tron_node
+            'full_node': self.full_node.is_connected(),
+            'solidity_node': self.solidity_node.is_connected(),
+            'event_server': self.is_event_connected()
         }
