@@ -1,5 +1,5 @@
 # TRON API for Python
-A Pyton API for interacting with the Tron (TRX)
+A Python API for interacting with the Tron (TRX)
 
 ## Install
 
