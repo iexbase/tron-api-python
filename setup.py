@@ -10,7 +10,7 @@ except ImportError:
 
 py_version = platform.python_version()
 
-_TRON_VERSION = '1.0.9'
+_TRON_VERSION = '1.0.10'
 
 REQUIRED = [
     'urllib3'
