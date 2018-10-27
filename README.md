@@ -56,9 +56,9 @@ balance = tron.get_balance('TRWBqiqoFZysoAeyR1J35ibuyc8EvhUAoY', True)
 
 ### Cli
 ```bash
->>> python cli.py send from to amount private_key
->>> python cli.py --generateaddress
->>> python cli.py --node=customnode --getbalance address
+> python cli.py send from to amount private_key
+> python cli.py --generateaddress
+> python cli.py --node=customnode --getbalance address
 ```
 
 
