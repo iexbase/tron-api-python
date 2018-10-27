@@ -77,10 +77,10 @@ class Tron:
         if block == 'latest':
             return self.get_current_block()
 
-        if type(block) is str:
+        if len(block) == 64:
             return self.get_block_by_hash(block)
 
-        return self.get_block_by_number(block)
+        return self.get_block_by_number(int(block))
 
     def get_block_by_hash(self, hash_block):
         """Query block by ID
@@ -94,7 +94,7 @@ class Tron:
         """
         return self.full_node.request('/wallet/getblockbyid', {
             'value': hash_block
-        })
+        }, 'post')
 
     def get_block_by_number(self, block_id):
         """Query block by height
@@ -111,7 +111,7 @@ class Tron:
 
         return self.full_node.request('/wallet/getblockbynum', {
             'num': int(block_id)
-        })
+        }, 'post')
 
     def get_block_transaction_count(self, block=None):
         """Total number of transactions in a block
