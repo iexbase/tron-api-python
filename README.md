@@ -7,7 +7,10 @@ A Python API for interacting with the Tron (TRX)
 > pip3 install tronapi
 ```
 
-# Creating an Instance
+
+
+## Basic Usage
+
 ```python
 
 # Specify the API endpoints:
