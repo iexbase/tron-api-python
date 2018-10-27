@@ -1,11 +1,13 @@
 language: python
+cache: pip
 python:
-  - "2.7"
+  - "3.3"
   - "3.4"
   - "3.5"
   - "3.6"
-
-install:
-  - "pip install urllib3 base58 pycryptodome"
-
-script: make test
+  - "3.7-dev" # 3.7 development branch
+  - "nightly" # currently points to 3.7-dev
+# command to install dependencies
+install: "pip install -U setuptools setuptools_scm"
+# command to run tests
+script: cd benchpress && python setup.py test
