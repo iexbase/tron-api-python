@@ -1,29 +1,69 @@
 # TRON API for Python
-A Pyton API for interacting with the Tron (TRX)
+A Python API for interacting with the Tron (TRX)
 
 ## Install
 
-```bash
-> pip3 install tronapi
+| Setup   | Command             | Notes
+| :------ | :------------------ | :---------
+| install | `pip install tronapi`  |
+
+
+## Basic Usage
+Specify the API endpoints:
+
+```python
+full_node = HttpProvider('https://api.trongrid.io')
+solidity_node = HttpProvider('https://api.trongrid.io')
+event_server = HttpProvider('https://api.trongrid.io')
 ```
 
-## Example Usage
+The provider above is optional, you can just use a url for the nodes instead, like here:
+
+```python 
+full_node = 'https://api.trongrid.io'
+solidity_node = 'https://api.trongrid.io'
+event_server = 'https://api.trongrid.io'
+```
+
+Now, instance a Tron class:
+
+```python
+private_key = '....'
+tron = Tron(full_node, 
+            solidity_node, 
+            event_server, 
+            private_key)         
+```            
+
+**A full example:**
+
 ```python
 from tronapi.providers import HttpProvider
 from tronapi.tron import Tron
 
-full_node = HttpProvider('http://13.125.210.234:8090')
+full_node = HttpProvider('https://api.trongrid.io')
+solidity_node = HttpProvider('https://api.trongrid.io')
+event_server = HttpProvider('https://api.trongrid.io')
 
-tron = Tron(full_node)
-tron.private_key = 'private_key'
+# optional
+private_key = '...'
 
-print(tron.get_balance('address'))
+tron = Tron(full_node, 
+            solidity_node, 
+            event_server, 
+            private_key)   
+
+
+block = tron.get_current_block()
+balance = tron.get_balance('TRWBqiqoFZysoAeyR1J35ibuyc8EvhUAoY', True)
 ```
-### cli
+
+
+### Cli
 ```bash
->>> python cli.py send from to amount private_key
->>> python cli.py --generateaddress
->>> python cli.py --node=customnode --getbalance address
+> python cli.py send from to amount private_key
+> python cli.py --generateaddress
+> python cli.py --node=customnode --getbalance address
 ```
 
 
