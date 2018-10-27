@@ -7,3 +7,5 @@ python:
 
 install:
   - "pip install urllib3 base58 pycryptodome"
+
+script: make test
