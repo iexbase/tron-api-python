@@ -7,7 +7,7 @@ import json
 urllib3.disable_warnings()
 
 
-class HttpProvider:
+class HttpProvider(object):
     def __init__(self, host, timeout=30000, user=False, password=False, headers=None,
                  status_page='/wallet/getnowblock'):
 
