@@ -703,7 +703,7 @@ class Tron(TronBase):
         num = self.full_node.request('/wallet/getnextmaintenancetime')['num']
 
         if num == -1:
-            exit('Failed to get time until next vote cycle')
+            raise Exception('Failed to get time until next vote cycle')
 
         return math.floor(num / 1000)
 
