@@ -3,6 +3,7 @@ A Python API for interacting with the Tron (TRX)
 
 [![Software License](https://img.shields.io/badge/license-Apache-brightgreen.svg?style=flat-square)](LICENSE)
 [![Requirements Status](https://requires.io/github/iexbase/tron-api-python/requirements.svg?branch=master)](https://requires.io/github/iexbase/tron-api-python/requirements/?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/iexbase/tron-api-python/badge.svg?branch=master)](https://coveralls.io/github/iexbase/tron-api-python?branch=master)
 [![Build Status](https://api.travis-ci.com/iexbase/tron-api-python.svg?branch=master)](https://travis-ci.com/iexbase/tron-api-python)
 [![Issues](https://img.shields.io/github/issues/iexbase/tron-api-python.svg)](https://github.com/iexbase/tron-api-python/issues)
 [![Pull Requests](https://img.shields.io/github/issues-pr/iexbase/tron-api-python.svg)](https://github.com/iexbase/tron-api-python/pulls)
