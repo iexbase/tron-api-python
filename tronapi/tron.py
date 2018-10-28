@@ -21,6 +21,7 @@ import math
 from Crypto.Hash import keccak
 
 from tronapi.base import BaseTron
+from tronapi.exceptions import InvalidTronError
 from tronapi.tools import utils
 
 
@@ -44,7 +45,7 @@ class Tron(BaseTron):
             raise Exception('No event server configured')
 
         if not self.is_address(contract_address):
-            raise Exception('Invalid contract address provided')
+            raise InvalidTronError('Invalid contract address provided')
 
         if event_name and not contract_address:
             raise Exception('Usage of event name filtering requires a contract address')
@@ -134,7 +135,7 @@ class Tron(BaseTron):
 
         """
         if not utils.is_numeric(block_id) or block_id < 0:
-            raise Exception('Invalid block number provided')
+            raise InvalidTronError('Invalid block number provided')
 
         return self.full_node.request('/wallet/getblockbynum', {
             'num': int(block_id)
@@ -166,7 +167,7 @@ class Tron(BaseTron):
 
         """
         if not utils.is_numeric(index) or index < 0:
-            raise Exception('Invalid transaction index provided')
+            raise InvalidTronError('Invalid transaction index provided')
 
         transactions = self.get_block(block)['transactions']
 
@@ -203,7 +204,7 @@ class Tron(BaseTron):
         """
 
         if not self.is_address(address):
-            raise Exception('Invalid address provided')
+            raise InvalidTronError('Invalid address provided')
 
         return self.full_node.request('/wallet/getaccountresource', {
             'address': self.to_hex(address)
@@ -217,7 +218,7 @@ class Tron(BaseTron):
 
         """
         if not self.is_address(address):
-            raise Exception('Invalid address provided')
+            raise InvalidTronError('Invalid address provided')
 
         return self.solidity_node.request('/walletsolidity/getaccount', {
             'address': self.to_hex(address)
@@ -254,7 +255,7 @@ class Tron(BaseTron):
         """
 
         if direction not in ['from', 'to', 'all']:
-            raise Exception('Invalid direction provided: Expected "to", "from" or "all"')
+            raise InvalidTronError('Invalid direction provided: Expected "to", "from" or "all"')
 
         if direction == 'all':
             from_direction = {'from': self.get_transactions_related(address, 'from', limit, offset)}
@@ -265,13 +266,13 @@ class Tron(BaseTron):
             return callback
 
         if not self.is_address(address):
-            raise Exception('Invalid address provided')
+            raise InvalidTronError('Invalid address provided')
 
         if not isinstance(limit, int) or limit < 0 or (offset and limit < 1):
-            raise Exception('Invalid limit provided')
+            raise InvalidTronError('Invalid limit provided')
 
         if not isinstance(offset, int) or offset < 0:
-            raise Exception('Invalid offset provided')
+            raise InvalidTronError('Invalid offset provided')
 
         response = self.solidity_node.request('/walletextension/gettransactions{}this'.format(direction), {
             'account': {'address': self.to_hex(address)},
@@ -347,7 +348,7 @@ class Tron(BaseTron):
         """
 
         if not self.is_address(address):
-            raise Exception('Invalid address provided')
+            raise InvalidTronError('Invalid address provided')
 
         return self.full_node.request('/wallet/getaccountnet', {
             'address': self.to_hex(address)
@@ -410,7 +411,7 @@ class Tron(BaseTron):
             raise Exception('Missing private key')
 
         if not self.is_address(to_address):
-            raise Exception('Invalid address provided')
+            raise InvalidTronError('Invalid address provided')
 
         transaction = self._create_transaction(from_address, to_address, amount)
         sign = self._sign_transaction(transaction)
@@ -436,7 +437,7 @@ class Tron(BaseTron):
         """
 
         if type(amount) != float or amount < 0:
-            raise Exception('Invalid amount provided')
+            raise InvalidTronError('Invalid amount provided')
 
         _to = self.to_hex(to_address)
         _from = self.to_hex(from_address)
@@ -480,7 +481,7 @@ class Tron(BaseTron):
 
         """
         if not type({}) is dict:
-            raise Exception('Invalid transaction provided')
+            raise InvalidTronError('Invalid transaction provided')
 
         if 'signature' not in signed:
             raise Exception('Transaction is not signed')
@@ -588,7 +589,7 @@ class Tron(BaseTron):
         """
 
         if not self.is_address(address):
-            raise Exception('Invalid address provided')
+            raise InvalidTronError('Invalid address provided')
 
         return self.full_node.request('/wallet/getassetissuebyaccount', {
             'address': self.to_hex(address)
@@ -602,7 +603,7 @@ class Tron(BaseTron):
 
         """
         if isinstance(token_id, str) or not len(token_id):
-            raise Exception('Invalid token ID provided')
+            raise InvalidTronError('Invalid token ID provided')
 
         return self.full_node.request('/wallet/getassetissuebyname', {
             'value': self.from_utf8(token_id)
@@ -620,10 +621,10 @@ class Tron(BaseTron):
 
         """
         if not utils.is_numeric(start) or start < 0:
-            raise Exception('Invalid start of range provided')
+            raise InvalidTronError('Invalid start of range provided')
 
         if not utils.is_numeric(end) or end <= start:
-            raise Exception('Invalid end of range provided')
+            raise InvalidTronError('Invalid end of range provided')
 
         return self.full_node.request('/wallet/getblockbylimitnext', {
             'startNum': int(start),
@@ -641,7 +642,7 @@ class Tron(BaseTron):
 
         """
         if not utils.is_numeric(limit) or limit <= 0:
-            raise Exception('Invalid limit provided')
+            raise InvalidTronError('Invalid limit provided')
 
         return self.full_node.request('/wallet/getblockbylatestnum', {
             'limit': limit
@@ -672,10 +673,10 @@ class Tron(BaseTron):
 
         """
         if not utils.is_numeric(limit) or (limit and offset < 1):
-            raise Exception('Invalid limit provided')
+            raise InvalidTronError('Invalid limit provided')
 
         if not utils.is_numeric(offset) or offset < 0:
-            raise Exception('Invalid offset provided')
+            raise InvalidTronError('Invalid offset provided')
 
         if not limit:
             return self.full_node.request('/wallet/getassetissuelist')['assetIssue']
@@ -711,7 +712,7 @@ class Tron(BaseTron):
         """
 
         if not self.is_address(contract_address):
-            raise Exception('Invalid contract address provided')
+            raise InvalidTronError('Invalid contract address provided')
 
         contract_address = self.to_hex(contract_address)
 
@@ -768,7 +769,7 @@ class Tron(BaseTron):
         """
 
         if not isinstance(exchange_id, int) or exchange_id < 0:
-            raise Exception('Invalid exchangeID provided')
+            raise InvalidTronError('Invalid exchangeID provided')
 
         return self.full_node.request('/wallet/getexchangebyid', {
             'id': exchange_id
@@ -786,7 +787,7 @@ class Tron(BaseTron):
 
         """
         if not isinstance(proposal_id, int) or proposal_id < 0:
-            raise Exception('Invalid proposalID provided')
+            raise InvalidTronError('Invalid proposalID provided')
 
         return self.full_node.request('/wallet/getproposalbyid', {
             'id': int(proposal_id)
@@ -814,10 +815,10 @@ class Tron(BaseTron):
 
         """
         if not self.is_address(owner_address):
-            raise Exception('Invalid address provided')
+            raise InvalidTronError('Invalid address provided')
 
         if not isinstance(proposal_id, int) or proposal_id < 0:
-            raise Exception('Invalid proposalID provided')
+            raise InvalidTronError('Invalid proposalID provided')
 
         return self.full_node.request('/wallet/proposalapprove', {
             'owner_address': self.to_hex(owner_address),
@@ -837,10 +838,10 @@ class Tron(BaseTron):
 
         """
         if not self.is_address(owner_address):
-            raise Exception('Invalid address provided')
+            raise InvalidTronError('Invalid address provided')
 
         if not isinstance(proposal_id, int) or proposal_id < 0:
-            raise Exception('Invalid proposalID provided')
+            raise InvalidTronError('Invalid proposalID provided')
 
         return self.full_node.request('/wallet/proposaldelete', {
             'owner_address': self.to_hex(owner_address),
@@ -859,16 +860,16 @@ class Tron(BaseTron):
 
         """
         if not self.is_address(owner_address):
-            raise Exception('Invalid address provided')
+            raise InvalidTronError('Invalid address provided')
 
         if not isinstance(token_id, str) or len(token_id):
-            raise Exception('Invalid token ID provided')
+            raise InvalidTronError('Invalid token ID provided')
 
         if not isinstance(quant, int) or quant <= 0:
-            raise Exception('Invalid quantity provided')
+            raise InvalidTronError('Invalid quantity provided')
 
         if not isinstance(expected, int) or quant < 0:
-            raise Exception('Invalid expected provided')
+            raise InvalidTronError('Invalid expected provided')
 
         return self.full_node.request('/wallet/exchangetransaction', {
             'owner_address': self.to_hex(owner_address),
@@ -904,15 +905,15 @@ class Tron(BaseTron):
 
         """
         if not self.is_address(owner_address):
-            raise Exception('Invalid address provided')
+            raise InvalidTronError('Invalid address provided')
 
         if isinstance(first_token_id, str) or len(first_token_id) or \
                 not isinstance(second_token_id, str) or len(second_token_id):
-            raise Exception('Invalid token ID provided')
+            raise InvalidTronError('Invalid token ID provided')
 
         if not isinstance(first_token_balance, int) or first_token_balance <= 0 or \
                 not isinstance(second_token_balance, int) or second_token_balance <= 0:
-            raise Exception('Invalid amount provided')
+            raise InvalidTronError('Invalid amount provided')
 
         return self.full_node.request('/wallet/exchangecreate', {
             'owner_address': self.to_hex(owner_address),
