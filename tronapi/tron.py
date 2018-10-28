@@ -472,16 +472,10 @@ class Tron(TronBase):
         if self.message is not None:
             transaction['raw_data']['data'] = self.string_utf8_to_hex(self.message)
 
-
-
-        print(transaction)
-        exit()
-        return 'asdasdas'
-
-        # return self.full_node.request('/wallet/gettransactionsign', {
-        #     'transaction': transaction,
-        #     'privateKey': self.private_key
-        # }, 'post')
+        return self.full_node.request('/wallet/gettransactionsign', {
+            'transaction': transaction,
+            'privateKey': self.private_key
+        }, 'post')
 
     def _send_raw_transaction(self, signed):
         """Broadcast the signed transaction
