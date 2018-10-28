@@ -44,7 +44,7 @@ tron = Tron(full_node,
 **A full example:**
 
 ```python
-from tronapi.providers import HttpProvider
+from tronapi.provider import HttpProvider
 from tronapi.tron import Tron
 
 full_node = HttpProvider('https://api.trongrid.io')
