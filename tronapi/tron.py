@@ -302,7 +302,6 @@ class Tron:
         if not self.is_address(address):
             raise Exception('Invalid address provided')
 
-
         return self.full_node.request('/wallet/getaccountresource', {
             'address': self.to_hex(address)
         })
@@ -515,7 +514,6 @@ class Tron:
 
         if not self.is_address(to_address):
             raise Exception('Invalid address provided')
-
 
         transaction = self._create_transaction(from_address, to_address, amount)
         sign = self._sign_transaction(transaction)
@@ -948,6 +946,37 @@ class Tron:
         return self.full_node.request('/wallet/listexchangespaginated', {
             'limit': limit,
             'offset': offset
+        }, 'post')
+
+    def exchange_create(self, owner_address, first_token_id, second_token_id,
+                        first_token_balance, second_token_balance):
+        """Create a transaction pair
+
+        Args:
+            owner_address (str):
+            first_token_id (str): the id of the first token
+            second_token_id (str): the id of the second token
+            first_token_balance (int): balance of the first token
+            second_token_balance (int): balance of the second token
+
+        """
+        if not self.is_address(owner_address):
+            raise Exception('Invalid address provided')
+
+        if isinstance(first_token_id, str) or len(first_token_id) or \
+                not isinstance(second_token_id, str) or len(second_token_id):
+            raise Exception('Invalid token ID provided')
+
+        if not isinstance(first_token_balance, int) or first_token_balance <= 0 or \
+                not isinstance(second_token_balance, int) or second_token_balance <= 0:
+            raise Exception('Invalid amount provided')
+
+        return self.full_node.request('/wallet/exchangecreate', {
+            'owner_address': self.to_hex(owner_address),
+            'first_token_id': first_token_id,
+            'first_token_balance': first_token_balance,
+            'second_token_id': second_token_id,
+            'second_token_balance': second_token_balance
         }, 'post')
 
     @staticmethod
