@@ -19,7 +19,7 @@ import base58
 import math
 
 from tronapi.abstract import TronBase
-from tronapi.exceptions import InvalidTronError
+from tronapi.exceptions import InvalidTronError, TronError
 from tronapi import utils
 
 
@@ -40,16 +40,16 @@ class Tron(TronBase):
         """
 
         if not self.event_server:
-            raise Exception('No event server configured')
+            raise TronError('No event server configured')
 
         if not self.is_address(contract_address):
             raise InvalidTronError('Invalid contract address provided')
 
         if event_name and not contract_address:
-            raise Exception('Usage of event name filtering requires a contract address')
+            raise TronError('Usage of event name filtering requires a contract address')
 
         if block_number and not event_name:
-            raise Exception('Usage of block number filtering requires an event name')
+            raise TronError('Usage of block number filtering requires an event name')
 
         route_params = []
 
@@ -77,7 +77,7 @@ class Tron(TronBase):
         """
 
         if not self.event_server:
-            raise Exception('No event server configured')
+            raise TronError('No event server configured')
 
         response = self.event_server.request('/event/transaction/' + tx_id)
         return response
@@ -98,7 +98,7 @@ class Tron(TronBase):
 
         """
         if block is None:
-            raise Exception('No block identifier provided')
+            raise TronError('No block identifier provided')
 
         if block == 'latest':
             return self.get_current_block()
@@ -149,7 +149,7 @@ class Tron(TronBase):
         transaction = self.get_block(block)
 
         if 'transactions' not in transaction:
-            raise Exception('Parameter "transactions" not found')
+            raise TronError('Parameter "transactions" not found')
 
         if transaction is None:
             return 0
@@ -170,7 +170,7 @@ class Tron(TronBase):
         transactions = self.get_block(block)['transactions']
 
         if not transactions or len(transactions) < index:
-            raise Exception('Transaction not found in block')
+            raise TronError('Transaction not found in block')
 
         return transactions[index]
 
@@ -186,7 +186,7 @@ class Tron(TronBase):
         }, 'post')
 
         if not response:
-            raise Exception('Transaction not found')
+            raise TronError('Transaction not found')
 
         return response
 
@@ -406,7 +406,7 @@ class Tron(TronBase):
 
         """
         if not self.private_key:
-            raise Exception('Missing private key')
+            raise TronError('Missing private key')
 
         if not self.is_address(to_address):
             raise InvalidTronError('Invalid address provided')
@@ -441,7 +441,7 @@ class Tron(TronBase):
         _from = self.to_hex(from_address)
 
         if _to == _from:
-            raise Exception('Cannot transfer TRX to the same account')
+            raise TronError('Cannot transfer TRX to the same account')
 
         return self.full_node.request('/wallet/createtransaction', {
             'to_address': _to,
@@ -461,7 +461,7 @@ class Tron(TronBase):
 
         """
         if 'signature' in transaction:
-            raise Exception('Transaction is already signed')
+            raise TronError('Transaction is already signed')
 
         return self.full_node.request('/wallet/gettransactionsign', {
             'transaction': transaction,
@@ -482,7 +482,7 @@ class Tron(TronBase):
             raise InvalidTronError('Invalid transaction provided')
 
         if 'signature' not in signed:
-            raise Exception('Transaction is not signed')
+            raise TronError('Transaction is not signed')
 
         return self.full_node.request('/wallet/broadcasttransaction', signed, 'post')
 
