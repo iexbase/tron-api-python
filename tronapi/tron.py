@@ -392,6 +392,12 @@ class Tron(TronBase):
                                      kwargs.get('to_address'),
                                      kwargs.get('amount'))
 
+    def add_message(self, text) -> None:
+        if not utils.is_string(text):
+            raise TronError('Message not specified')
+
+        self.message = self.string_utf8_to_hex(text)
+
     def send_transaction(self, owner_address, to_address, amount):
         """Send transaction to Blockchain
 
@@ -463,10 +469,19 @@ class Tron(TronBase):
         if 'signature' in transaction:
             raise TronError('Transaction is already signed')
 
-        return self.full_node.request('/wallet/gettransactionsign', {
-            'transaction': transaction,
-            'privateKey': self.private_key
-        }, 'post')
+        if self.message is not None:
+            transaction['raw_data']['data'] = self.string_utf8_to_hex(self.message)
+
+
+
+        print(transaction)
+        exit()
+        return 'asdasdas'
+
+        # return self.full_node.request('/wallet/gettransactionsign', {
+        #     'transaction': transaction,
+        #     'privateKey': self.private_key
+        # }, 'post')
 
     def _send_raw_transaction(self, signed):
         """Broadcast the signed transaction

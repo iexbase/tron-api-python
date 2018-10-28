@@ -42,6 +42,8 @@ class TronBase(ABC):
         if private_key:
             self.private_key = private_key
 
+        self.message = None
+
     def __set_full_node(self, provider):
         """Check specified "full node"
 
