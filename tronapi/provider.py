@@ -42,6 +42,9 @@ class HttpProvider:
         else:
             response = self.client.request(method=method, url=url, fields=body).data.decode('utf-8')
 
+        if response is None:
+            return {'error': 'Empty response received'}
+
         if response == 'OK':
             return response
 
