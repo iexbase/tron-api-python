@@ -466,35 +466,29 @@ class Tron:
 
         return response['num']
 
-    def send(self, from_address, to_address, amount):
+    def send(self, **kwargs):
         """Send funds to the Tron account (option 2)
 
-        Args:
-            from_address (str): From address
-            to_address (str): To address
-            amount (float): Value
-
         Returns:
             Returns the details of the transaction being sent.
              [result = 1] - Successfully sent
 
         """
-        return self.send_transaction(from_address, to_address, amount)
+        return self.send_transaction(kwargs.get('from_address'),
+                                     kwargs.get('to_address'),
+                                     kwargs.get('amount'))
 
-    def send_trx(self, from_address, to_address, amount):
+    def send_trx(self, **kwargs):
         """Send funds to the Tron account (option 3)
 
-        Args:
-            from_address (str): From address
-            to_address (str): To address
-            amount (float): Value
-
         Returns:
             Returns the details of the transaction being sent.
              [result = 1] - Successfully sent
 
         """
-        return self.send_transaction(from_address, to_address, amount)
+        return self.send_transaction(kwargs.get('from_address'),
+                                     kwargs.get('to_address'),
+                                     kwargs.get('amount'))
 
     def send_transaction(self, from_address, to_address, amount):
         """Send transaction to Blockchain
