@@ -22,7 +22,7 @@ from Crypto.Hash import keccak
 
 from tronapi.base import BaseTron
 from tronapi.exceptions import InvalidTronError
-from tronapi.tools import utils
+from tronapi import utils
 
 
 class Tron(BaseTron):
