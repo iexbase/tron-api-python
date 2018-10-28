@@ -408,6 +408,22 @@ class Tron:
         """
         return self.get_transactions_related(address, 'from', limit, offset)
 
+    def get_transaction_info(self, tx_id):
+        """Query transaction fee based on id
+
+        Args:
+            tx_id (str): Transaction Id
+
+        Returns:
+            Transaction fee，block height and block creation time
+
+        """
+        response = self.solidity_node.request('/walletsolidity/gettransactioninfobyid', {
+            'value': tx_id
+        }, 'post')
+
+        return response
+
     def get_band_width(self, address):
         """Query bandwidth information.
 
@@ -690,8 +706,11 @@ class Tron:
             token_id (str): The name of the token
 
         """
+        if isinstance(token_id, str) or not len(token_id):
+            raise Exception('Invalid token ID provided')
+
         return self.full_node.request('/wallet/getassetissuebyname', {
-            'value': self.string_utf8_to_hex(token_id)
+            'value': self.from_utf8(token_id)
         })
 
     def get_block_range(self, start, end):
@@ -743,7 +762,8 @@ class Tron:
             List of all Super Representatives
 
         """
-        return self.full_node.request('/wallet/listwitnesses')['witnesses']
+        response = self.full_node.request('/wallet/listwitnesses', {}, 'post')
+        return response['witnesses']
 
     def list_tokens(self, limit=0, offset=0):
         """Query the list of Tokens with pagination
