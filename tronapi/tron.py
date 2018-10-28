@@ -392,11 +392,11 @@ class Tron(TronBase):
                                      kwargs.get('to_address'),
                                      kwargs.get('amount'))
 
-    def send_transaction(self, from_address, to_address, amount):
+    def send_transaction(self, owner_address, to_address, amount):
         """Send transaction to Blockchain
 
         Args:
-            from_address (str): From address
+            owner_address (str): Owner address
             to_address (str): To address
             amount (float): Value
 
@@ -411,7 +411,7 @@ class Tron(TronBase):
         if not self.is_address(to_address):
             raise InvalidTronError('Invalid address provided')
 
-        transaction = self._create_transaction(from_address, to_address, amount)
+        transaction = self._create_transaction(owner_address, to_address, amount)
         sign = self._sign_transaction(transaction)
         response = self._send_raw_transaction(sign)
 
@@ -420,12 +420,12 @@ class Tron(TronBase):
 
         return result
 
-    def _create_transaction(self, from_address, to_address, amount):
+    def _create_transaction(self, owner_address, to_address, amount):
         """Creates a transaction of transfer.
         If the recipient address does not exist, a corresponding account will be created on the blockchain.
 
         Args:
-            from_address (str): from address
+            owner_address (str): from address
             to_address (str): to address
             amount (float): amount
 
@@ -438,7 +438,7 @@ class Tron(TronBase):
             raise InvalidTronError('Invalid amount provided')
 
         _to = self.to_hex(to_address)
-        _from = self.to_hex(from_address)
+        _from = self.to_hex(owner_address)
 
         if _to == _from:
             raise TronError('Cannot transfer TRX to the same account')
