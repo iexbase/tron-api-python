@@ -17,7 +17,7 @@ def main():
         '--node',
         type=str,
         default=DEFAULT_FULL_NODE,
-        help='URL полной ноды (default: "http://13.125.210.234:8090")'
+        help='URL полной ноды (default: "http://api.trongrid.io")'
     )
 
     subparsers = parser.add_subparsers(help='Commands')
