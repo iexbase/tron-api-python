@@ -898,6 +898,53 @@ class Tron:
         """
         return self.full_node.request('/wallet/listproposals', {}, 'post')
 
+    def proposal_approve(self, owner_address, proposal_id, is_add_approval=True):
+        """Proposal approval
+
+        Args:
+            owner_address (str): Approve address
+            proposal_id (int): proposal id
+            is_add_approval (bool): Approved
+
+        Returns:
+             Approval of the proposed transaction
+
+        """
+        if not self.is_address(owner_address):
+            raise Exception('Invalid address provided')
+
+        if not isinstance(proposal_id, int) or proposal_id < 0:
+            raise Exception('Invalid proposalID provided')
+
+        return self.full_node.request('/wallet/proposalapprove', {
+            'owner_address': self.to_hex(owner_address),
+            'proposal_id': proposal_id,
+            'is_add_approval': is_add_approval
+        }, 'post')
+
+    def proposal_delete(self, owner_address, proposal_id):
+        """Delete proposal
+
+        Args:
+            owner_address (str): delete the person's address
+            proposal_id (int): proposal id
+
+        Results:
+            Delete the proposal's transaction
+
+        """
+        if not self.is_address(owner_address):
+            raise Exception('Invalid address provided')
+
+        if not isinstance(proposal_id, int) or proposal_id < 0:
+            raise Exception('Invalid proposalID provided')
+
+        return self.full_node.request('/wallet/proposaldelete', {
+            'owner_address': self.to_hex(owner_address),
+            'proposal_id': proposal_id
+        }, 'post')
+
+
     def exchange_transaction(self, owner_address, exchange_id, token_id, quant, expected):
         """ Exchanges a transaction.
 
