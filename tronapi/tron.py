@@ -474,7 +474,7 @@ class Tron:
              [result = 1] - Successfully sent
 
         """
-        return self.send_transaction(kwargs.get('from_address'),
+        return self.send_transaction(kwargs.get('owner_address'),
                                      kwargs.get('to_address'),
                                      kwargs.get('amount'))
 
@@ -486,7 +486,7 @@ class Tron:
              [result = 1] - Successfully sent
 
         """
-        return self.send_transaction(kwargs.get('from_address'),
+        return self.send_transaction(kwargs.get('owner_address'),
                                      kwargs.get('to_address'),
                                      kwargs.get('amount'))
 
