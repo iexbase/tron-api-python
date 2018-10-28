@@ -4,7 +4,7 @@ import argparse
 import json
 import sys
 
-from tronapi import config
+from tronapi.constants import DEFAULT_FULL_NODE
 from tronapi.tron import Tron
 
 
@@ -16,7 +16,7 @@ def main():
     parser.add_argument(
         '--node',
         type=str,
-        default=config.DEFAULT_FULL_NODE,
+        default=DEFAULT_FULL_NODE,
         help='URL полной ноды (default: "http://13.125.210.234:8090")'
     )
 
