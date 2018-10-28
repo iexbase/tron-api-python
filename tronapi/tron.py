@@ -804,6 +804,26 @@ class Tron:
 
         return math.floor(num / 1000)
 
+    def get_contract(self, contract_address):
+        """Queries a contract's information from the blockchain.
+
+        Args:
+            contract_address (str): contract address
+
+        Returns:
+            SmartContract object.
+
+        """
+
+        if not self.is_address(contract_address):
+            raise Exception('Invalid contract address provided')
+
+        contract_address = self.to_hex(contract_address)
+
+        return self.full_node.request('/wallet/getcontract', {
+            'value': contract_address
+        }, 'post')
+
     def validate_address(self, address, is_hex=False):
         """Validate address
 
@@ -849,8 +869,12 @@ class Tron:
         """Find exchange by id
 
         Args:
-             id (str): exchange_id
+             exchange_id (str): ID Exchange
         """
+
+        if not isinstance(exchange_id, int) or exchange_id < 0:
+            raise Exception('Invalid exchangeID provided')
+
         return self.full_node.request('/wallet/getexchangebyid', {
             'id': exchange_id
         }, 'post')
@@ -858,6 +882,73 @@ class Tron:
     def get_list_exchangers(self):
         """Get list exchangers"""
         return self.full_node.request('/wallet/listexchanges', {}, 'post')
+
+    def get_proposal(self, proposal_id):
+        """Query proposal based on id
+
+        Args:
+            proposal_id (int): ID
+
+        """
+        if not isinstance(proposal_id, int) or proposal_id < 0:
+            raise Exception('Invalid proposalID provided')
+
+        return self.full_node.request('/wallet/getproposalbyid', {
+            'id': int(proposal_id)
+        }, 'post')
+
+    def list_proposals(self):
+        """Query all proposals
+
+        Returns:
+            Proposal list information
+
+        """
+        return self.full_node.request('/wallet/listproposals', {}, 'post')
+
+    def exchange_transaction(self, owner_address, exchange_id, token_id, quant, expected):
+        """ Exchanges a transaction.
+
+        Args:
+            owner_address (str):  Address of the creator of the transaction pair
+            exchange_id (str): transaction pair id
+            token_id (str): The id of the sold token
+            quant (int): the number of tokens sold
+            expected (int): the number of tokens expected to be bought
+
+        """
+        if not self.is_address(owner_address):
+            raise Exception('Invalid address provided')
+
+        if not isinstance(token_id, str) or len(token_id):
+            raise Exception('Invalid token ID provided')
+
+        if not isinstance(quant, int) or quant <= 0:
+            raise Exception('Invalid quantity provided')
+
+        if not isinstance(expected, int) or quant < 0:
+            raise Exception('Invalid expected provided')
+
+        return self.full_node.request('/wallet/exchangetransaction', {
+            'owner_address': self.to_hex(owner_address),
+            'exchange_id': exchange_id,
+            'token_id': token_id,
+            'quant': quant,
+            'expected': expected
+        }, 'post')
+
+    def list_exchanges_paginated(self, limit=10, offset=0):
+        """Paged query transaction pair list
+
+        Args:
+            limit (int): number of trading pairs  expected to be returned.
+            offset (int): index of the starting trading pair
+
+        """
+        return self.full_node.request('/wallet/listexchangespaginated', {
+            'limit': limit,
+            'offset': offset
+        }, 'post')
 
     @staticmethod
     def string_utf8_to_hex(name):
