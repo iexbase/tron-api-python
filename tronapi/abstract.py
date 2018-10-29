@@ -5,12 +5,12 @@ from abc import ABC
 import base58
 from Crypto.Hash import keccak
 
-from tronapi.constants import DEFAULT_TRON_NODE, DEFAULT_SOLIDITY_NODE
+from tronapi.constants import DEFAULT_TRON_NODE
 from tronapi.provider import HttpProvider
 
 
 class TronBase(ABC):
-    def __init__(self, full_node, solidity_node=None, event_server=None, private_key=None):
+    def __init__(self, full_node, solidity_node, event_server=None, private_key=None):
         """A Python API for interacting with the Tron (TRX)
 
         Args:
@@ -20,10 +20,6 @@ class TronBase(ABC):
             private_key (str): Optional default private key used when signing transactions
 
         """
-
-        if not solidity_node:
-            solidity_node = DEFAULT_SOLIDITY_NODE
-
         if isinstance(full_node, str):
             full_node = HttpProvider(full_node)
 
