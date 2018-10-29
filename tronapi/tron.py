@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import json
 from _sha256 import sha256
 import base58
 import math
@@ -495,28 +495,31 @@ class Tron(TronBase):
 
         return self.full_node.request('/wallet/broadcasttransaction', signed, 'post')
 
-    def update_account(self, address, name):
+    def update_account(self, name, address=None):
         """Modify account name
 
         Note: Username is allowed to edit only once.
 
         Args:
-            address (str): address
             name (str): name of the account
+            address (str): address
 
         Returns:
             modified Transaction Object
 
         """
+        if address is None:
+            address = self.default_address
+
         transaction = self.full_node.request('/wallet/updateaccount', {
             'account_name': self.string_utf8_to_hex(name),
             'owner_address': self.to_hex(address)
-        })
+        }, 'post')
 
-        sign = self._sign_transaction(transaction)
-        response = self._send_raw_transaction(sign)
+        print(json.dumps(transaction, indent=4))
 
-        return response
+        # sign = self._sign_transaction(transaction)
+        # response = self._send_raw_transaction(sign)
 
     def register_account(self, address, new_account_address):
         """Create an account.

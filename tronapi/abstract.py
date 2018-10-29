@@ -43,6 +43,7 @@ class TronBase(ABC):
             self.private_key = private_key
 
         self.message = None
+        self.default_address = None
 
     def __set_full_node(self, provider):
         """Check specified "full node"
