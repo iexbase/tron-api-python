@@ -5,7 +5,6 @@ from abc import ABC
 import base58
 from Crypto.Hash import keccak
 
-from tronapi.constants import DEFAULT_TRON_NODE
 from tronapi.provider import HttpProvider
 
 
@@ -32,8 +31,6 @@ class TronBase(ABC):
         self.__set_full_node(full_node)
         self.__set_solidity_node(solidity_node)
         self.__set_event_server(event_server)
-
-        self.tron_node = HttpProvider(DEFAULT_TRON_NODE)
 
         if private_key:
             self.private_key = private_key

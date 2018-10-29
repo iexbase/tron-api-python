@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import json
+
 from _sha256 import sha256
 import base58
 import math
@@ -930,14 +930,6 @@ class Tron(TronBase):
             'second_token_id': second_token_id,
             'second_token_balance': second_token_balance
         }, 'post')
-
-    def get_node_map(self):
-        """Getting a map of all available nodes"""
-        return self.tron_node.request('/api/v2/node/nodemap')
-
-    def get_balance_info(self):
-        """Balance Information"""
-        return self.tron_node.request('/api/v2/node/balance_info')
 
     def is_address(self, address):
         """Helper function that will check if a given address is valid.
