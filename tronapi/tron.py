@@ -519,6 +519,9 @@ class Tron(TronBase):
             'owner_address': self.to_hex(address)
         }, 'post')
 
+        if 'Error' in transaction:
+            raise Exception('This account name already exist')
+
         sign = self._sign_transaction(transaction)
         response = self._send_raw_transaction(sign)
 
