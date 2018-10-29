@@ -511,6 +511,9 @@ class Tron(TronBase):
         if address is None:
             address = self.default_address
 
+        if not self.is_address(address):
+            raise InvalidTronError('Invalid address provided')
+
         transaction = self.full_node.request('/wallet/updateaccount', {
             'account_name': self.string_utf8_to_hex(name),
             'owner_address': self.to_hex(address)
