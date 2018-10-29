@@ -12,3 +12,5 @@ def is_string(x) -> bool:
 def is_hex(s):
     hex_digits = set(string.hexdigits)
     return all(c in hex_digits for c in s)
+
+

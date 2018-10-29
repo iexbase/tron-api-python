@@ -516,10 +516,10 @@ class Tron(TronBase):
             'owner_address': self.to_hex(address)
         }, 'post')
 
-        print(json.dumps(transaction, indent=4))
+        sign = self._sign_transaction(transaction)
+        response = self._send_raw_transaction(sign)
 
-        # sign = self._sign_transaction(transaction)
-        # response = self._send_raw_transaction(sign)
+        return response
 
     def register_account(self, address, new_account_address):
         """Create an account.
