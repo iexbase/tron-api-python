@@ -1,4 +1,5 @@
 language: python
+os: linux
 cache: pip
 python:
   - "3.4"
@@ -10,3 +11,5 @@ python:
 install: "pip install -U setuptools setuptools_scm"
 # command to run tests
 script: python setup.py test
+after_success:
+  coveralls
