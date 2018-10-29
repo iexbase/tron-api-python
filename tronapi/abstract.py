@@ -28,17 +28,23 @@ class TronBase(ABC):
         if isinstance(event_server, str):
             event_server = HttpProvider(event_server)
 
+        # node setup
         self.__set_full_node(full_node)
         self.__set_solidity_node(solidity_node)
         self.__set_event_server(event_server)
 
+        # Private address Key
         if private_key:
             self.private_key = private_key
 
+        # Adding a comment to the transaction
+        # Example: "Hello World"
         self.message = None
+
+        # Tron default address
         self.default_address = None
 
-    def __set_full_node(self, provider):
+    def __set_full_node(self, provider) -> None:
         """Check specified "full node"
 
         Args:
@@ -51,7 +57,7 @@ class TronBase(ABC):
         self.full_node = provider
         self.full_node.status_page = '/wallet/getnowblock'
 
-    def __set_solidity_node(self, provider):
+    def __set_solidity_node(self, provider) -> None:
         """Check specified "solidity node"
 
         Args:
@@ -64,7 +70,7 @@ class TronBase(ABC):
         self.solidity_node = provider
         self.solidity_node.status_page = '/walletsolidity/getnowblock'
 
-    def __set_event_server(self, server):
+    def __set_event_server(self, server) -> None:
         """Check specified "event server"
 
         Args:
@@ -76,7 +82,7 @@ class TronBase(ABC):
 
         self.event_server = server
 
-    def is_event_connected(self):
+    def is_event_connected(self) -> bool:
         """
         Checks if is connected to the event server.
 
@@ -90,7 +96,7 @@ class TronBase(ABC):
         return self.event_server.request('/healthcheck') == 'OK'
 
     @staticmethod
-    def is_valid_provider(provider):
+    def is_valid_provider(provider) -> bool:
         """Check connected provider
 
         Args:
