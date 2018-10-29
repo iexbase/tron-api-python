@@ -31,7 +31,7 @@ class Tron(TronBase):
         Returns:
             Latest block on full node
         """
-        return self.full_node.request('/wallet/getnowblock')
+        return self.full_node.request('/wallet/getnowblock', {}, 'post')
 
     def get_block(self, block=None):
         """Get block details using HashString or blockNumber
@@ -293,7 +293,7 @@ class Tron(TronBase):
 
         return self.full_node.request('/wallet/getaccountnet', {
             'address': self.to_hex(address)
-        })
+        }, 'post')
 
     def get_transaction_count(self):
         """Count all transactions on the network
@@ -623,7 +623,7 @@ class Tron(TronBase):
 
         return self.full_node.request('/wallet/getassetissuebyname', {
             'value': self.from_utf8(token_id)
-        })
+        }, 'post')
 
     def get_block_range(self, start, end):
         """Query a range of blocks by block height
@@ -642,10 +642,12 @@ class Tron(TronBase):
         if not utils.is_numeric(end) or end <= start:
             raise InvalidTronError('Invalid end of range provided')
 
-        return self.full_node.request('/wallet/getblockbylimitnext', {
+        response = self.full_node.request('/wallet/getblockbylimitnext', {
             'startNum': int(start),
             'endNum': int(end) + 1
-        }, 'post')['block']
+        }, 'post')
+
+        return response['block']
 
     def get_latest_blocks(self, limit=1):
         """Query the latest blocks
@@ -660,9 +662,11 @@ class Tron(TronBase):
         if not utils.is_numeric(limit) or limit <= 0:
             raise InvalidTronError('Invalid limit provided')
 
-        return self.full_node.request('/wallet/getblockbylatestnum', {
+        response = self.full_node.request('/wallet/getblockbylatestnum', {
             'limit': limit
-        }, 'post')['block']
+        }, 'post')
+
+        return response['block']
 
     def list_super_representatives(self):
         """Query the list of Super Representatives
@@ -856,7 +860,8 @@ class Tron(TronBase):
             'proposal_id': proposal_id
         }, 'post')
 
-    def exchange_transaction(self, owner_address, exchange_id, token_id, quant, expected):
+    def exchange_transaction(self, owner_address, exchange_id,
+                             token_id, quant, expected):
         """ Exchanges a transaction.
 
         Args:
