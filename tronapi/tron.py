@@ -19,6 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 import binascii
 from _sha256 import sha256
 import base58
@@ -54,7 +55,7 @@ class Tron(object):
         >>>
         >>> full_node = HttpProvider('https://api.trongrid.io')
         >>> solidity_node = HttpProvider('https://api.trongrid.io')
-        >>> event_server = HttpProvider('https://api.trongrid.io')
+        >>> event_server = 'https://api.trongrid.io'
         >>>
         >>> tron = Tron()
         >>> print(tron.get_current_block())
@@ -103,15 +104,6 @@ class Tron(object):
 
         self.solidity_node = provider
         self.solidity_node.status_page = '/walletsolidity/getnowblock'
-
-    def is_connected(self):
-        """Check all connected nodes"""
-
-        return {
-            'full_node': self.full_node.is_connected(),
-            'solidity_node': self.solidity_node.is_connected(),
-            'event_server': self.events.is_event_connected()
-        }
 
     def get_current_block(self):
         """Query the latest block
@@ -524,7 +516,7 @@ class Tron(object):
             raise Exception('This account name already exist')
 
         sign = self.sign(transaction)
-        response = self._send_raw_transaction(sign)
+        response = self.broadcast(sign)
 
         return response
 
@@ -1057,3 +1049,12 @@ class Tron(object):
             return '0x' + keccak_hash.hexdigest()
 
         return keccak_hash.hexdigest()
+
+    def is_connected(self):
+        """Check all connected nodes"""
+
+        return {
+            'full_node': self.full_node.is_connected(),
+            'solidity_node': self.solidity_node.is_connected(),
+            'event_server': self.events.is_event_connected()
+        }
