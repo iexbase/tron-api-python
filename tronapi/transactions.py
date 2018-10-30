@@ -1,4 +1,6 @@
+from tronapi import utils
 from tronapi.exceptions import InvalidTronError, TronError
+from tronapi.utils import string_utf8_to_hex
 
 
 class TransactionBuilder(object):
@@ -35,3 +37,21 @@ class TransactionBuilder(object):
             'owner_address': _from,
             'amount': self.tron.to_tron(amount)
         }, 'post')
+
+    def update_account(self, account_name, account):
+
+        if not utils.is_string(account_name):
+            raise ValueError('Name must be a string')
+
+        if not self.tron.is_address(account):
+            raise TronError('Invalid origin address provided')
+
+        response = self.tron.full_node.request('/wallet/updateaccount', {
+            'account_name': string_utf8_to_hex(account_name),
+            'owner_address': self.tron.to_hex(account)
+        }, 'post')
+
+        if 'Error' in response:
+            raise Exception('This account name already exist')
+
+        return response

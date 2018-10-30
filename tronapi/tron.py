@@ -441,7 +441,7 @@ class Tron(object):
 
         return result
 
-    def sign(self, transaction, message):
+    def sign(self, transaction, message=None):
         """Sign the transaction, the api has the risk of leaking the private key,
         please make sure to call the api in a secure environment
 
@@ -488,7 +488,7 @@ class Tron(object):
 
         return result
 
-    def update_account(self, name, address=None):
+    def update_account(self, account_name, address=None):
         """Modify account name
 
         Note: Username is allowed to edit only once.
@@ -507,14 +507,7 @@ class Tron(object):
         if not self.is_address(address):
             raise InvalidTronError('Invalid address provided')
 
-        transaction = self.full_node.request('/wallet/updateaccount', {
-            'account_name': self.string_utf8_to_hex(name),
-            'owner_address': self.to_hex(address)
-        }, 'post')
-
-        if 'Error' in transaction:
-            raise Exception('This account name already exist')
-
+        transaction = self.transaction.update_account(account_name, address)
         sign = self.sign(transaction)
         response = self.broadcast(sign)
 
