@@ -6,43 +6,9 @@ import base58
 from Crypto.Hash import keccak
 
 from tronapi.provider import HttpProvider
-from tronapi.transactions import TransactionBuilder
 
 
 class TronBase(ABC):
-    def __init__(self, full_node, solidity_node, event_server=None, private_key=None):
-        """A Python API for interacting with the Tron (TRX)
-
-        Args:
-            full_node (:obj:`str`): A provider connected to a valid full node
-            solidity_node (:obj:`str`): A provider connected to a valid solidity node
-            event_server (:obj:`str`, optional): Optional for smart contract events. Expects a valid event server URL
-            private_key (str): Optional default private key used when signing transactions
-
-        """
-        if isinstance(full_node, str):
-            full_node = HttpProvider(full_node)
-
-        if isinstance(solidity_node, str):
-            solidity_node = HttpProvider(solidity_node)
-
-        if isinstance(event_server, str):
-            event_server = HttpProvider(event_server)
-
-        # node setup
-        self.__set_full_node(full_node)
-        self.__set_solidity_node(solidity_node)
-        self.__set_event_server(event_server)
-
-        # Private address Key
-        if private_key:
-            self.private_key = private_key
-
-        # Tron default address
-        self.default_address = None
-
-        self.transaction = TransactionBuilder(self)
-
     def __set_full_node(self, provider) -> None:
         """Check specified "full node"
 
