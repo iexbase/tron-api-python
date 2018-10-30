@@ -26,13 +26,13 @@ import math
 
 from tronapi import utils
 from tronapi.abstract import TronBase
+from tronapi.event import Event
 from tronapi.exceptions import InvalidTronError, TronError
 from tronapi.provider import HttpProvider
 from tronapi.transactions import TransactionBuilder
 
 
 class Tron(TronBase):
-
     def __init__(self,
                  full_node,
                  solidity_node,
@@ -66,17 +66,15 @@ class Tron(TronBase):
             full_node = HttpProvider(full_node)
         if utils.is_string(solidity_node):
             solidity_node = HttpProvider(solidity_node)
-        if utils.is_string(event_server):
-            event_server = HttpProvider(event_server)
 
         # node setup
         self.__set_full_node(full_node)
         self.__set_solidity_node(solidity_node)
-        self.__set_event_server(event_server)
 
         self.private_key = private_key
         self.default_address = None
 
+        self.events = Event(self, event_server)
         self.transaction = TransactionBuilder(self)
 
     def __set_full_node(self, provider) -> None:
@@ -105,38 +103,13 @@ class Tron(TronBase):
         self.solidity_node = provider
         self.solidity_node.status_page = '/walletsolidity/getnowblock'
 
-    def __set_event_server(self, server) -> None:
-        """Check specified "event server"
-
-        Args:
-            server (HttpProvider): event server
-        """
-
-        if server and not self.is_valid_provider(server):
-            raise Exception('Invalid event provided')
-
-        self.event_server = server
-
-    def is_event_connected(self) -> bool:
-        """
-        Checks if is connected to the event server.
-
-        Returns:
-            bool: True if successful, False otherwise.
-
-        """
-        if not self.event_server:
-            return False
-
-        return self.event_server.request('/healthcheck') == 'OK'
-
     def is_connected(self):
         """Check all connected nodes"""
 
         return {
-            'full_node': self.is_connected(),
-            'solidity_node': self.is_connected(),
-            'event_server': self.is_event_connected()
+            'full_node': self.full_node.is_connected(),
+            'solidity_node': self.solidity_node.is_connected(),
+            'event_server': self.events.is_event_connected()
         }
 
     def get_current_block(self):
@@ -424,63 +397,6 @@ class Tron(TronBase):
         response = self.full_node.request('/wallet/totaltransaction')
 
         return response['num']
-
-    def get_event_result(self, contract_address=None, since=0, event_name=None, block_number=None):
-        """Will return all events matching the filters.
-
-        Args:
-            contract_address (str): Address to query for events.
-            since (int): Filter for events since certain timestamp.
-            event_name (str): Name of the event to filter by.
-            block_number (str): Specific block number to query
-
-        Examples:
-              >>> tron.get_event_result('TQyXdrUaZaw155WrB3F3HAZZ3EeiLVx4V2', 0)
-
-        """
-
-        if not self.event_server:
-            raise TronError('No event server configured')
-
-        if not self.is_address(contract_address):
-            raise InvalidTronError('Invalid contract address provided')
-
-        if event_name and not contract_address:
-            raise TronError('Usage of event name filtering requires a contract address')
-
-        if block_number and not event_name:
-            raise TronError('Usage of block number filtering requires an event name')
-
-        route_params = []
-
-        if contract_address:
-            route_params.append(contract_address)
-
-        if event_name:
-            route_params.append(event_name)
-
-        if block_number:
-            route_params.append(block_number)
-
-        route = '/'.join(route_params)
-        return self.event_server.request("/event/contract/{}?since={}".format(route, since))
-
-    def get_event_transaction_id(self, tx_id):
-        """Will return all events within a transactionID.
-
-        Args:
-            tx_id (str): TransactionID to query for events.
-
-        Examples:
-              >>> tron.get_event_transaction_id('660028584562b3ae687090f77e989bc7b0bc8b0a8f677524630002c06fd1d57c')
-
-        """
-
-        if not self.event_server:
-            raise TronError('No event server configured')
-
-        response = self.event_server.request('/event/transaction/' + tx_id)
-        return response
 
     def send(self, *args):
         """Send funds to the Tron account (option 2)

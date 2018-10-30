@@ -94,6 +94,7 @@ class TronBase(ABC):
         Args:
             address (str): address
 
+
         """
         return base58.b58encode_check(bytes.fromhex(address))
 
