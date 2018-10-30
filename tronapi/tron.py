@@ -467,24 +467,27 @@ class Tron(object):
             'privateKey': self.private_key
         }, 'post')
 
-    def broadcast(self, signed):
+    def broadcast(self, signed_transaction):
         """Broadcast the signed transaction
 
         Args:
-            signed (object): signed transaction contract data
+            signed_transaction (object): signed transaction contract data
 
         Returns:
             broadcast success or failure
 
         """
-        if not type({}) is dict:
+        if not utils.is_object(signed_transaction):
             raise InvalidTronError('Invalid transaction provided')
 
-        if 'signature' not in signed:
+        if 'signature' not in signed_transaction:
             raise TronError('Transaction is not signed')
 
-        result = self.full_node.request('/wallet/broadcasttransaction', signed, 'post')
-        result.update(signed)
+        result = self.full_node.request(
+            '/wallet/broadcasttransaction',
+            signed_transaction,
+            'post')
+        result.update(signed_transaction)
 
         return result
 
