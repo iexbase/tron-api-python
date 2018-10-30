@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import numbers
+
 from _sha256 import sha256
 import base58
 import math
@@ -27,23 +27,40 @@ from tronapi.transactions import TransactionBuilder
 
 class Tron(TronBase):
 
-    def __init__(self, full_node, solidity_node, event_server=None, private_key=None):
-        """A Python API for interacting with the Tron (TRX)
+    def __init__(self,
+                 full_node,
+                 solidity_node,
+                 event_server=None,
+                 private_key=None):
+        """Connect to the Tron network.
 
-        Args:
+        Parameters:
             full_node (:obj:`str`): A provider connected to a valid full node
             solidity_node (:obj:`str`): A provider connected to a valid solidity node
             event_server (:obj:`str`, optional): Optional for smart contract events. Expects a valid event server URL
             private_key (str): Optional default private key used when signing transactions
 
+        The idea is to have a class that allows to do this:
+
+        .. code-block:: python
+        >>> from tronapi.tron import Tron
+        >>>
+        >>> full_node = HttpProvider('https://api.trongrid.io')
+        >>> solidity_node = HttpProvider('https://api.trongrid.io')
+        >>> event_server = HttpProvider('https://api.trongrid.io')
+        >>>
+        >>> tron = Tron()
+        >>> print(tron.get_current_block())
+
+         This class also deals with edits, votes and reading content.
         """
-        if isinstance(full_node, str):
+
+        # check received nodes
+        if utils.is_string(full_node):
             full_node = HttpProvider(full_node)
-
-        if isinstance(solidity_node, str):
+        if utils.is_string(solidity_node):
             solidity_node = HttpProvider(solidity_node)
-
-        if isinstance(event_server, str):
+        if utils.is_string(event_server):
             event_server = HttpProvider(event_server)
 
         # node setup
@@ -51,14 +68,70 @@ class Tron(TronBase):
         self.__set_solidity_node(solidity_node)
         self.__set_event_server(event_server)
 
-        # Private address Key
-        if private_key:
-            self.private_key = private_key
-
-        # Tron default address
+        self.private_key = private_key
         self.default_address = None
 
         self.transaction = TransactionBuilder(self)
+
+    def __set_full_node(self, provider) -> None:
+        """Check specified "full node"
+
+        Args:
+            provider (HttpProvider): full node
+
+        """
+        if not self.is_valid_provider(provider):
+            raise Exception('Invalid full node provided')
+
+        self.full_node = provider
+        self.full_node.status_page = '/wallet/getnowblock'
+
+    def __set_solidity_node(self, provider) -> None:
+        """Check specified "solidity node"
+
+        Args:
+            provider (HttpProvider): solidity node
+
+        """
+        if not self.is_valid_provider(provider):
+            raise Exception('Invalid solidity node provided')
+
+        self.solidity_node = provider
+        self.solidity_node.status_page = '/walletsolidity/getnowblock'
+
+    def __set_event_server(self, server) -> None:
+        """Check specified "event server"
+
+        Args:
+            server (HttpProvider): event server
+
+        """
+        if server and not self.is_valid_provider(server):
+            raise Exception('Invalid event provided')
+
+        self.event_server = server
+
+    def is_event_connected(self) -> bool:
+        """
+        Checks if is connected to the event server.
+
+        Returns:
+            bool: True if successful, False otherwise.
+
+        """
+        if not self.event_server:
+            return False
+
+        return self.event_server.request('/healthcheck') == 'OK'
+
+    def is_connected(self):
+        """Check all connected nodes"""
+
+        return {
+            'full_node': self.is_connected(),
+            'solidity_node': self.is_connected(),
+            'event_server': self.is_event_connected()
+        }
 
     def get_current_block(self):
         """Query the latest block
@@ -451,7 +524,7 @@ class Tron(TronBase):
         sign = self.sign(tx, message)
         result = self.broadcast(sign)
 
-        return {'data': sign, 'status': result}
+        return result
 
     def sign(self, transaction, message):
         """Sign the transaction, the api has the risk of leaking the private key,
@@ -495,7 +568,10 @@ class Tron(TronBase):
         if 'signature' not in signed:
             raise TronError('Transaction is not signed')
 
-        return self.full_node.request('/wallet/broadcasttransaction', signed, 'post')
+        result = self.full_node.request('/wallet/broadcasttransaction', signed, 'post')
+        result.update(signed)
+
+        return result
 
     def update_account(self, name, address=None):
         """Modify account name

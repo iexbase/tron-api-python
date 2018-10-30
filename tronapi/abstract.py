@@ -9,56 +9,6 @@ from tronapi.provider import HttpProvider
 
 
 class TronBase(ABC):
-    def __set_full_node(self, provider) -> None:
-        """Check specified "full node"
-
-        Args:
-            provider (HttpProvider): full node
-
-        """
-        if not self.is_valid_provider(provider):
-            raise Exception('Invalid full node provided')
-
-        self.full_node = provider
-        self.full_node.status_page = '/wallet/getnowblock'
-
-    def __set_solidity_node(self, provider) -> None:
-        """Check specified "solidity node"
-
-        Args:
-            provider (HttpProvider): solidity node
-
-        """
-        if not self.is_valid_provider(provider):
-            raise Exception('Invalid solidity node provided')
-
-        self.solidity_node = provider
-        self.solidity_node.status_page = '/walletsolidity/getnowblock'
-
-    def __set_event_server(self, server) -> None:
-        """Check specified "event server"
-
-        Args:
-            server (HttpProvider): event server
-
-        """
-        if server and not self.is_valid_provider(server):
-            raise Exception('Invalid event provided')
-
-        self.event_server = server
-
-    def is_event_connected(self) -> bool:
-        """
-        Checks if is connected to the event server.
-
-        Returns:
-            bool: True if successful, False otherwise.
-
-        """
-        if not self.event_server:
-            return False
-
-        return self.event_server.request('/healthcheck') == 'OK'
 
     @staticmethod
     def is_valid_provider(provider) -> bool:
@@ -163,12 +113,3 @@ class TronBase(ABC):
             return '0x' + keccak_hash.hexdigest()
 
         return keccak_hash.hexdigest()
-
-    def is_connected(self):
-        """Check all connected nodes"""
-
-        return {
-            'full_node': self.full_node.is_connected(),
-            'solidity_node': self.solidity_node.is_connected(),
-            'event_server': self.is_event_connected()
-        }
