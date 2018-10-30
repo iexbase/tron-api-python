@@ -6,6 +6,7 @@ import base58
 from Crypto.Hash import keccak
 
 from tronapi.provider import HttpProvider
+from tronapi.transactions import TransactionBuilder
 
 
 class TronBase(ABC):
@@ -37,12 +38,10 @@ class TronBase(ABC):
         if private_key:
             self.private_key = private_key
 
-        # Adding a comment to the transaction
-        # Example: "Hello World"
-        self.message = None
-
         # Tron default address
         self.default_address = None
+
+        self.transaction = TransactionBuilder(self)
 
     def __set_full_node(self, provider) -> None:
         """Check specified "full node"

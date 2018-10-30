@@ -13,14 +13,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import numbers
 from _sha256 import sha256
 import base58
 import math
 
+from tronapi import utils
 from tronapi.abstract import TronBase
 from tronapi.exceptions import InvalidTronError, TronError
-from tronapi import utils
+from tronapi.transactions import TransactionBuilder
 
 
 class Tron(TronBase):
@@ -311,18 +312,6 @@ class Tron(TronBase):
 
         return response['num']
 
-    def send(self, **kwargs):
-        """Send funds to the Tron account (option 2)
-
-        Returns:
-            Returns the details of the transaction being sent.
-             [result = 1] - Successfully sent
-
-        """
-        return self.send_transaction(kwargs.get('owner_address'),
-                                     kwargs.get('to_address'),
-                                     kwargs.get('amount'))
-
     def get_event_result(self, contract_address=None, since=0, event_name=None, block_number=None):
         """Will return all events matching the filters.
 
@@ -380,7 +369,17 @@ class Tron(TronBase):
         response = self.event_server.request('/event/transaction/' + tx_id)
         return response
 
-    def send_trx(self, **kwargs):
+    def send(self, *args):
+        """Send funds to the Tron account (option 2)
+
+        Returns:
+            Returns the details of the transaction being sent.
+            [result = 1] - Successfully sent
+
+            """
+        return self.send_transaction(*args)
+
+    def send_trx(self, *args):
         """Send funds to the Tron account (option 3)
 
         Returns:
@@ -388,96 +387,65 @@ class Tron(TronBase):
              [result = 1] - Successfully sent
 
         """
-        return self.send_transaction(kwargs.get('owner_address'),
-                                     kwargs.get('to_address'),
-                                     kwargs.get('amount'))
+        return self.send_transaction(*args)
 
-    def add_message(self, text) -> None:
-        if not utils.is_string(text):
-            raise TronError('Message not specified')
+    def send_transaction(self, to, amount, message=None,
+                         owner_address=None):
+        """Send an asset to another account.
 
-        self.message = self.string_utf8_to_hex(text)
-
-    def send_transaction(self, owner_address, to_address, amount):
-        """Send transaction to Blockchain
-
-        Args:
-            owner_address (str): Owner address
-            to_address (str): To address
-            amount (float): Value
-
-        Returns:
-            Returns the details of the transaction being sent.
-             [result = 1] - Successfully sent
+        Parameters:
+            to (str): Recipient
+            amount (float): Amount to transfer
+            message (str, optional): Message
+            owner_address (str, optional): the source account for the transfer
+                if not ``default_address``
 
         """
-        if not self.private_key:
-            raise TronError('Missing private key')
-
-        if not self.is_address(to_address):
+        if not self.is_address(to):
             raise InvalidTronError('Invalid address provided')
 
-        transaction = self._create_transaction(owner_address, to_address, amount)
-        sign = self._sign_transaction(transaction)
-        response = self._send_raw_transaction(sign)
-
-        result = dict(sign)
-        result.update(response)
-
-        return result
-
-    def _create_transaction(self, owner_address, to_address, amount):
-        """Creates a transaction of transfer.
-        If the recipient address does not exist, a corresponding account will be created on the blockchain.
-
-        Args:
-            owner_address (str): from address
-            to_address (str): to address
-            amount (float): amount
-
-        Returns:
-            Transaction contract data
-
-        """
-
-        if type(amount) != float or amount < 0:
+        if not isinstance(amount, float) and amount <= 0:
             raise InvalidTronError('Invalid amount provided')
 
-        _to = self.to_hex(to_address)
-        _from = self.to_hex(owner_address)
+        if owner_address is None:
+            owner_address = self.default_address
 
-        if _to == _from:
-            raise TronError('Cannot transfer TRX to the same account')
+        if message is not None and not isinstance(message, str):
+            raise InvalidTronError('Invalid Message')
 
-        return self.full_node.request('/wallet/createtransaction', {
-            'to_address': _to,
-            'owner_address': _from,
-            'amount': self.to_tron(amount)
-        }, 'post')
+        tx = self.transaction.send_trx(to, amount, owner_address)
+        sign = self.sign(tx, message)
+        result = self.broadcast(sign)
 
-    def _sign_transaction(self, transaction):
+        return {'data': sign, 'status': result}
+
+    def sign(self, transaction, message):
         """Sign the transaction, the api has the risk of leaking the private key,
         please make sure to call the api in a secure environment
 
         Args:
             transaction (object): transaction details
+            message (str): Message
 
         Returns:
             Signed Transaction contract data
 
         """
+        if not self.private_key:
+            raise TronError('Missing private key')
+
         if 'signature' in transaction:
             raise TronError('Transaction is already signed')
 
-        if self.message is not None:
-            transaction['raw_data']['data'] = self.string_utf8_to_hex(self.message)
+        if message is not None:
+            transaction['raw_data']['data'] = self.string_utf8_to_hex(message)
 
         return self.full_node.request('/wallet/gettransactionsign', {
             'transaction': transaction,
             'privateKey': self.private_key
         }, 'post')
 
-    def _send_raw_transaction(self, signed):
+    def broadcast(self, signed):
         """Broadcast the signed transaction
 
         Args:
@@ -522,7 +490,7 @@ class Tron(TronBase):
         if 'Error' in transaction:
             raise Exception('This account name already exist')
 
-        sign = self._sign_transaction(transaction)
+        sign = self.sign(transaction)
         response = self._send_raw_transaction(sign)
 
         return response
