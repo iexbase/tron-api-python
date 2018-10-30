@@ -37,7 +37,16 @@ setuptools.setup(
 
     author='Shamsudin Serderov',
     author_email='steein.shamsudin@gmail.com',
-    license='Apache Software License',
+    license='MIT License',
+    classifiers=[
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 3',
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Financial and Insurance Industry',
+        'Topic :: Office/Business :: Financial',
+    ],
 
     packages=setuptools.find_packages(),
     include_package_data=True,
