@@ -47,7 +47,6 @@ setuptools.setup(
         'Intended Audience :: Financial and Insurance Industry',
         'Topic :: Office/Business :: Financial',
     ],
-
     packages=setuptools.find_packages(),
     include_package_data=True,
     install_requires=PACKAGE_REQUIRED,
