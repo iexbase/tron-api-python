@@ -292,12 +292,12 @@ class Tron(object):
             'address': self.to_hex(address)
         }, 'post')
 
-    def get_balance(self, address=None, from_tron=False):
+    def get_balance(self, address=None, from_sun=False):
         """Getting a balance
 
         Args:
             address (str): Address
-            from_tron (bool): Convert to float format
+            from_sun (bool): Convert to float format
 
         """
         response = self.get_account(address)
@@ -305,8 +305,8 @@ class Tron(object):
         if 'balance' not in response:
             return 0
 
-        if from_tron:
-            return self.from_tron(response['balance'])
+        if from_sun:
+            return self.from_sun(response['balance'])
 
         return response['balance']
 
@@ -1030,19 +1030,19 @@ class Tron(object):
 
     @staticmethod
     def to_ascii(s):
-        return binascii.a2b_hex(s)
+        return binascii.a2b_hex(s).decode()
 
     @staticmethod
     def from_ascii(string):
-        return binascii.b2a_hex(bytes(string, encoding="utf8"))
+        return binascii.b2a_hex(bytes(string, encoding="utf8")).decode()
 
     @staticmethod
     def to_utf8(hex_string):
-        return binascii.unhexlify(hex_string).decode('utf8')
+        return binascii.unhexlify(hex_string).decode()
 
     @staticmethod
     def from_utf8(string):
-        return binascii.hexlify(bytes(string, encoding="utf8")).decode('utf8')
+        return binascii.hexlify(bytes(string, encoding="utf8")).decode()
 
     @staticmethod
     def from_decimal(value):
@@ -1063,21 +1063,21 @@ class Tron(object):
         return bytes(name, encoding='utf-8').hex()
 
     @staticmethod
-    def to_tron(amount):
-        """Convert float to trx format
+    def to_sun(amount):
+        """Helper function that will convert a value in TRX to SUN. (1 TRX = 1000000 TRX)
 
         Args:
-            amount (float): Value
+            amount (float): Value in TRX to convert to SUN
 
         """
         return math.floor(amount * 1e6)
 
     @staticmethod
-    def from_tron(amount):
-        """Convert trx to float
+    def from_sun(amount):
+        """Helper function that will convert a value in SUN to TRX. (1 SUN = 0.000001 TRX)
 
         Args:
-            amount (int): Value
+            amount (int): Value in SUN to convert to TRX
 
         """
         return abs(amount) / 1e6

@@ -35,7 +35,7 @@ class TransactionBuilder(object):
         return self.tron.full_node.request('/wallet/createtransaction', {
             'to_address': _to,
             'owner_address': _from,
-            'amount': self.tron.to_tron(amount)
+            'amount': self.tron.to_sun(amount)
         }, 'post')
 
     def send_token(self, to, amount, token_id, account):
@@ -74,11 +74,22 @@ class TransactionBuilder(object):
             'to_address': _to,
             'owner_address': _from,
             'asset_name': _token_id,
-            'amount': self.tron.to_tron(amount)
+            'amount': self.tron.to_sun(amount)
         }, 'post')
 
     def update_account(self, account_name, account):
+        """Modify account name
 
+        Note: Username is allowed to edit only once.
+
+        Args:
+            account_name (str): name of the account
+            account (str): address
+
+        Returns:
+            modified Transaction Object
+
+        """
         if not utils.is_string(account_name):
             raise ValueError('Name must be a string')
 
