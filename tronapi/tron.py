@@ -1016,6 +1016,9 @@ class Tron(object):
             address (str): address
 
         """
+        if utils.is_hex(address):
+            return address.lower().replace('0x', '41', 2)
+
         return base58.b58decode_check(address).hex().upper()
 
     @staticmethod
@@ -1025,8 +1028,10 @@ class Tron(object):
         Args:
             address (str): address
 
-
         """
+        if not utils.is_hex(address):
+            return address
+
         return base58.b58encode_check(bytes.fromhex(address))
 
     @staticmethod
