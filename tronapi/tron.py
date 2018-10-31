@@ -248,8 +248,8 @@ class Tron(object):
             'value': transaction_id
         }, 'post')
 
-        if not response:
-            raise TronError('Transaction not found')
+        # if not response:
+        #     raise TronError('Transaction not found')
 
         return response
 
