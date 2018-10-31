@@ -82,6 +82,7 @@ class Tron(object):
         self.__set_full_node(full_node)
         self.__set_solidity_node(solidity_node)
 
+        self._default_block = None
         self.private_key = private_key
         self.default_address = Address(base58=None, hex=None)
 
@@ -124,6 +125,24 @@ class Tron(object):
         self.solidity_node = provider
         self.solidity_node.status_page = '/walletsolidity/getnowblock'
 
+    @property
+    def default_block(self):
+        return self._default_block
+        pass
+
+    @default_block.setter
+    def default_block(self, block_id):
+        """Sets the default block used as a reference for all future calls."""
+
+        if block_id in ('latest', 'earliest', 0):
+            self._default_block = block_id
+            return
+
+        if not utils.is_numeric(block_id) or not block_id:
+            raise ValueError('Invalid block ID provided')
+
+        self._default_block = abs(block_id)
+
     def get_current_block(self):
         """Query the latest block
 
@@ -140,12 +159,15 @@ class Tron(object):
 
         """
         if block is None:
-            raise TronError('No block identifier provided')
+            block = self.default_block
+
+        if block == 'earliest':
+            block = 0
 
         if block == 'latest':
             return self.get_current_block()
 
-        if len(block) == 64:
+        if math.isnan(block) and utils.is_hex(block):
             return self.get_block_by_hash(block)
 
         return self.get_block_by_number(int(block))
