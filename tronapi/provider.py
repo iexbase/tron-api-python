@@ -98,12 +98,12 @@ class HttpProvider(object):
         'Content-Type': 'application/json'
     }
 
-    port_defaults = {
+    http_default_port = {
         'http': 80,
         'https': 443
     }
 
-    pool_classes_by_scheme = {
+    http_scheme = {
         'http': HTTPConnectionPool,
         'https': HTTPSConnectionPool,
     }
@@ -168,9 +168,9 @@ class HttpProvider(object):
         scheme, url, port = get_host(self.host)
 
         if port is None:
-            port = self.port_defaults[scheme]
+            port = self.http_default_port[scheme]
 
-        pool_cls = self.pool_classes_by_scheme[scheme]
+        pool_cls = self.http_scheme[scheme]
         client = pool_cls(host=url,
                           port=port,
                           timeout=self.timeout,
