@@ -128,7 +128,6 @@ class Tron(object):
     @property
     def default_block(self):
         return self._default_block
-        pass
 
     @default_block.setter
     def default_block(self, block_id):
