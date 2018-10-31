@@ -11,7 +11,7 @@ class TransactionBuilder(object):
         """Creates a transaction of transfer.
         If the recipient address does not exist, a corresponding account will be created.
 
-        Parameters:
+        Args:
             to (str): to address
             amount (float): amount
             account (str): from address
@@ -23,7 +23,7 @@ class TransactionBuilder(object):
         if not self.tron.is_address(to):
             raise InvalidTronError('Invalid recipient address provided')
 
-        if not isinstance(amount, float) and amount <= 0:
+        if not isinstance(amount, float) or amount <= 0:
             raise InvalidTronError('Invalid amount provided')
 
         _to = self.tron.to_hex(to)
@@ -35,6 +35,45 @@ class TransactionBuilder(object):
         return self.tron.full_node.request('/wallet/createtransaction', {
             'to_address': _to,
             'owner_address': _from,
+            'amount': self.tron.to_tron(amount)
+        }, 'post')
+
+    def send_token(self, to, amount, token_id, account):
+        """Transfer Token
+
+        Args:
+            to (str): is the recipient address
+            amount (float): is the amount of token to transfer
+            token_id (str): Token Name(NOT SYMBOL)
+            account: (str): is the address of the withdrawal account
+
+        Returns:
+            Token transfer Transaction raw data
+
+        """
+        if not self.tron.is_address(to):
+            raise InvalidTronError('Invalid recipient address provided')
+
+        if not isinstance(amount, float) or amount <= 0:
+            raise InvalidTronError('Invalid amount provided')
+
+        if not utils.is_string(token_id) or not len(token_id):
+            raise InvalidTronError('Invalid token ID provided')
+
+        if not self.tron.is_address(account):
+            raise InvalidTronError('Invalid origin address provided')
+
+        _to = self.tron.to_hex(to)
+        _from = self.tron.to_hex(account)
+        _token_id = self.tron.from_utf8(token_id)
+
+        if _to == _from:
+            raise TronError('Cannot transfer TRX to the same account')
+
+        return self.tron.full_node.request('/wallet/transferasset', {
+            'to_address': _to,
+            'owner_address': _from,
+            'asset_name': _token_id,
             'amount': self.tron.to_tron(amount)
         }, 'post')
 

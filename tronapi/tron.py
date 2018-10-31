@@ -466,7 +466,7 @@ class Tron(object):
         if not self.is_address(to):
             raise InvalidTronError('Invalid address provided')
 
-        if not isinstance(amount, float) and amount <= 0:
+        if not isinstance(amount, float) or amount <= 0:
             raise InvalidTronError('Invalid amount provided')
 
         if owner_address is None:
@@ -477,6 +477,26 @@ class Tron(object):
 
         tx = self.transaction.send_trx(to, amount, owner_address)
         sign = self.sign(tx, message)
+        result = self.broadcast(sign)
+
+        return result
+
+    def send_token(self, to, amount, token_id=None, owner_address=None):
+
+        if not self.is_address(to):
+            raise InvalidTronError('Invalid recipient provided')
+
+        if not isinstance(amount, float) or amount <= 0:
+            raise InvalidTronError('Invalid amount provided')
+
+        if not utils.is_string(token_id):
+            raise InvalidTronError('Invalid token ID provided')
+
+        if owner_address is None:
+            owner_address = self.default_address.hex
+
+        tx = self.transaction.send_token(to, amount, token_id, owner_address)
+        sign = self.sign(tx)
         result = self.broadcast(sign)
 
         return result
@@ -1009,7 +1029,7 @@ class Tron(object):
 
     @staticmethod
     def from_utf8(string):
-        return binascii.hexlify(bytes(string, encoding="utf8"))
+        return binascii.hexlify(bytes(string, encoding="utf8")).decode('utf8')
 
     @staticmethod
     def from_decimal(value):
