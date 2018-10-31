@@ -1064,7 +1064,7 @@ class Tron(object):
 
     @staticmethod
     def to_sun(amount):
-        """Helper function that will convert a value in TRX to SUN. (1 TRX = 1000000 TRX)
+        """Helper function that will convert a value in TRX to SUN.
 
         Args:
             amount (float): Value in TRX to convert to SUN
@@ -1074,7 +1074,7 @@ class Tron(object):
 
     @staticmethod
     def from_sun(amount):
-        """Helper function that will convert a value in SUN to TRX. (1 SUN = 0.000001 TRX)
+        """Helper function that will convert a value in SUN to TRX.
 
         Args:
             amount (int): Value in SUN to convert to TRX
