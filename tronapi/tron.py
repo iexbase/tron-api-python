@@ -253,7 +253,7 @@ class Tron(object):
 
         return response
 
-    def get_account_resource(self, address):
+    def get_account_resource(self, address=None):
         """Query the resource information of the account
 
         Args:
@@ -264,6 +264,9 @@ class Tron(object):
 
         """
 
+        if address is None:
+            address = self.default_address.hex
+
         if not self.is_address(address):
             raise InvalidTronError('Invalid address provided')
 
@@ -271,13 +274,17 @@ class Tron(object):
             'address': self.to_hex(address)
         })
 
-    def get_account(self, address):
+    def get_account(self, address=None):
         """Query information about an account
 
         Args:
             address (str): Address
 
         """
+
+        if address is None:
+            address = self.default_address.hex
+
         if not self.is_address(address):
             raise InvalidTronError('Invalid address provided')
 
@@ -285,7 +292,7 @@ class Tron(object):
             'address': self.to_hex(address)
         }, 'post')
 
-    def get_balance(self, address, from_tron=False):
+    def get_balance(self, address=None, from_tron=False):
         """Getting a balance
 
         Args:
@@ -326,6 +333,9 @@ class Tron(object):
             callback.update(to_direction)
             return callback
 
+        if address is None:
+            address = self.default_address.hex
+
         if not self.is_address(address):
             raise InvalidTronError('Invalid address provided')
 
@@ -344,7 +354,7 @@ class Tron(object):
         # response.update({'direction': direction})
         return response
 
-    def get_transactions_to_address(self, address, limit=30, offset=0):
+    def get_transactions_to_address(self, address=None, limit=30, offset=0):
         """Query the list of transactions received by an address
 
         Args:
@@ -358,7 +368,7 @@ class Tron(object):
         """
         return self.get_transactions_related(address, 'to', limit, offset)
 
-    def get_transactions_from_address(self, address, limit=30, offset=0):
+    def get_transactions_from_address(self, address=None, limit=30, offset=0):
         """Query the list of transactions sent by an address
 
         Args:
@@ -388,7 +398,7 @@ class Tron(object):
 
         return response
 
-    def get_band_width(self, address):
+    def get_band_width(self, address=None):
         """Query bandwidth information.
 
         Args:
@@ -407,6 +417,9 @@ class Tron(object):
             }
 
         """
+
+        if address is None:
+            address = self.default_address.hex
 
         if not self.is_address(address):
             raise InvalidTronError('Invalid address provided')
