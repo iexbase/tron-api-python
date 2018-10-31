@@ -34,6 +34,15 @@ from tronapi.provider import HttpProvider
 from tronapi.transactions import TransactionBuilder
 
 
+# Model Address
+class Address(dict):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.hex = kwargs.get('hex')
+        self.base58 = kwargs.get('base58')
+
+
 class Tron(object):
     def __init__(self,
                  full_node,
@@ -74,10 +83,20 @@ class Tron(object):
         self.__set_solidity_node(solidity_node)
 
         self.private_key = private_key
-        self.default_address = None
+        self.default_address = Address(base58=None, hex=None)
 
         self.events = Event(self, event_server)
         self.transaction = TransactionBuilder(self)
+
+    def set_address(self, address):
+
+        if not self.is_address(address):
+            raise ValueError('Invalid address provided')
+
+        _hex = self.to_hex(address)
+        _base58 = self.from_hex(address)
+
+        self.default_address = Address(hex=_hex, base58=_base58)
 
     def __set_full_node(self, provider) -> None:
         """Check specified "full node"
@@ -430,7 +449,7 @@ class Tron(object):
             raise InvalidTronError('Invalid amount provided')
 
         if owner_address is None:
-            owner_address = self.default_address
+            owner_address = self.default_address.hex
 
         if message is not None and not isinstance(message, str):
             raise InvalidTronError('Invalid Message')
@@ -505,7 +524,7 @@ class Tron(object):
 
         """
         if address is None:
-            address = self.default_address
+            address = self.default_address.hex
 
         if not self.is_address(address):
             raise InvalidTronError('Invalid address provided')
@@ -756,7 +775,8 @@ class Tron(object):
             Convert it to base58 to use as the address.
 
         """
-        return self.full_node.request('/wallet/generateaddress', {}, 'post')
+        response = self.full_node.request('/wallet/generateaddress', {}, 'post')
+        return response
 
     def get_chain_parameters(self):
         """Getting chain parameters"""
