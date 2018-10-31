@@ -75,7 +75,7 @@ class TronResponse(object):
 
     def error(self):
         """
-        Returns a FacebookRequestError (located in the exceptions module) with
+        Returns a TronRequestError (located in the exceptions module) with
         an appropriate debug message.
         """
         if self.is_failure():
