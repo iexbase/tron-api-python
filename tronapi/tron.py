@@ -516,7 +516,7 @@ class Tron(object):
         Note: Username is allowed to edit only once.
 
         Args:
-            name (str): name of the account
+            account_name (str): name of the account
             address (str): address
 
         Returns:
