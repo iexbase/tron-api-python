@@ -796,7 +796,7 @@ class Tron(object):
             Convert it to base58 to use as the address.
 
         """
-        response = self.full_node.request('/wallet/generateaddress1', {}, 'post')
+        response = self.full_node.request('/wallet/generateaddress', {}, 'post')
         return response
 
     def get_chain_parameters(self):
