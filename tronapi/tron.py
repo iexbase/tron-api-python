@@ -335,13 +335,13 @@ class Tron(object):
         if not isinstance(offset, int) or offset < 0:
             raise InvalidTronError('Invalid offset provided')
 
-        response = self.solidity_node.request('/walletextension/gettransactions{}this'.format(direction), {
+        response = self.solidity_node.request('/walletextension/gettransactions{0}this'.format(direction), {
             'account': {'address': self.to_hex(address)},
             'limit': limit,
             'offset': offset
         }, 'post')
 
-        response.update({'direction': direction})
+        # response.update({'direction': direction})
         return response
 
     def get_transactions_to_address(self, address, limit=30, offset=0):
@@ -796,7 +796,7 @@ class Tron(object):
             Convert it to base58 to use as the address.
 
         """
-        response = self.full_node.request('/wallet/generateaddress', {}, 'post')
+        response = self.full_node.request('/wallet/generateaddress1', {}, 'post')
         return response
 
     def get_chain_parameters(self):
