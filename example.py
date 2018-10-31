@@ -104,7 +104,7 @@ logger.debug('-----------')
 # logger.debug('-----------')
 
 
-event_result = tron.events.get_event_result('TGEJj8eus46QMHPgWQe1FJ2ymBXRm96fn1', 'Nofity')
+event_result = tron.events.get_event_result('TGEJj8eus46QMHPgWQe1FJ2ymBXRm96fn1', 0, 'Notify')
 
 logger.debug('Event result:')
 logger.debug('Contract Address: TGEJj8eus46QMHPgWQe1FJ2ymBXRm96fn1')
@@ -113,7 +113,7 @@ logger.debug('Block Number: 32162')
 logger.debug('- Events: ' + json.dumps(event_result, indent=2))
 
 
-event_by_transaction_id = tron.events.get_event_result('32d7efe5f70c044bcd831f21f911209a7abf4ed0d5934b2c1b804e108008cd43')
+event_by_transaction_id = tron.events.get_event_transaction_id('32d7efe5f70c044bcd831f21f911209a7abf4ed0d5934b2c1b804e108008cd43')
 
 logger.debug('Specific event result:')
 logger.debug('Transaction: 32d7efe5f70c044bcd831f21f911209a7abf4ed0d5934b2c1b804e108008cd43')
@@ -124,3 +124,4 @@ first_transaction = tron.get_transaction_from_block(0, 0)
 
 logger.debug('First transaction from block 0')
 logger.debug('- Transaction: ' + json.dumps(first_transaction, indent=2))
+

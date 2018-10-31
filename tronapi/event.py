@@ -64,7 +64,7 @@ class Event(object):
 
         route = '/'.join(route_params)
 
-        return self.event_server.request("/event/contract/{}?since={}".format(route, since))
+        return self.event_server.request("/event/contract/{0}?since={1}".format(route, since))
 
     def get_event_transaction_id(self, tx_id):
         """Will return all events within a transactionID.
