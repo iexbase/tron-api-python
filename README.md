@@ -14,6 +14,25 @@ A Python API for interacting with the Tron (TRX)
 | :------ | :------------------ | :---------
 | install | `pip install tronapi`  |
 
+## Development
+
+### Releasing
+
+Pandoc is required for transforming the markdown README to the proper format to
+render correctly on pypi.
+
+For Debian-like systems:
+
+```
+apt install pandoc
+```
+
+Or on OSX:
+
+```sh
+brew install pandoc
+```
+
 
 ## Basic Usage
 Specify the API endpoints:
