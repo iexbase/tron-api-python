@@ -21,6 +21,8 @@
 # SOFTWARE.
 
 import binascii
+import json
+import numbers
 from _sha256 import sha256
 import base58
 import math
@@ -1073,7 +1075,7 @@ class Tron(object):
 
     @staticmethod
     def from_utf8(string):
-        return binascii.hexlify(bytes(string, encoding="utf8")).decode()
+        return '0x' + binascii.hexlify(bytes(string, encoding="utf8")).decode()
 
     @staticmethod
     def from_decimal(value):
@@ -1112,6 +1114,37 @@ class Tron(object):
 
         """
         return abs(amount) / 1e6
+
+    def to_hex(self, val):
+        """
+        Helper function that will convert a generic value to hex.
+
+        Note: This function does not convert TRX addresses to Hex.
+        If you wish to specifically convert TRX addresses to HEX,
+        please use tron.address.to_hex instead.
+
+        Args:
+            val (str): Value to convert to hex.
+
+        Example:
+            >>> tron.to_hex("test")
+            >>> # result "74657374"
+
+        """
+        if utils.is_bool(val):
+            return self.from_decimal(+val)
+
+        if isinstance(val, (dict, object)):
+            return self.from_utf8(json.dumps(val).replace(' ', ''))
+
+        if utils.is_string(val):
+            if val[:2] == '0x':
+                return val
+
+            if not isinstance(val, numbers.Real):
+                return self.from_utf8(val)
+
+        return self.from_decimal(val)
 
     @staticmethod
     def sha3(string, prefix=False):
