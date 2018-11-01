@@ -81,5 +81,4 @@ class Event(object):
             raise TronError('No event server configured')
 
         response = self.event_server.request('/event/transaction/' + tx_id)
-
         return response
