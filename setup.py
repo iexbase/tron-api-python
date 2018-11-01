@@ -18,7 +18,8 @@ PACKAGE_REQUIRED = [
     'pycryptodome',
     'base58',
     'eth-keys',
-    'ecdsa'
+    'ecdsa',
+    'pysha3'
 ]
 
 this_dir = os.path.dirname(__file__)
