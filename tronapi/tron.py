@@ -1041,7 +1041,7 @@ class Tron(object):
             return False
 
         if len(address) == 42:
-            address = self.from_hex(address).decode('utf8')
+            address = self.address.from_hex(address).decode('utf8')
 
         bc = base58.b58decode(address)
         return bc[-4:] == sha256(sha256(bc[:-4]).digest()).digest()[:4]
