@@ -1,6 +1,10 @@
 import string
 
 
+def is_bool(x) -> bool:
+    return isinstance(x, bool)
+
+
 def is_numeric(x) -> bool:
     return isinstance(x, int)
 
@@ -20,5 +24,3 @@ def is_hex(s):
 
 def string_utf8_to_hex(name):
     return bytes(name, encoding='utf-8').hex()
-
-
