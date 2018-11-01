@@ -28,19 +28,11 @@ import math
 from Crypto.Hash import keccak
 
 from tronapi import utils
+from tronapi.account import Address
 from tronapi.event import Event
 from tronapi.exceptions import InvalidTronError, TronError
 from tronapi.provider import HttpProvider
 from tronapi.transactions import TransactionBuilder
-
-
-# Model Address
-class Address(dict):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-        self.hex = kwargs.get('hex')
-        self.base58 = kwargs.get('base58')
 
 
 class Tron(object):
