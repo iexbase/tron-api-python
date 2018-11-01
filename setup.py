@@ -16,7 +16,8 @@ PACKAGE_VERSION = '2.0.2'
 PACKAGE_REQUIRED = [
     'urllib3',
     'pycryptodome',
-    'base58'
+    'base58',
+    'eth-keys'
 ]
 
 this_dir = os.path.dirname(__file__)
