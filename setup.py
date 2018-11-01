@@ -17,7 +17,8 @@ PACKAGE_REQUIRED = [
     'urllib3',
     'pycryptodome',
     'base58',
-    'eth-keys'
+    'eth-keys',
+    'ecdsa'
 ]
 
 this_dir = os.path.dirname(__file__)
