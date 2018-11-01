@@ -28,7 +28,7 @@ import math
 from Crypto.Hash import keccak
 
 from tronapi import utils
-from tronapi.account import Address, GenerateAccount
+from tronapi.account import Address, GenerateAccount, Account, PrivateKey
 from tronapi.event import Event
 from tronapi.exceptions import InvalidTronError, TronError
 from tronapi.provider import HttpProvider
@@ -75,19 +75,55 @@ class Tron(object):
         self.__set_solidity_node(solidity_node)
 
         self._default_block = None
-        self.private_key = private_key
+        self._private_key = private_key
         self.default_address = Address(base58=None, hex=None)
 
         self.events = Event(self, event_server)
         self.transaction = TransactionBuilder(self)
 
+    def set_private_key(self, private_key) -> None:
+        """Set a private key used with the TronAPI instance,
+        used for obtaining the address, signing transactions etc...
+
+        Args:
+            private_key (str): Private key
+
+        Example:
+            >>> tron.set_private_key('da146...f0d0')
+
+        Warning:
+            Do not use this with any web/user facing TronAPI instances.
+            This will leak the private key.
+
+        """
+
+        try:
+            check = PrivateKey(private_key).public_key
+        except ValueError:
+            raise TronError('Invalid private key provided')
+
+        self._private_key = str(private_key).lower()
+
     def set_address(self, address):
+        """Sets the address used with all Tron API's. Will not sign any transactions.
+
+            Args:
+                address (str) Tron Address
+
+            Example:
+                >>> tron.set_address('TSkTw9Hd3oaJULL3er1UNfzASkunE9yA8f')
+        """
 
         if not self.is_address(address):
-            raise ValueError('Invalid address provided')
+            raise InvalidTronError('Invalid address provided')
 
-        _hex = self.to_hex(address)
-        _base58 = self.from_hex(address)
+        _hex = self.address.to_hex(address)
+        _base58 = self.address.from_hex(address)
+        _private_base58 = self.address.from_private_key(self._private_key)
+
+        # check the addresses
+        if self._private_key and _private_base58 != _base58:
+            self._private_key = None
 
         self.default_address = Address(hex=_hex, base58=_base58)
 
@@ -116,6 +152,18 @@ class Tron(object):
 
         self.solidity_node = provider
         self.solidity_node.status_page = '/walletsolidity/getnowblock'
+
+    @property
+    def address(self):
+        """Helper object that allows you to convert
+        between hex/base58 and private key representations of a TRON address.
+
+        Note:
+            If you wish to convert generic data to hexadecimal strings,
+            please use the function tron.to_hex.
+
+        """
+        return Account()
 
     @property
     def default_block(self):
@@ -263,7 +311,7 @@ class Tron(object):
             raise InvalidTronError('Invalid address provided')
 
         return self.full_node.request('/wallet/getaccountresource', {
-            'address': self.to_hex(address)
+            'address': self.address.to_hex(address)
         })
 
     def get_account(self, address=None):
@@ -281,7 +329,7 @@ class Tron(object):
             raise InvalidTronError('Invalid address provided')
 
         return self.solidity_node.request('/walletsolidity/getaccount', {
-            'address': self.to_hex(address)
+            'address': self.address.to_hex(address)
         }, 'post')
 
     def get_balance(self, address=None, from_sun=False):
@@ -338,7 +386,9 @@ class Tron(object):
             raise InvalidTronError('Invalid offset provided')
 
         response = self.solidity_node.request('/walletextension/gettransactions{0}this'.format(direction), {
-            'account': {'address': self.to_hex(address)},
+            'account': {
+                'address': self.address.to_hex(address)
+            },
             'limit': limit,
             'offset': offset
         }, 'post')
@@ -417,7 +467,7 @@ class Tron(object):
             raise InvalidTronError('Invalid address provided')
 
         return self.full_node.request('/wallet/getaccountnet', {
-            'address': self.to_hex(address)
+            'address': self.address.to_hex(address)
         }, 'post')
 
     def get_transaction_count(self):
@@ -518,7 +568,7 @@ class Tron(object):
             Signed Transaction contract data
 
         """
-        if not self.private_key:
+        if not self._private_key:
             raise TronError('Missing private key')
 
         if 'signature' in transaction:
@@ -529,7 +579,7 @@ class Tron(object):
 
         return self.full_node.request('/wallet/gettransactionsign', {
             'transaction': transaction,
-            'privateKey': self.private_key
+            'privateKey': self._private_key
         }, 'post')
 
     def broadcast(self, signed_transaction):
@@ -594,8 +644,8 @@ class Tron(object):
 
         """
         return self.full_node.request('/wallet/createaccount', {
-            'owner_address': self.to_hex(address),
-            'account_address': self.to_hex(new_account_address)
+            'owner_address': self.address.to_hex(address),
+            'account_address': self.address.to_hex(new_account_address)
         }, 'post')
 
     @staticmethod
@@ -613,8 +663,9 @@ class Tron(object):
             url (str): official website address
 
         """
+
         return self.full_node.request('/wallet/createwitness', {
-            'owner_address': self.to_hex(address),
+            'owner_address': self.address.to_hex(address),
             'url': self.string_utf8_to_hex(url)
         }, 'post')
 
@@ -647,8 +698,10 @@ class Tron(object):
         if not self.is_address(address):
             raise InvalidTronError('Invalid address provided')
 
+        address = self.address.to_hex(address)
+
         return self.full_node.request('/wallet/getassetissuebyaccount', {
-            'address': self.to_hex(address)
+            'address': address
         }, 'post')
 
     def get_token_from_id(self, token_id):
@@ -774,7 +827,7 @@ class Tron(object):
         if not self.is_address(contract_address):
             raise InvalidTronError('Invalid contract address provided')
 
-        contract_address = self.to_hex(contract_address)
+        contract_address = self.address.to_hex(contract_address)
 
         return self.full_node.request('/wallet/getcontract', {
             'value': contract_address
@@ -789,7 +842,7 @@ class Tron(object):
 
         """
         if is_hex:
-            address = self.to_hex(address)
+            address = self.address.to_hex(address)
 
         return self.full_node.request('/wallet/validateaddress', {
             'address': address
@@ -874,7 +927,7 @@ class Tron(object):
             raise InvalidTronError('Invalid proposalID provided')
 
         return self.full_node.request('/wallet/proposalapprove', {
-            'owner_address': self.to_hex(owner_address),
+            'owner_address': self.address.to_hex(owner_address),
             'proposal_id': proposal_id,
             'is_add_approval': is_add_approval
         }, 'post')
@@ -897,7 +950,7 @@ class Tron(object):
             raise InvalidTronError('Invalid proposalID provided')
 
         return self.full_node.request('/wallet/proposaldelete', {
-            'owner_address': self.to_hex(owner_address),
+            'owner_address': self.address.to_hex(owner_address),
             'proposal_id': proposal_id
         }, 'post')
 
@@ -926,7 +979,7 @@ class Tron(object):
             raise InvalidTronError('Invalid expected provided')
 
         return self.full_node.request('/wallet/exchangetransaction', {
-            'owner_address': self.to_hex(owner_address),
+            'owner_address': self.address.to_hex(owner_address),
             'exchange_id': exchange_id,
             'token_id': token_id,
             'quant': quant,
@@ -970,7 +1023,7 @@ class Tron(object):
             raise InvalidTronError('Invalid amount provided')
 
         return self.full_node.request('/wallet/exchangecreate', {
-            'owner_address': self.to_hex(owner_address),
+            'owner_address': self.address.to_hex(owner_address),
             'first_token_id': first_token_id,
             'first_token_balance': first_token_balance,
             'second_token_id': second_token_id,
@@ -1059,32 +1112,6 @@ class Tron(object):
 
         """
         return abs(amount) / 1e6
-
-    @staticmethod
-    def to_hex(address):
-        """Helper function that will convert a generic value to hex
-
-        Args:
-            address (str): address
-
-        """
-        if utils.is_hex(address):
-            return address.lower().replace('0x', '41', 2)
-
-        return base58.b58decode_check(address).hex().upper()
-
-    @staticmethod
-    def from_hex(address):
-        """Helper function that will convert a generic value from hex
-
-        Args:
-            address (str): address
-
-        """
-        if not utils.is_hex(address):
-            return address
-
-        return base58.b58encode_check(bytes.fromhex(address))
 
     @staticmethod
     def sha3(string, prefix=False):

@@ -26,8 +26,8 @@ class TransactionBuilder(object):
         if not isinstance(amount, float) or amount <= 0:
             raise InvalidTronError('Invalid amount provided')
 
-        _to = self.tron.to_hex(to)
-        _from = self.tron.to_hex(account)
+        _to = self.tron.address.to_hex(to)
+        _from = self.tron.address.to_hex(account)
 
         if _to == _from:
             raise TronError('Cannot transfer TRX to the same account')
@@ -63,8 +63,8 @@ class TransactionBuilder(object):
         if not self.tron.is_address(account):
             raise InvalidTronError('Invalid origin address provided')
 
-        _to = self.tron.to_hex(to)
-        _from = self.tron.to_hex(account)
+        _to = self.tron.address.to_hex(to)
+        _from = self.tron.address.to_hex(account)
         _token_id = self.tron.from_utf8(token_id)
 
         if _to == _from:
@@ -98,7 +98,7 @@ class TransactionBuilder(object):
 
         response = self.tron.full_node.request('/wallet/updateaccount', {
             'account_name': string_utf8_to_hex(account_name),
-            'owner_address': self.tron.to_hex(account)
+            'owner_address': self.tron.address.to_hex(account)
         }, 'post')
 
         if 'Error' in response:

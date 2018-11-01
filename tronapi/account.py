@@ -6,19 +6,54 @@ import sha3
 from ecdsa import SECP256k1, SigningKey
 from eth_keys import KeyAPI
 
-address_prefix = "41"
-public_prefix = "04"
+from tronapi import utils
 
 
 class Address(dict):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.hex = kwargs.get('hex')
-        self.base58 = kwargs.get('base58')
+        self.hex = str(kwargs.get('hex'))
+        self.base58 = str(kwargs.get('base58'))
 
     def __str__(self):
         return self.hex
+
+
+class Account(object):
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def from_hex(address):
+        """Helper function that will convert a generic value from hex
+
+        Args:
+            address (str): address
+
+        """
+        if not utils.is_hex(address):
+            return address
+
+        return base58.b58encode_check(bytes.fromhex(address))
+
+    @staticmethod
+    def to_hex(address):
+        """Helper function that will convert a generic value to hex
+
+        Args:
+            address (str): address
+
+        """
+        if utils.is_hex(address):
+            return address.lower().replace('0x', '41', 2)
+
+        return base58.b58decode_check(address).hex().upper()
+
+    @staticmethod
+    def from_private_key(private_key):
+        return PrivateKey(private_key).address.hex
 
 
 class GenerateAccount(object):
@@ -33,7 +68,7 @@ class GenerateAccount(object):
         public_key = self._private.get_verifying_key().to_string()
 
         if is_hex:
-            return public_prefix + public_key.hex()
+            return '04' + public_key.hex()
 
         return public_key
 
@@ -42,10 +77,13 @@ class GenerateAccount(object):
         keccak = sha3.keccak_256()
         keccak.update(self.public_key(False))
         address = keccak.hexdigest()[24:]
-        address = address_prefix + address
+        address = '41' + address
         to_base58 = base58.b58encode_check(bytes.fromhex(address))
 
         return Address(base58=address, hex=to_base58.decode())
+
+    def __str__(self):
+        return self.private_key().lower()
 
 
 class PrivateKey(object):
@@ -70,13 +108,14 @@ class PrivateKey(object):
     @property
     def public_key(self) -> str:
         public_key = self._key.public_key
-        return public_prefix + str(public_key)[2:]
+        return '04' + str(public_key)[2:]
 
     @property
     def address(self):
         public_key = self._key.public_key
-        address = address_prefix + public_key.to_address()[2:]
+        address = '41' + public_key.to_address()[2:]
         to_base58 = base58.b58encode_check(bytes.fromhex(address))
+
         return Address(base58=address, hex=to_base58.decode())
 
     def __str__(self):
