@@ -28,7 +28,7 @@ import math
 from Crypto.Hash import keccak
 
 from tronapi import utils
-from tronapi.account import Address
+from tronapi.account import Address, GenerateAccount
 from tronapi.event import Event
 from tronapi.exceptions import InvalidTronError, TronError
 from tronapi.provider import HttpProvider
@@ -598,24 +598,10 @@ class Tron(object):
             'account_address': self.to_hex(new_account_address)
         }, 'post')
 
-    def create_address(self, password):
-        """Create address from a specified password string (NOT PRIVATE KEY)
-
-        Args:
-            password (str): Enter password
-
-        Warning:
-            Please control risks when using this API. To ensure environmental security,
-            please do not invoke APIs provided by other or invoke this very API on a public network.
-
-        Results:
-            Value is the corresponding address for the password, encoded in hex.
-            Convert it to base58 to use as the address.
-
-        """
-        return self.full_node.request('/wallet/createaddress', {
-            'value': self.string_utf8_to_hex(password)
-        }, 'post')
+    @staticmethod
+    def create_account():
+        """Create account"""
+        return GenerateAccount()
 
     def apply_for_super_representative(self, address, url):
         """Apply to become a super representative
