@@ -12,7 +12,7 @@ except ImportError:
 
 py_version = platform.python_version()
 
-PACKAGE_VERSION = '2.0.2'
+PACKAGE_VERSION = '2.0.3'
 PACKAGE_REQUIRED = [
     'urllib3',
     'pycryptodome',
