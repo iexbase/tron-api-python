@@ -6,7 +6,7 @@ import sha3
 from ecdsa import SECP256k1, SigningKey
 from eth_keys import KeyAPI
 
-from tronapi import utils
+from tronapi.utils.hexadecimal import is_hex
 
 
 class Address(dict):
@@ -33,7 +33,7 @@ class Account(object):
             address (str): address
 
         """
-        if not utils.is_hex(address):
+        if not is_hex(address):
             return address
 
         return base58.b58encode_check(bytes.fromhex(address))
@@ -46,7 +46,7 @@ class Account(object):
             address (str): address
 
         """
-        if utils.is_hex(address):
+        if is_hex(address):
             return address.lower().replace('0x', '41', 2)
 
         return base58.b58decode_check(address).hex().upper()

@@ -1,6 +1,6 @@
-from tronapi import utils
 from tronapi.exceptions import InvalidTronError, TronError
-from tronapi.utils import string_utf8_to_hex
+from tronapi.utils.help import string_utf8_to_hex
+from tronapi.utils.types import is_string
 
 
 class TransactionBuilder(object):
@@ -57,7 +57,7 @@ class TransactionBuilder(object):
         if not isinstance(amount, float) or amount <= 0:
             raise InvalidTronError('Invalid amount provided')
 
-        if not utils.is_string(token_id) or not len(token_id):
+        if not is_string(token_id) or not len(token_id):
             raise InvalidTronError('Invalid token ID provided')
 
         if not self.tron.is_address(account):
@@ -90,7 +90,7 @@ class TransactionBuilder(object):
             modified Transaction Object
 
         """
-        if not utils.is_string(account_name):
+        if not is_string(account_name):
             raise ValueError('Name must be a string')
 
         if not self.tron.is_address(account):

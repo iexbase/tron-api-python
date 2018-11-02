@@ -23,18 +23,20 @@
 import binascii
 import json
 import numbers
+import sys
 from _sha256 import sha256
 import base58
 import math
 
 from Crypto.Hash import keccak
 
-from tronapi import utils
 from tronapi.account import Address, GenerateAccount, Account, PrivateKey
 from tronapi.event import Event
 from tronapi.exceptions import InvalidTronError, TronError
 from tronapi.provider import HttpProvider
 from tronapi.transactions import TransactionBuilder
+from tronapi.utils.hexadecimal import is_hex
+from tronapi.utils.types import is_string, is_integer, is_object, is_boolean
 
 
 class Tron(object):
@@ -43,6 +45,7 @@ class Tron(object):
                  solidity_node,
                  event_server=None,
                  private_key=None):
+
         """Connect to the Tron network.
 
         Parameters:
@@ -67,9 +70,9 @@ class Tron(object):
         """
 
         # check received nodes
-        if utils.is_string(full_node):
+        if is_string(full_node):
             full_node = HttpProvider(full_node)
-        if utils.is_string(solidity_node):
+        if is_string(solidity_node):
             solidity_node = HttpProvider(solidity_node)
 
         # node setup
@@ -79,6 +82,10 @@ class Tron(object):
         self._default_block = None
         self._private_key = private_key
         self.default_address = Address(base58=None, hex=None)
+        self.preferred_node = None
+
+        self._nodes = dict(full=self.full_node,
+                           solidity=self.solidity_node)
 
         self.events = Event(self, event_server)
         self.transaction = TransactionBuilder(self)
@@ -179,7 +186,7 @@ class Tron(object):
             self._default_block = block_id
             return
 
-        if not utils.is_numeric(block_id) or not block_id:
+        if not is_integer(block_id) or not block_id:
             raise ValueError('Invalid block ID provided')
 
         self._default_block = abs(block_id)
@@ -208,7 +215,7 @@ class Tron(object):
         if block == 'latest':
             return self.get_current_block()
 
-        if math.isnan(block) and utils.is_hex(block):
+        if is_hex(block):
             return self.get_block_by_hash(block)
 
         return self.get_block_by_number(int(block))
@@ -237,7 +244,7 @@ class Tron(object):
             Block object
 
         """
-        if not utils.is_numeric(block_id) or block_id < 0:
+        if not is_integer(block_id) or block_id < 0:
             raise InvalidTronError('Invalid block number provided')
 
         return self.full_node.request('/wallet/getblockbynum', {
@@ -269,7 +276,7 @@ class Tron(object):
             index (int) Position
 
         """
-        if not utils.is_numeric(index) or index < 0:
+        if not is_integer(index) or index < 0:
             raise InvalidTronError('Invalid transaction index provided')
 
         transactions = self.get_block(block)['transactions']
@@ -286,12 +293,13 @@ class Tron(object):
             transaction_id (str): transaction id
 
         """
+
         response = self.full_node.request('/wallet/gettransactionbyid', {
             'value': transaction_id
         }, 'post')
 
-        # if not response:
-        #     raise TronError('Transaction not found')
+        if not response:
+            raise TronError('Transaction not found')
 
         return response
 
@@ -546,7 +554,7 @@ class Tron(object):
         if not isinstance(amount, float) or amount <= 0:
             raise InvalidTronError('Invalid amount provided')
 
-        if not utils.is_string(token_id):
+        if not is_string(token_id):
             raise InvalidTronError('Invalid token ID provided')
 
         if owner_address is None:
@@ -598,7 +606,7 @@ class Tron(object):
             broadcast success or failure
 
         """
-        if not utils.is_object(signed_transaction):
+        if not is_object(signed_transaction):
             raise InvalidTronError('Invalid transaction provided')
 
         if 'signature' not in signed_transaction:
@@ -735,10 +743,10 @@ class Tron(object):
             A list of Block Objects
 
         """
-        if not utils.is_numeric(start) or start < 0:
+        if not is_integer(start) or start < 0:
             raise InvalidTronError('Invalid start of range provided')
 
-        if not utils.is_numeric(end) or end <= start:
+        if not is_integer(end) or end <= start:
             raise InvalidTronError('Invalid end of range provided')
 
         response = self.full_node.request('/wallet/getblockbylimitnext', {
@@ -758,7 +766,7 @@ class Tron(object):
             A list of Block Objects
 
         """
-        if not utils.is_numeric(limit) or limit <= 0:
+        if not is_integer(limit) or limit <= 0:
             raise InvalidTronError('Invalid limit provided')
 
         response = self.full_node.request('/wallet/getblockbylatestnum', {
@@ -791,10 +799,10 @@ class Tron(object):
             List of Tokens
 
         """
-        if not utils.is_numeric(limit) or (limit and offset < 1):
+        if not is_integer(limit) or (limit and offset < 1):
             raise InvalidTronError('Invalid limit provided')
 
-        if not utils.is_numeric(offset) or offset < 0:
+        if not is_integer(offset) or offset < 0:
             raise InvalidTronError('Invalid offset provided')
 
         if not limit:
@@ -1133,13 +1141,13 @@ class Tron(object):
             >>> # result "74657374"
 
         """
-        if utils.is_bool(val):
+        if is_boolean(val):
             return self.from_decimal(+val)
 
         if type(val) == dict:
             return self.from_utf8(json.dumps(val).replace(' ', ''))
 
-        if utils.is_string(val):
+        if is_string(val):
             if val[:2] == '0x':
                 return val
 

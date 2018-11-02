@@ -1,13 +1,13 @@
-from tronapi import utils
 from tronapi.exceptions import TronError, InvalidTronError
 from tronapi.provider import HttpProvider
+from tronapi.utils.types import is_string
 
 
 class Event(object):
     def __init__(self, tron, event_server):
         self.tron = tron
 
-        if utils.is_string(event_server):
+        if is_string(event_server):
             event_server = HttpProvider(event_server)
 
         self.event_server = event_server
