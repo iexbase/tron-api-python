@@ -121,7 +121,7 @@ class Tron(object):
 
         _hex = self.address.to_hex(address)
         _base58 = self.address.from_hex(address)
-        _private_base58 = self.address.from_private_key(self._private_key)
+        _private_base58 = self.address.from_private_key(self._private_key).base58
 
         # check the addresses
         if self._private_key and _private_base58 != _base58:
@@ -570,14 +570,18 @@ class Tron(object):
             Signed Transaction contract data
 
         """
-        if not self._private_key:
-            raise TronError('Missing private key')
 
         if 'signature' in transaction:
             raise TronError('Transaction is already signed')
 
         if message is not None:
             transaction['raw_data']['data'] = self.string_utf8_to_hex(message)
+
+        address = self.address.from_private_key(self._private_key).hex.lower()
+        owner_address = transaction['raw_data']['contract'][0]['parameter']['value']['owner_address']
+
+        if address != owner_address:
+            raise ValueError('Private key does not match address in transaction')
 
         return self.full_node.request('/wallet/gettransactionsign', {
             'transaction': transaction,

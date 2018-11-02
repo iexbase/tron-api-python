@@ -53,7 +53,7 @@ class Account(object):
 
     @staticmethod
     def from_private_key(private_key):
-        return PrivateKey(private_key).address.hex
+        return PrivateKey(private_key).address
 
 
 class GenerateAccount(object):
@@ -116,7 +116,7 @@ class PrivateKey(object):
         address = '41' + public_key.to_address()[2:]
         to_base58 = base58.b58encode_check(bytes.fromhex(address))
 
-        return Address(base58=address, hex=to_base58.decode())
+        return Address(hex=address, base58=to_base58.decode())
 
     def __str__(self):
         return self.private_key
