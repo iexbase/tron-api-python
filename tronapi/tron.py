@@ -1127,8 +1127,6 @@ class Tron(object):
         If you wish to specifically convert TRX addresses to HEX,
         please use tron.address.to_hex instead.
 
-        Args:
-            val (str): Value to convert to hex.
 
         Example:
             >>> tron.to_hex("test")
@@ -1138,7 +1136,7 @@ class Tron(object):
         if utils.is_bool(val):
             return self.from_decimal(+val)
 
-        if isinstance(val, (dict, object)):
+        if type(val) == dict:
             return self.from_utf8(json.dumps(val).replace(' ', ''))
 
         if utils.is_string(val):
