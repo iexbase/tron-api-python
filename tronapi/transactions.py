@@ -1,6 +1,6 @@
 from tronapi.exceptions import InvalidTronError, TronError
 from tronapi.utils.help import string_utf8_to_hex
-from tronapi.utils.types import is_string
+from tronapi.utils.types import is_string, is_integer
 
 
 class TransactionBuilder(object):
@@ -105,3 +105,68 @@ class TransactionBuilder(object):
             raise Exception('This account name already exist')
 
         return response
+
+    def freeze_balance(self,
+                       amount=0,
+                       duration=3,
+                       resource='BANDWIDTH',
+                       account=None):
+        """
+        Freezes an amount of TRX.
+        Will give bandwidth OR Energy and TRON Power(voting rights)
+        to the owner of the frozen tokens.
+
+        Args:
+            amount (int): number of frozen trx
+            duration (int): duration in days to be frozen
+            resource (str): type of resource, must be either "ENERGY" or "BANDWIDTH"
+            account (str): address that is freezing trx account
+
+        """
+
+        if resource not in ('BANDWIDTH', 'ENERGY',):
+            raise InvalidTronError('Invalid resource provided: Expected "BANDWIDTH" or "ENERGY"')
+
+        if not is_integer(amount) or amount <= 0:
+            raise InvalidTronError('Invalid amount provided')
+
+        if not is_integer(duration) or duration < 3:
+            raise InvalidTronError('Invalid duration provided, minimum of 3 days')
+
+        if not self.tron.is_address(account):
+            raise InvalidTronError('Invalid address provided')
+
+        owner_address = self.tron.address.to_hex(account)
+
+        return self.tron.full_node.request('/wallet/freezebalance', {
+            'owner_address': owner_address,
+            'frozen_balance': self.tron.to_sun(amount),
+            'frozen_duration': duration,
+            'resource': resource
+        }, 'post')
+
+    def unfreeze_balance(self,
+                         resource='BANDWIDTH',
+                         account=None):
+        """
+        Unfreeze TRX that has passed the minimum freeze duration.
+        Unfreezing will remove bandwidth and TRON Power.
+
+        Args:
+            resource (str): type of resource, must be either "ENERGY" or "BANDWIDTH"
+            account (str): address that is freezing trx account
+
+        """
+
+        if resource not in ('BANDWIDTH', 'ENERGY',):
+            raise InvalidTronError('Invalid resource provided: Expected "BANDWIDTH" or "ENERGY"')
+
+        if not self.tron.is_address(account):
+            raise InvalidTronError('Invalid address provided')
+
+        owner_address = self.tron.address.to_hex(account)
+
+        return self.tron.full_node.request('/wallet/unfreezebalance', {
+            'owner_address': owner_address,
+            'resource': resource
+        }, 'post')

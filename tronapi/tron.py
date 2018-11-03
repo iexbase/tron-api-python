@@ -23,7 +23,6 @@
 import binascii
 import json
 import numbers
-import sys
 from _sha256 import sha256
 import base58
 import math
@@ -82,7 +81,6 @@ class Tron(object):
         self._default_block = None
         self._private_key = private_key
         self.default_address = Address(base58=None, hex=None)
-        self.preferred_node = None
 
         self._nodes = dict(full=self.full_node,
                            solidity=self.solidity_node)
@@ -619,6 +617,55 @@ class Tron(object):
         result.update(signed_transaction)
 
         return result
+
+    def freeze_balance(self,
+                       amount=0,
+                       duration=3,
+                       resource='BANDWIDTH',
+                       account=None):
+        """
+        Freezes an amount of TRX.
+        Will give bandwidth OR Energy and TRON Power(voting rights)
+        to the owner of the frozen tokens.
+
+        Args:
+            amount (int): number of frozen trx
+            duration (int): duration in days to be frozen
+            resource (str): type of resource, must be either "ENERGY" or "BANDWIDTH"
+            account (str): address that is freezing trx account
+
+        """
+
+        if account is None:
+            account = self.default_address.hex
+
+        transaction = self.transaction.freeze_balance(amount, duration, resource, account)
+        sign = self.sign(transaction)
+        response = self.broadcast(sign)
+
+        return response
+
+    def unfreeze_balance(self,
+                         resource='BANDWIDTH',
+                         account=None):
+        """
+        Unfreeze TRX that has passed the minimum freeze duration.
+        Unfreezing will remove bandwidth and TRON Power.
+
+        Args:
+            resource (str): type of resource, must be either "ENERGY" or "BANDWIDTH"
+            account (str): address that is freezing trx account
+
+        """
+
+        if account is None:
+            account = self.default_address.hex
+
+        transaction = self.transaction.unfreeze_balance(resource, account)
+        sign = self.sign(transaction)
+        response = self.broadcast(sign)
+
+        return response
 
     def update_account(self, account_name, address=None):
         """Modify account name
