@@ -526,11 +526,6 @@ class Tron(object):
                 if not ``default_address``
 
         """
-        if not self.is_address(to):
-            raise InvalidTronError('Invalid address provided')
-
-        if not isinstance(amount, float) or amount <= 0:
-            raise InvalidTronError('Invalid amount provided')
 
         if owner_address is None:
             owner_address = self.default_address.hex
@@ -538,22 +533,13 @@ class Tron(object):
         if message is not None and not isinstance(message, str):
             raise InvalidTronError('Invalid Message')
 
-        tx = self.transaction.send_trx(to, amount, owner_address)
+        tx = self.transaction.send_transaction(to, amount, owner_address)
         sign = self.sign(tx, message)
         result = self.broadcast(sign)
 
         return result
 
     def send_token(self, to, amount, token_id=None, owner_address=None):
-
-        if not self.is_address(to):
-            raise InvalidTronError('Invalid recipient provided')
-
-        if not isinstance(amount, float) or amount <= 0:
-            raise InvalidTronError('Invalid amount provided')
-
-        if not is_string(token_id):
-            raise InvalidTronError('Invalid token ID provided')
 
         if owner_address is None:
             owner_address = self.default_address.hex
@@ -563,6 +549,49 @@ class Tron(object):
         result = self.broadcast(sign)
 
         return result
+
+    def freeze_balance(self, amount=0, duration=3, resource='BANDWIDTH', account=None):
+        """
+        Freezes an amount of TRX.
+        Will give bandwidth OR Energy and TRON Power(voting rights)
+        to the owner of the frozen tokens.
+
+        Args:
+            amount (int): number of frozen trx
+            duration (int): duration in days to be frozen
+            resource (str): type of resource, must be either "ENERGY" or "BANDWIDTH"
+            account (str): address that is freezing trx account
+
+        """
+
+        if account is None:
+            account = self.default_address.hex
+
+        transaction = self.transaction.freeze_balance(amount, duration, resource, account)
+        sign = self.sign(transaction)
+        response = self.broadcast(sign)
+
+        return response
+
+    def unfreeze_balance(self, resource='BANDWIDTH', account=None):
+        """
+        Unfreeze TRX that has passed the minimum freeze duration.
+        Unfreezing will remove bandwidth and TRON Power.
+
+        Args:
+            resource (str): type of resource, must be either "ENERGY" or "BANDWIDTH"
+            account (str): address that is freezing trx account
+
+        """
+
+        if account is None:
+            account = self.default_address.hex
+
+        transaction = self.transaction.unfreeze_balance(resource, account)
+        sign = self.sign(transaction)
+        response = self.broadcast(sign)
+
+        return response
 
     def sign(self, transaction, message=None):
         """Sign the transaction, the api has the risk of leaking the private key,
@@ -618,55 +647,6 @@ class Tron(object):
 
         return result
 
-    def freeze_balance(self,
-                       amount=0,
-                       duration=3,
-                       resource='BANDWIDTH',
-                       account=None):
-        """
-        Freezes an amount of TRX.
-        Will give bandwidth OR Energy and TRON Power(voting rights)
-        to the owner of the frozen tokens.
-
-        Args:
-            amount (int): number of frozen trx
-            duration (int): duration in days to be frozen
-            resource (str): type of resource, must be either "ENERGY" or "BANDWIDTH"
-            account (str): address that is freezing trx account
-
-        """
-
-        if account is None:
-            account = self.default_address.hex
-
-        transaction = self.transaction.freeze_balance(amount, duration, resource, account)
-        sign = self.sign(transaction)
-        response = self.broadcast(sign)
-
-        return response
-
-    def unfreeze_balance(self,
-                         resource='BANDWIDTH',
-                         account=None):
-        """
-        Unfreeze TRX that has passed the minimum freeze duration.
-        Unfreezing will remove bandwidth and TRON Power.
-
-        Args:
-            resource (str): type of resource, must be either "ENERGY" or "BANDWIDTH"
-            account (str): address that is freezing trx account
-
-        """
-
-        if account is None:
-            account = self.default_address.hex
-
-        transaction = self.transaction.unfreeze_balance(resource, account)
-        sign = self.sign(transaction)
-        response = self.broadcast(sign)
-
-        return response
-
     def update_account(self, account_name, address=None):
         """Modify account name
 
@@ -682,9 +662,6 @@ class Tron(object):
         """
         if address is None:
             address = self.default_address.hex
-
-        if not self.is_address(address):
-            raise InvalidTronError('Invalid address provided')
 
         transaction = self.transaction.update_account(account_name, address)
         sign = self.sign(transaction)

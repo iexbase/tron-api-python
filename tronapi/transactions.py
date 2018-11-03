@@ -7,7 +7,7 @@ class TransactionBuilder(object):
     def __init__(self, tron):
         self.tron = tron
 
-    def send_trx(self, to, amount, account):
+    def send_transaction(self, to, amount, account):
         """Creates a transaction of transfer.
         If the recipient address does not exist, a corresponding account will be created.
 
@@ -32,11 +32,16 @@ class TransactionBuilder(object):
         if _to == _from:
             raise TronError('Cannot transfer TRX to the same account')
 
-        return self.tron.full_node.request('/wallet/createtransaction', {
+        response = self.tron.full_node.request('/wallet/createtransaction', {
             'to_address': _to,
             'owner_address': _from,
             'amount': self.tron.to_sun(amount)
         }, 'post')
+
+        if 'Error' in response:
+            raise TronError(response['Error'])
+
+        return response
 
     def send_token(self, to, amount, token_id, account):
         """Transfer Token
@@ -77,40 +82,7 @@ class TransactionBuilder(object):
             'amount': self.tron.to_sun(amount)
         }, 'post')
 
-    def update_account(self, account_name, account):
-        """Modify account name
-
-        Note: Username is allowed to edit only once.
-
-        Args:
-            account_name (str): name of the account
-            account (str): address
-
-        Returns:
-            modified Transaction Object
-
-        """
-        if not is_string(account_name):
-            raise ValueError('Name must be a string')
-
-        if not self.tron.is_address(account):
-            raise TronError('Invalid origin address provided')
-
-        response = self.tron.full_node.request('/wallet/updateaccount', {
-            'account_name': string_utf8_to_hex(account_name),
-            'owner_address': self.tron.address.to_hex(account)
-        }, 'post')
-
-        if 'Error' in response:
-            raise Exception('This account name already exist')
-
-        return response
-
-    def freeze_balance(self,
-                       amount=0,
-                       duration=3,
-                       resource='BANDWIDTH',
-                       account=None):
+    def freeze_balance(self, amount, duration, resource, account):
         """
         Freezes an amount of TRX.
         Will give bandwidth OR Energy and TRON Power(voting rights)
@@ -136,27 +108,19 @@ class TransactionBuilder(object):
         if not self.tron.is_address(account):
             raise InvalidTronError('Invalid address provided')
 
-        owner_address = self.tron.address.to_hex(account)
-
-        return self.tron.full_node.request('/wallet/freezebalance', {
-            'owner_address': owner_address,
+        response = self.tron.full_node.request('/wallet/freezebalance', {
+            'owner_address': self.tron.address.to_hex(account),
             'frozen_balance': self.tron.to_sun(amount),
-            'frozen_duration': duration,
+            'frozen_duration': int(duration),
             'resource': resource
         }, 'post')
 
-    def unfreeze_balance(self,
-                         resource='BANDWIDTH',
-                         account=None):
-        """
-        Unfreeze TRX that has passed the minimum freeze duration.
-        Unfreezing will remove bandwidth and TRON Power.
+        if 'Error' in response:
+            raise TronError(response['Error'])
 
-        Args:
-            resource (str): type of resource, must be either "ENERGY" or "BANDWIDTH"
-            account (str): address that is freezing trx account
+        return response
 
-        """
+    def unfreeze_balance(self, resource='BANDWIDTH', account=None):
 
         if resource not in ('BANDWIDTH', 'ENERGY',):
             raise InvalidTronError('Invalid resource provided: Expected "BANDWIDTH" or "ENERGY"')
@@ -164,9 +128,41 @@ class TransactionBuilder(object):
         if not self.tron.is_address(account):
             raise InvalidTronError('Invalid address provided')
 
-        owner_address = self.tron.address.to_hex(account)
-
-        return self.tron.full_node.request('/wallet/unfreezebalance', {
-            'owner_address': owner_address,
+        response = self.tron.full_node.request('/wallet/unfreezebalance', {
+            'owner_address': self.tron.address.to_hex(account),
             'resource': resource
         }, 'post')
+
+        if 'Error' in response:
+            raise ValueError(response['Error'])
+
+        return response
+
+    def update_account(self, account_name, account):
+        """Modify account name
+
+        Note: Username is allowed to edit only once.
+
+        Args:
+            account_name (str): name of the account
+            account (str): address
+
+        Returns:
+            modified Transaction Object
+
+        """
+        if not is_string(account_name):
+            raise ValueError('Name must be a string')
+
+        if not self.tron.is_address(account):
+            raise TronError('Invalid origin address provided')
+
+        response = self.tron.full_node.request('/wallet/updateaccount', {
+            'account_name': string_utf8_to_hex(account_name),
+            'owner_address': self.tron.address.to_hex(account)
+        }, 'post')
+
+        if 'Error' in response:
+            raise ValueError(response['Error'])
+
+        return response
