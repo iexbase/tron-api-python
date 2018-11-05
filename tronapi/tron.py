@@ -453,8 +453,7 @@ class Tron(object):
         """
         return self.send_transaction(*args)
 
-    def send_transaction(self, to, amount, message=None,
-                         owner_address=None):
+    def send_transaction(self, to, amount, message=None, owner_address=None):
         """Send an asset to another account.
 
         Parameters:

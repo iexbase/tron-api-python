@@ -1,5 +1,4 @@
 from tronapi.exceptions import InvalidTronError, TronError
-from tronapi.utils.help import string_utf8_to_hex
 from tronapi.utils.types import is_string, is_integer
 
 
@@ -20,7 +19,7 @@ class TransactionBuilder(object):
             Transaction contract data
 
         """
-        if not self.tron.is_address(to):
+        if not self.tron.isAddress(to):
             raise InvalidTronError('Invalid recipient address provided')
 
         if not isinstance(amount, float) or amount <= 0:
@@ -32,15 +31,11 @@ class TransactionBuilder(object):
         if _to == _from:
             raise TronError('Cannot transfer TRX to the same account')
 
-        response = self.tron.full_node.request('/wallet/createtransaction', {
+        response = self.tron.manager.request('/wallet/createtransaction', {
             'to_address': _to,
             'owner_address': _from,
-            'amount': self.tron.to_sun(amount)
-        }, 'post')
-
-        if 'Error' in response:
-            raise TronError(response['Error'])
-
+            'amount': self.tron.toSun(amount)
+        })
         return response
 
     def send_token(self, to, amount, token_id, account):
@@ -56,7 +51,7 @@ class TransactionBuilder(object):
             Token transfer Transaction raw data
 
         """
-        if not self.tron.is_address(to):
+        if not self.tron.isAddress(to):
             raise InvalidTronError('Invalid recipient address provided')
 
         if not isinstance(amount, float) or amount <= 0:
@@ -65,22 +60,22 @@ class TransactionBuilder(object):
         if not is_string(token_id) or not len(token_id):
             raise InvalidTronError('Invalid token ID provided')
 
-        if not self.tron.is_address(account):
+        if not self.tron.isAddress(account):
             raise InvalidTronError('Invalid origin address provided')
 
         _to = self.tron.address.to_hex(to)
         _from = self.tron.address.to_hex(account)
-        _token_id = self.tron.from_utf8(token_id)
+        _token_id = self.tron.toHex(text=token_id)
 
         if _to == _from:
             raise TronError('Cannot transfer TRX to the same account')
 
-        return self.tron.full_node.request('/wallet/transferasset', {
+        return self.tron.manager.request('/wallet/transferasset', {
             'to_address': _to,
             'owner_address': _from,
             'asset_name': _token_id,
-            'amount': self.tron.to_sun(amount)
-        }, 'post')
+            'amount': self.tron.toSun(amount)
+        })
 
     def freeze_balance(self, amount, duration, resource, account):
         """
@@ -105,15 +100,15 @@ class TransactionBuilder(object):
         if not is_integer(duration) or duration < 3:
             raise InvalidTronError('Invalid duration provided, minimum of 3 days')
 
-        if not self.tron.is_address(account):
+        if not self.tron.isAddress(account):
             raise InvalidTronError('Invalid address provided')
 
-        response = self.tron.full_node.request('/wallet/freezebalance', {
+        response = self.tron.manager.request('/wallet/freezebalance', {
             'owner_address': self.tron.address.to_hex(account),
-            'frozen_balance': self.tron.to_sun(amount),
+            'frozen_balance': self.tron.toSun(amount),
             'frozen_duration': int(duration),
             'resource': resource
-        }, 'post')
+        })
 
         if 'Error' in response:
             raise TronError(response['Error'])
@@ -125,13 +120,13 @@ class TransactionBuilder(object):
         if resource not in ('BANDWIDTH', 'ENERGY',):
             raise InvalidTronError('Invalid resource provided: Expected "BANDWIDTH" or "ENERGY"')
 
-        if not self.tron.is_address(account):
+        if not self.tron.isAddress(account):
             raise InvalidTronError('Invalid address provided')
 
-        response = self.tron.full_node.request('/wallet/unfreezebalance', {
+        response = self.tron.manager.request('/wallet/unfreezebalance', {
             'owner_address': self.tron.address.to_hex(account),
             'resource': resource
-        }, 'post')
+        })
 
         if 'Error' in response:
             raise ValueError(response['Error'])
@@ -154,15 +149,12 @@ class TransactionBuilder(object):
         if not is_string(account_name):
             raise ValueError('Name must be a string')
 
-        if not self.tron.is_address(account):
+        if not self.tron.isAddress(account):
             raise TronError('Invalid origin address provided')
 
-        response = self.tron.full_node.request('/wallet/updateaccount', {
-            'account_name': string_utf8_to_hex(account_name),
+        response = self.tron.manager.request('/wallet/updateaccount', {
+            'account_name': self.tron.toHex(text=account_name),
             'owner_address': self.tron.address.to_hex(account)
-        }, 'post')
-
-        if 'Error' in response:
-            raise ValueError(response['Error'])
+        })
 
         return response
