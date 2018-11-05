@@ -19,12 +19,11 @@ class TronManager(object):
         self.providers = providers
         self.preferred_node = None
 
-        self.configure_node()
-
-    def configure_node(self) -> None:
         for key, value in self.providers.items():
             if is_string(value):
                 self.providers[key] = HttpProvider(value)
+
+            # Connection Test Path
             self.providers[key].status_page = STATUS_PAGE[key]
 
     @property
