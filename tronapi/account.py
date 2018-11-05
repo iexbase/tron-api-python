@@ -64,10 +64,10 @@ class GenerateAccount(object):
     def private_key(self):
         return self._private.to_string().hex()
 
-    def public_key(self, is_hex=True):
+    def public_key(self, _is_hex=True):
         public_key = self._private.get_verifying_key().to_string()
 
-        if is_hex:
+        if _is_hex:
             return '04' + public_key.hex()
 
         return public_key

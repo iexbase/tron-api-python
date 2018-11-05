@@ -143,13 +143,13 @@ class HttpProvider(object):
         self._num_requests_attempted += 1
 
         if method == 'post':
-            response = self.client.request(method=method, url=url, body=json.dumps(body))
+            request = self.client.request(method=method, url=url, body=json.dumps(body))
         else:
-            response = self.client.request(method=method, url=url, fields=body)
+            request = self.client.request(method=method, url=url, fields=body)
 
-        data = TronResponse(body=response.data.decode('UTF-8'),
-                            headers=response.headers,
-                            http_status=response.status,
+        data = TronResponse(body=request.data.decode('UTF-8'),
+                            headers=request.headers,
+                            http_status=request.status,
                             call={
                                 'method': method,
                                 'path': url,
@@ -161,8 +161,13 @@ class HttpProvider(object):
         if data.is_failure():
             raise data.error()
 
+        response = data.json()
+
+        if 'Error' in response:
+            raise ValueError(response["error"])
+
         self._num_requests_succeeded += 1
-        return data.json()
+        return response
 
     def connect(self):
         scheme, url, port = get_host(self.host)

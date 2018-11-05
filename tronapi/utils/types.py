@@ -24,6 +24,10 @@ def is_boolean(value: Any) -> bool:
     return isinstance(value, bool)
 
 
+def is_list_like(obj: Any) -> bool:
+    return not is_string(obj) and isinstance(obj, collections.Sequence)
+
+
 def is_dict(obj: Any) -> bool:
     return isinstance(obj, collections.Mapping)
 
