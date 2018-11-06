@@ -4,8 +4,8 @@ import argparse
 import json
 import sys
 
-from tronapi.constants import DEFAULT_FULL_NODE
-from tronapi.tron import Tron
+from tronapi.constants import DEFAULT_FULL_NODE, DEFAULT_SOLIDITY_NODE, DEFAULT_EVENT_SERVER
+from tronapi.main import Tron
 
 
 def main():
@@ -40,22 +40,22 @@ def main():
 
     args = parser.parse_args()
 
-    tron = Tron(args.node)
+    tron = Tron(args.node, DEFAULT_SOLIDITY_NODE, DEFAULT_EVENT_SERVER)
 
     if args.getaccount:
-        print_json(tron.get_account(args.getaccount))
+        print_json(tron.trx.get_account(args.getaccount))
 
     elif args.getbalance:
-        print_json(tron.get_balance(args.getbalance))
+        print_json(tron.trx.get_balance(args.getbalance))
 
     elif args.getbandwidth:
-        print_json(tron.get_band_width(args.getbandwidth))
+        print_json(tron.trx.get_band_width(args.getbandwidth))
 
     elif args.gettransaction:
-        print_json(tron.get_transaction(args.gettransaction))
+        print_json(tron.trx.get_transaction(args.gettransaction))
 
     elif args.gettransactioncount:
-        print_json(tron.get_transaction_count())
+        print_json(tron.trx.get_transaction_count())
 
     elif args.generateaddress:
         print_json(tron.generate_address())
