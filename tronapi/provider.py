@@ -163,6 +163,12 @@ class HttpProvider(object):
 
         response = data.json()
 
+        if response == 'OK':
+            response = dict({'status': 1})
+
+        if isinstance(response, str):
+            response = {}
+
         # We catch errors
         if 'Error' in response:
             raise ValueError(response['Error'])
@@ -184,7 +190,7 @@ class HttpProvider(object):
 
         return client
 
-    def is_connected(self):
+    def is_connected(self) -> bool:
         """Checking the connection from the connected node
 
         Returns:
@@ -192,8 +198,12 @@ class HttpProvider(object):
 
         """
         response = self.request(self.status_page)
+        if 'blockID' in response:
+            return True
+        elif 'status' in response:
+            return True
 
-        return 'blockID' in response
+        return False
 
     def get_num_requests_attempted(self):
         """Returns the number of calls attempted."""
