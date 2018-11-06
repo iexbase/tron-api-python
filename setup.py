@@ -23,7 +23,7 @@ PACKAGE_REQUIRED = [
 ]
 
 this_dir = os.path.dirname(__file__)
-readme_filename = os.path.join(this_dir, 'README.md')
+readme_filename = os.path.join(this_dir, 'README.rst')
 
 with open(readme_filename) as f:
     PACKAGE_LONG_DESCRIPTION = f.read()
