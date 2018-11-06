@@ -1,11 +1,10 @@
-from tronapi.providers import HttpProvider
-from tronapi.tron import Tron
+from tronapi import Tron
+from tronapi import HttpProvider
 
-# Recommend FullNode: http://13.125.210.234:8090
-fullNode = HttpProvider('https://api.trongrid.io:8090')
+full_node = HttpProvider('https://api.trongrid.io')
+solidity_node = HttpProvider('https://api.trongrid.io')
+event_server = HttpProvider('https://api.trongrid.io')
 
-# Example 1
-tron_1 = Tron(fullNode)
-
-# Example 2
-tron_2 = Tron('https://api.trongrid.io:8090')
+tron = Tron(full_node,
+            solidity_node,
+            event_server)

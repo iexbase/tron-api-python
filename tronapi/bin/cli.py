@@ -5,7 +5,7 @@ import json
 import sys
 
 from tronapi.constants import DEFAULT_FULL_NODE, DEFAULT_SOLIDITY_NODE, DEFAULT_EVENT_SERVER
-from tronapi.main import Tron
+from tronapi import Tron
 
 
 def main():

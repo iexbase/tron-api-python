@@ -1,8 +1,7 @@
 import json
-
-from tronapi.tron import Tron
 import logging
 
+from tronapi import Tron
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger()
@@ -17,11 +16,8 @@ tron = Tron(full_node,
             event_server)
 
 
-tron.default_block = 'latest'
-
-
 account = tron.create_account()
-is_valid = bool(tron.is_address(account.address.hex))
+is_valid = bool(tron.isAddress(account.address.hex))
 
 
 logger.debug('Generated account: ')
@@ -33,24 +29,24 @@ logger.debug('-- Hex: ' + account.address.hex)
 logger.debug('-- isValid: ' + str(is_valid))
 logger.debug('-----------')
 
-current_block = tron.get_current_block()
+current_block = tron.trx.get_current_block()
 logger.debug('Current block: ')
 logger.debug(json.dumps(current_block, indent=2))
 logger.debug('-----------')
 
-previous_block = tron.get_block(0)
+previous_block = tron.trx.get_block(0)
 
 logger.debug('Previous block #52: ')
 logger.debug(json.dumps(previous_block, indent=2))
 logger.debug('-----------')
 
 
-genesis_block_count = tron.get_block_transaction_count('earliest')
+genesis_block_count = tron.trx.get_block_transaction_count('earliest')
 logger.debug('Genesis Block Transaction Count: ')
 logger.debug('Transactions:' + str(genesis_block_count))
 logger.debug('-----------')
 
-transaction = tron.get_transaction('757a14cef293c69b1cf9b9d3d19c2e40a330c640b05c6ffa4d54609a9628758c')
+transaction = tron.trx.get_transaction('757a14cef293c69b1cf9b9d3d19c2e40a330c640b05c6ffa4d54609a9628758c')
 
 logger.debug('Transaction: ')
 logger.debug('- Hash: ' + transaction['txID'])
@@ -58,7 +54,7 @@ logger.debug('- Transaction: ' + json.dumps(transaction, indent=2))
 logger.debug('-----------')
 
 
-account_info = tron.get_account('TKLnCNY5EsLNCvCXQTCn1dtqvc6vHhJUyJ')
+account_info = tron.trx.get_account('TKLnCNY5EsLNCvCXQTCn1dtqvc6vHhJUyJ')
 
 logger.debug('Account information: ')
 logger.debug('- Address: TKLnCNY5EsLNCvCXQTCn1dtqvc6vHhJUyJ')
@@ -66,7 +62,7 @@ logger.debug('- Account:' + json.dumps(account_info, indent=2))
 logger.debug('-----------')
 
 
-balance = tron.get_account('TKLnCNY5EsLNCvCXQTCn1dtqvc6vHhJUyJ')
+balance = tron.trx.get_account('TKLnCNY5EsLNCvCXQTCn1dtqvc6vHhJUyJ')
 
 logger.debug('Account balance: ')
 logger.debug('- Address: TKLnCNY5EsLNCvCXQTCn1dtqvc6vHhJUyJ')
@@ -74,7 +70,7 @@ logger.debug('- Account:' + json.dumps(balance, indent=2))
 logger.debug('-----------')
 
 
-band_width = tron.get_band_width('TKLnCNY5EsLNCvCXQTCn1dtqvc6vHhJUyJ')
+band_width = tron.trx.get_band_width('TKLnCNY5EsLNCvCXQTCn1dtqvc6vHhJUyJ')
 
 logger.debug('Account bandwidth: ')
 logger.debug('- Address: TKLnCNY5EsLNCvCXQTCn1dtqvc6vHhJUyJ')
@@ -82,7 +78,7 @@ logger.debug('- Bandwidth:' + json.dumps(band_width, indent=2))
 logger.debug('-----------')
 
 
-list_nodes = tron.list_nodes()
+list_nodes = tron.trx.list_nodes()
 
 logger.debug('List of full nodes: ')
 logger.debug('- Node Count:' + str(len(list_nodes)))
@@ -90,7 +86,7 @@ logger.debug('- Nodes:' + json.dumps(list_nodes, indent=2))
 logger.debug('-----------')
 
 
-block_ids = tron.get_block_range(30, 35)
+block_ids = tron.trx.get_block_range(30, 35)
 block = list(map(lambda x: {'id': x['block_header']['raw_data']['number'] or 0}, block_ids))
 
 logger.debug('Block IDs between 30 and 35: ')
@@ -105,7 +101,7 @@ logger.debug('-----------')
 # logger.debug('-----------')
 
 
-event_result = tron.events.get_event_result('TGEJj8eus46QMHPgWQe1FJ2ymBXRm96fn1', 0, 'Notify')
+event_result = tron.trx.get_event_result('TGEJj8eus46QMHPgWQe1FJ2ymBXRm96fn1', 0, 'Notify')
 
 logger.debug('Event result:')
 logger.debug('Contract Address: TGEJj8eus46QMHPgWQe1FJ2ymBXRm96fn1')
@@ -114,14 +110,14 @@ logger.debug('Block Number: 32162')
 logger.debug('- Events: ' + json.dumps(event_result, indent=2))
 
 
-event_by_transaction_id = tron.events.get_event_transaction_id('32d7efe5f70c044bcd831f21f911209a7abf4ed0d5934b2c1b804e108008cd43')
+event_by_transaction_id = tron.get_event_transaction_id('32d7efe5f70c044bcd831f21f911209a7abf4ed0d5934b2c1b804e108008cd43')
 
 logger.debug('Specific event result:')
 logger.debug('Transaction: 32d7efe5f70c044bcd831f21f911209a7abf4ed0d5934b2c1b804e108008cd43')
 logger.debug('- Events: ' + json.dumps(event_by_transaction_id, indent=2))
 
 
-first_transaction = tron.get_transaction_from_block(0, 0)
+first_transaction = tron.trx.get_transaction_from_block(0, 0)
 
 logger.debug('First transaction from block 0')
 logger.debug('- Transaction: ' + json.dumps(first_transaction, indent=2))

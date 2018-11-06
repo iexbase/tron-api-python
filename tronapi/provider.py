@@ -1,13 +1,13 @@
 import http
 import logging
 from math import isnan
-import tronapi
 import urllib3
 from urllib3 import get_host, HTTPConnectionPool, HTTPSConnectionPool
 import json
 
-
+import tronapi
 from tronapi.exceptions import TronRequestError
+from tronapi.version import VERSION
 
 urllib3.disable_warnings()
 LOGGER = logging.getLogger(__name__)
@@ -94,7 +94,7 @@ class HttpProvider(object):
     """Encapsulates session attributes and methods to make API calls."""
 
     http_default_headers = {
-        'User-Agent': "tronapi-python-%s" % tronapi.__version__,
+        'User-Agent': "tronapi-python-%s" % VERSION,
         'Content-Type': 'application/json'
     }
 

@@ -1,4 +1,12 @@
-from tronapi.tron import Tron
+from tronapi import Tron
+from tronapi import HttpProvider
 
-tron = Tron('https://api.trongrid.io:8090')
-result = tron.get_transaction('TxId')
+full_node = HttpProvider('https://api.trongrid.io')
+solidity_node = HttpProvider('https://api.trongrid.io')
+event_server = HttpProvider('https://api.trongrid.io')
+tron = Tron(full_node,
+            solidity_node,
+            event_server)
+
+
+result = tron.trx.get_transaction('TxId')

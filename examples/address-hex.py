@@ -8,11 +8,8 @@ tron = Tron(full_node,
             solidity_node,
             event_server)
 
+tron.address.to_hex('TT67rPNwgmpeimvHUMVzFfKsjL9GZ1wGw8')
+# result: 41BBC8C05F1B09839E72DB044A6AA57E2A5D414A10
 
-tron.toSun(1)
-# result: 1000000
-
-tron.fromSun(1000000)
-# result: 1
-
-
+tron.address.from_hex('41BBC8C05F1B09839E72DB044A6AA57E2A5D414A10')
+# result: TT67rPNwgmpeimvHUMVzFfKsjL9GZ1wGw8
