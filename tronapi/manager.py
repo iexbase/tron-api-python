@@ -66,15 +66,14 @@ class TronManager(object):
     def request(self, url, params=None, method='post'):
 
         split = url[1:].split('/', 2)
-        if 'walletsolidity' in split:
-            response = self.solidity_node.request(url, params, method)
-        elif 'walletextension' in split:
+        if split[0] in ('walletsolidity', 'walletextension'):
             response = self.solidity_node.request(url, params, method)
         elif 'event' in split:
             response = self.event_server.request(url, params, method)
         else:
             response = self.full_node.request(url, params, method)
 
+        exit()
         return response
 
     def is_connected(self):
