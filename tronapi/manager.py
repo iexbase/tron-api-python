@@ -73,7 +73,6 @@ class TronManager(object):
         else:
             response = self.full_node.request(url, params, method)
 
-        exit()
         return response
 
     def is_connected(self):
