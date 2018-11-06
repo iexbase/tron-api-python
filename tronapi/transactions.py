@@ -1,5 +1,6 @@
 from tronapi.exceptions import InvalidTronError, TronError
-from tronapi.utils.types import is_string, is_integer
+from tronapi.utils.help import is_valid_url
+from tronapi.utils.types import is_string, is_integer, is_boolean
 
 
 class TransactionBuilder(object):
@@ -132,6 +133,71 @@ class TransactionBuilder(object):
             raise ValueError(response['Error'])
 
         return response
+
+    def apply_for_sr(self, url, address):
+        """Apply to become a super representative
+
+        Args:
+            url (str): official website address
+            address (str): address
+
+        """
+        if not self.tron.isAddress(address):
+            raise TronError('Invalid address provided')
+
+        if not is_valid_url(url):
+            raise TronError('Invalid url provided')
+
+        return self.tron.manager.request('/wallet/createwitness', {
+            'owner_address': self.tron.address.to_hex(address),
+            'url': self.tron.toHex(text=url)
+        })
+
+    def vote_proposal(self, proposal_id, has_approval, voter_address):
+        """Proposal approval
+
+        Args:
+            proposal_id (int): proposal id
+            has_approval (bool): Approved
+            voter_address (str): Approve address
+
+        """
+        if not self.tron.isAddress(voter_address):
+            raise TronError('Invalid voter_address address provided')
+
+        if not is_integer(proposal_id) or proposal_id < 0:
+            raise TronError('Invalid proposal_id provided')
+
+        if not is_boolean(has_approval):
+            raise TronError('Invalid has_approval provided')
+
+        return self.tron.manager.request('/wallet/proposalapprove', {
+            'owner_address': self.tron.address.to_hex(voter_address),
+            'proposal_id': int(proposal_id),
+            'is_add_approval': bool(has_approval)
+        })
+
+    def delete_proposal(self, proposal_id: int, issuer_address: str):
+        """Delete proposal
+
+        Args:
+            proposal_id (int): proposal id
+            issuer_address (str): delete the person's address
+
+        Results:
+            Delete the proposal's transaction
+
+        """
+        if not self.tron.isAddress(issuer_address):
+            raise InvalidTronError('Invalid issuer_address provided')
+
+        if not isinstance(proposal_id, int) or proposal_id < 0:
+            raise InvalidTronError('Invalid proposal_id provided')
+
+        return self.tron.manager.request('/wallet/proposaldelete', {
+            'owner_address': self.tron.address.to_hex(issuer_address),
+            'proposal_id': int(proposal_id)
+        })
 
     def update_account(self, account_name, account):
         """Modify account name

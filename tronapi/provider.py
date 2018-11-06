@@ -163,10 +163,11 @@ class HttpProvider(object):
 
         response = data.json()
 
+        # We catch errors
         if 'Error' in response:
-            raise ValueError(response["error"])
-
+            raise ValueError(response['Error'])
         self._num_requests_succeeded += 1
+
         return response
 
     def connect(self):

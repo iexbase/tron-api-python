@@ -42,6 +42,11 @@ from tronapi.utils.types import is_integer, is_object
 
 
 class Tron(object):
+
+    _default_block = 'latest'
+    _default_address = None
+    _private_key = None
+
     # Encoding and Decoding
     toBytes = staticmethod(to_bytes)
     toInt = staticmethod(to_int)
@@ -59,11 +64,12 @@ class Tron(object):
                  event_server=None, private_key=None):
         """Connect to the Tron network.
 
-        Parameters:
+        Args:
             full_node (:obj:`str`): A provider connected to a valid full node
             solidity_node (:obj:`str`): A provider connected to a valid solidity node
             event_server (:obj:`str`, optional): Optional for smart contract events. Expects a valid event server URL
             private_key (str): Optional default private key used when signing transactions
+
         """
 
         self.manager = TronManager(self, dict(
@@ -71,18 +77,17 @@ class Tron(object):
             solidity_node=solidity_node
         ))
 
-        self._default_block = None
-        self._private_key = private_key
-        self.default_address = Address(base58=None, hex=None)
+        if private_key:
+            self.set_private_key(private_key)
 
         self.events = Event(self, event_server)
         self.transaction = TransactionBuilder(self)
 
     @property
     def providers(self):
+        """List of available providers"""
         is_nodes = self.manager.is_connected()
         is_nodes.update({'event': self.events.is_event_connected()})
-
         return is_nodes
 
     def set_private_key(self, private_key) -> None:
@@ -92,9 +97,6 @@ class Tron(object):
         Args:
             private_key (str): Private key
 
-        Warning:
-            Do not use this with any web/user facing TronAPI instances.
-            This will leak the private key.
         """
 
         try:
@@ -105,10 +107,12 @@ class Tron(object):
         self._private_key = str(private_key).lower()
 
     def set_address(self, address):
-        """Sets the address used with all Tron API's. Will not sign any transactions.
+        """Sets the address used with all Tron API's.
+        Will not sign any transactions.
 
         Args:
              address (str) Tron Address
+
         """
 
         if not self.isAddress(address):
@@ -122,7 +126,7 @@ class Tron(object):
         if self._private_key and _private_base58 != _base58:
             self._private_key = None
 
-        self.default_address = Address(hex=_hex, base58=_base58)
+        self._default_address = Address(hex=_hex, base58=_base58)
 
     @property
     def address(self):
@@ -143,7 +147,6 @@ class Tron(object):
     @default_block.setter
     def default_block(self, block_id):
         """Sets the default block used as a reference for all future calls."""
-
         if block_id in ('latest', 'earliest', 0):
             self._default_block = block_id
             return
@@ -256,7 +259,7 @@ class Tron(object):
         """
 
         if address is None:
-            address = self.default_address.hex
+            address = self._default_address.hex
 
         if not self.isAddress(address):
             raise InvalidTronError('Invalid address provided')
@@ -274,7 +277,7 @@ class Tron(object):
         """
 
         if address is None:
-            address = self.default_address.hex
+            address = self._default_address.hex
 
         if not self.isAddress(address):
             raise InvalidTronError('Invalid address provided')
@@ -292,7 +295,6 @@ class Tron(object):
 
         """
         response = self.get_account(address)
-
         if 'balance' not in response:
             return 0
 
@@ -325,7 +327,7 @@ class Tron(object):
             return callback
 
         if address is None:
-            address = self.default_address.hex
+            address = self._default_address.hex
 
         if not self.isAddress(address):
             raise InvalidTronError('Invalid address provided')
@@ -413,7 +415,7 @@ class Tron(object):
         """
 
         if address is None:
-            address = self.default_address.hex
+            address = self._default_address.hex
 
         if not self.isAddress(address):
             raise InvalidTronError('Invalid address provided')
@@ -466,7 +468,7 @@ class Tron(object):
         """
 
         if owner_address is None:
-            owner_address = self.default_address.hex
+            owner_address = self._default_address.hex
 
         if message is not None and not isinstance(message, str):
             raise InvalidTronError('Invalid Message')
@@ -480,7 +482,7 @@ class Tron(object):
     def send_token(self, to, amount, token_id=None, owner_address=None):
 
         if owner_address is None:
-            owner_address = self.default_address.hex
+            owner_address = self._default_address.hex
 
         tx = self.transaction.send_token(to, amount, token_id, owner_address)
         sign = self.sign(tx)
@@ -503,7 +505,7 @@ class Tron(object):
         """
 
         if account is None:
-            account = self.default_address.hex
+            account = self._default_address.hex
 
         transaction = self.transaction.freeze_balance(amount, duration, resource, account)
         sign = self.sign(transaction)
@@ -523,7 +525,7 @@ class Tron(object):
         """
 
         if account is None:
-            account = self.default_address.hex
+            account = self._default_address.hex
 
         transaction = self.transaction.unfreeze_balance(resource, account)
         sign = self.sign(transaction)
@@ -584,19 +586,15 @@ class Tron(object):
 
     def update_account(self, account_name, address=None):
         """Modify account name
-
         Note: Username is allowed to edit only once.
 
         Args:
             account_name (str): name of the account
             address (str): address
 
-        Returns:
-            modified Transaction Object
-
         """
         if address is None:
-            address = self.default_address.hex
+            address = self._default_address.hex
 
         transaction = self.transaction.update_account(account_name, address)
         sign = self.sign(transaction)
@@ -604,51 +602,32 @@ class Tron(object):
 
         return response
 
-    def register_account(self, address, new_account_address):
-        """Create an account.
-        Uses an already activated account to create a new account
-
-        Args:
-            address (str): address
-            new_account_address (str): address of the new account
-
-        Returns:
-            Create account Transaction raw data
-
-        """
-        return self.manager.request('/wallet/createaccount', {
-            'owner_address': self.address.to_hex(address),
-            'account_address': self.address.to_hex(new_account_address)
-        }, 'post')
-
     @staticmethod
     def create_account():
         """Create account"""
         return GenerateAccount()
 
-    def apply_for_super_representative(self, address, url):
+    def apply_for_sr(self, url, address):
         """Apply to become a super representative
-
         Note: Applied to become a super representative. Cost 9999 TRX.
 
         Args:
-            address (str): address
             url (str): official website address
+            address (str): address
 
         """
 
-        return self.manager.request('/wallet/createwitness', {
-            'owner_address': self.address.to_hex(address),
-            'url': self.toHex(text=url)
-        }, 'post')
+        if address is None:
+            address = self._default_address.hex
+
+        transaction = self.transaction.apply_for_sr(url, address)
+        sign = self.sign(transaction)
+        response = self.broadcast(sign)
+
+        return response
 
     def list_nodes(self):
-        """List the nodes which the api fullnode is connecting on the network
-
-        Returns:
-            List of nodes
-
-        """
+        """List the nodes which the api fullnode is connecting on the network"""
         response = self.manager.request('/wallet/listnodes')
         callback = map(lambda x: {
             'address': '{}:{}'.format(self.toText(x['address']['host']), str(x['address']['port']))
@@ -828,6 +807,7 @@ class Tron(object):
 
         Args:
              exchange_id (str): ID Exchange
+
         """
 
         if not isinstance(exchange_id, int) or exchange_id < 0:
@@ -864,51 +844,47 @@ class Tron(object):
         """
         return self.manager.request('/wallet/listproposals')
 
-    def proposal_approve(self, owner_address, proposal_id, is_add_approval=True):
+    def vote_proposal(self, proposal_id, has_approval, voter_address):
         """Proposal approval
 
         Args:
-            owner_address (str): Approve address
             proposal_id (int): proposal id
-            is_add_approval (bool): Approved
+            has_approval (bool): Approved
+            voter_address (str): Approve address
 
         Returns:
              Approval of the proposed transaction
 
         """
-        if not self.isAddress(owner_address):
-            raise InvalidTronError('Invalid address provided')
 
-        if not isinstance(proposal_id, int) or proposal_id < 0:
-            raise InvalidTronError('Invalid proposalID provided')
+        if voter_address is None:
+            voter_address = self._default_address.hex
 
-        return self.manager.request('/wallet/proposalapprove', {
-            'owner_address': self.address.to_hex(owner_address),
-            'proposal_id': proposal_id,
-            'is_add_approval': is_add_approval
-        })
+        transaction = self.transaction.vote_proposal(proposal_id, has_approval, voter_address)
+        sign = self.sign(transaction)
+        response = self.broadcast(sign)
 
-    def proposal_delete(self, owner_address, proposal_id):
+        return response
+
+    def proposal_delete(self, proposal_id: int, issuer_address: str):
         """Delete proposal
 
         Args:
-            owner_address (str): delete the person's address
             proposal_id (int): proposal id
+            issuer_address (str): delete the person's address
 
         Results:
             Delete the proposal's transaction
 
         """
-        if not self.isAddress(owner_address):
-            raise InvalidTronError('Invalid address provided')
+        if issuer_address is None:
+            issuer_address = self._default_address.hex
 
-        if not isinstance(proposal_id, int) or proposal_id < 0:
-            raise InvalidTronError('Invalid proposalID provided')
+        transaction = self.transaction.delete_proposal(proposal_id, issuer_address)
+        sign = self.sign(transaction)
+        response = self.broadcast(sign)
 
-        return self.manager.request('/wallet/proposaldelete', {
-            'owner_address': self.address.to_hex(owner_address),
-            'proposal_id': proposal_id
-        })
+        return response
 
     def exchange_transaction(self, owner_address, exchange_id,
                              token_id, quant, expected):
@@ -992,10 +968,6 @@ class Tron(object):
 
         Args:
             provider(HttpProvider): Provider
-
-        Returns:
-           True if successful, False otherwise.
-
         """
         return isinstance(provider, HttpProvider)
 
