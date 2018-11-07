@@ -64,16 +64,18 @@ class TronManager(object):
         return self.providers.get('event_server')
 
     def request(self, url, params=None, method='post'):
-
+        # In this variable, we divide the resulting reference
+        # into 2 parts to determine the type of node
         split = url[1:].split('/', 2)
-        if split[0] in ('walletsolidity', 'walletextension'):
-            response = self.solidity_node.request(url, params, method)
-        elif 'event' in split:
-            response = self.event_server.request(url, params, method)
-        else:
-            response = self.full_node.request(url, params, method)
 
-        return response
+        if split[0] in ('walletsolidity', 'walletextension'):
+            return self.solidity_node.request(url, params, method)
+        elif 'event' in split:
+            return self.event_server.request(url, params, method)
+        elif 'wallet' in split:
+            return self.full_node.request(url, params, method)
+
+        raise ValueError('Could not determine the type of node')
 
     def is_connected(self):
         is_node = dict()
