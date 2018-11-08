@@ -1,6 +1,5 @@
 import http
 import logging
-from math import isnan
 import urllib3
 from eth_utils import to_dict
 from urllib3 import get_host, HTTPConnectionPool, HTTPSConnectionPool
