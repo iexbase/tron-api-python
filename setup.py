@@ -17,7 +17,7 @@ PACKAGE_REQUIRED = [
     'urllib3',
     'pycryptodome',
     'base58',
-    'eth-keys',
+    'eth-account'
     'ecdsa',
     'pysha3'
 ]
