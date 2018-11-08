@@ -1,6 +1,6 @@
 import logging
 
-from tronapi.provider import HttpProvider
+from tronapi import HttpProvider
 from tronapi.utils.types import is_string
 
 STATUS_PAGE = {

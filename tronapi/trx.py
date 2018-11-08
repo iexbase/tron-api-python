@@ -1,9 +1,18 @@
 import math
+from typing import Any
+
+from eth_account.account import Account as EthAccount
+from eth_account.messages import defunct_hash_message
+from toolz import compose
 
 from tronapi.exceptions import InvalidTronError, TronError
 from tronapi.module import Module
 from tronapi.utils.blocks import select_method_for_block
-from tronapi.utils.types import is_integer, is_object
+from tronapi.utils.hexadecimal import is_hex
+from tronapi.utils.types import is_integer, is_object, is_string
+
+TRX_MESSAGE_HEADER = '\x19TRON Signed Message:\n32'
+ETH_MESSAGE_HEADER = '\x19Ethereum Signed Message:\n32'
 
 
 class Trx(Module):
@@ -400,18 +409,28 @@ class Trx(Module):
 
         return response
 
-    def sign(self, transaction, message=None):
+    def sign(self, transaction: Any, message=None, use_tron: bool = True):
         """Sign the transaction, the api has the risk of leaking the private key,
         please make sure to call the api in a secure environment
 
         Args:
-            transaction (object): transaction details
+            transaction (Any): transaction details
             message (str): Message
-
-        Returns:
-            Signed Transaction contract data
+            use_tron (bool): is Tron header
 
         """
+
+        if is_string(transaction):
+            if not is_hex(transaction):
+                raise TronError('Expected hex message input')
+
+            # Determine which header to attach to the message
+            # before encrypting or decrypting
+            header = TRX_MESSAGE_HEADER if use_tron else ETH_MESSAGE_HEADER
+            message_hash = self.tron.sha3(text=header + transaction)
+            signed_message = EthAccount.signHash(message_hash, private_key=self.tron.private_key)
+
+            return signed_message
 
         if 'signature' in transaction:
             raise TronError('Transaction is already signed')
@@ -450,6 +469,38 @@ class Trx(Module):
         result.update(signed_transaction)
 
         return result
+
+    def verify_message(self, message, signed_message=None, address=None, use_tron: bool = True):
+        """ Get the address of the account that signed the message with the given hash.
+        You must specify exactly one of: vrs or signature
+
+        Args:
+            message (str): The message in the format "hex"
+            signed_message (AttributeDict): Signature
+            address (str): is Address
+            use_tron (bool): is Tron header
+
+        """
+        if address is None:
+            address = self.tron.default_address.base58
+
+        if not is_hex(message):
+            raise TronError('Expected hex message input')
+
+        # Determine which header to attach to the message
+        # before encrypting or decrypting
+        header = TRX_MESSAGE_HEADER if use_tron else ETH_MESSAGE_HEADER
+
+        message_hash = self.tron.sha3(text=header + message)
+        recovered = EthAccount.recoverHash(message_hash, signature=signed_message.signature)
+
+        tron_address = '41' + recovered[2:]
+        base58address = self.tron.address.from_hex(tron_address).decode()
+
+        if base58address == address:
+            return True
+
+        raise ValueError('Signature does not match')
 
     def update_account(self, account_name, address=None):
         """Modify account name

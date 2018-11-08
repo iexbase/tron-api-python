@@ -1,38 +1,17 @@
 import codecs
-from binascii import unhexlify
+from binascii import unhexlify, hexlify
 
 import base58
-import sha3
-from ecdsa import SECP256k1, SigningKey
+from eth_account.datastructures import AttributeDict
 from eth_keys import KeyAPI
 
 from tronapi.utils.hexadecimal import is_hex
 
 
-class Address(dict):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-        self.hex = str(kwargs.get('hex'))
-        self.base58 = str(kwargs.get('base58'))
-
-    def __str__(self):
-        return self.hex
-
-
 class Account(object):
-
-    def __init__(self):
-        pass
-
     @staticmethod
     def from_hex(address):
-        """Helper function that will convert a generic value from hex
-
-        Args:
-            address (str): address
-
-        """
+        """Helper function that will convert a generic value from hex"""
         if not is_hex(address):
             return address
 
@@ -40,12 +19,7 @@ class Account(object):
 
     @staticmethod
     def to_hex(address):
-        """Helper function that will convert a generic value to hex
-
-        Args:
-            address (str): address
-
-        """
+        """Helper function that will convert a generic value to hex"""
         if is_hex(address):
             return address.lower().replace('0x', '41', 2)
 
@@ -54,36 +28,6 @@ class Account(object):
     @staticmethod
     def from_private_key(private_key):
         return PrivateKey(private_key).address
-
-
-class GenerateAccount(object):
-
-    def __init__(self):
-        self._private = SigningKey.generate(curve=SECP256k1)
-
-    def private_key(self):
-        return self._private.to_string().hex()
-
-    def public_key(self, _is_hex=True):
-        public_key = self._private.get_verifying_key().to_string()
-
-        if _is_hex:
-            return '04' + public_key.hex()
-
-        return public_key
-
-    @property
-    def address(self):
-        keccak = sha3.keccak_256()
-        keccak.update(self.public_key(False))
-        address = keccak.hexdigest()[24:]
-        address = '41' + address
-        to_base58 = base58.b58encode_check(bytes.fromhex(address))
-
-        return Address(base58=address, hex=to_base58.decode())
-
-    def __str__(self):
-        return self.private_key().lower()
 
 
 class PrivateKey(object):
@@ -116,7 +60,10 @@ class PrivateKey(object):
         address = '41' + public_key.to_address()[2:]
         to_base58 = base58.b58encode_check(bytes.fromhex(address))
 
-        return Address(hex=address, base58=to_base58.decode())
+        return AttributeDict({
+            'hex': address,
+            'base58': to_base58.decode()
+        })
 
     def __str__(self):
         return self.private_key

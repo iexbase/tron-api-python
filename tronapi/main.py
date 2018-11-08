@@ -19,16 +19,18 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+from ecdsa import SECP256k1, SigningKey
 from eth_utils import apply_to_return_value
 
-from tronapi.account import Address, GenerateAccount, Account, PrivateKey
+from tronapi.base.account import Account, PrivateKey
+from tronapi.base.datastructures import AttributeDict
+
 from tronapi.exceptions import InvalidTronError, TronError
 from tronapi.manager import TronManager
-from tronapi.provider import HttpProvider
+from tronapi import HttpProvider
 from tronapi.transactions import TransactionBuilder
 from tronapi.trx import Trx
-from tronapi.utils.address import is_address
+from tronapi.base.address import is_address
 from tronapi.utils.crypto import keccak as tron_keccak
 from tronapi.utils.currency import to_sun, from_sun
 from tronapi.utils.decorators import deprecated_for
@@ -42,8 +44,6 @@ DEFAULT_MODULES = {
 
 class Tron:
     _default_block = 'latest'
-    _default_address = Address(hex=None,
-                               base58=None)
     _private_key = None
 
     # Encoding and Decoding
@@ -71,6 +71,11 @@ class Tron:
 
         """
 
+        self._default_address = AttributeDict({})
+
+        # The node manager allows you to automatically determine the node
+        # on the router or manually refer to a specific node.
+        # solidity_node, full_node or event_server
         self.manager = TronManager(self, dict(
             full_node=full_node,
             solidity_node=solidity_node,
@@ -111,7 +116,7 @@ class Tron:
         self._private_key = str(private_key).lower()
 
     @property
-    def default_address(self) -> Address:
+    def default_address(self) -> AttributeDict:
         """Get a TRON Address"""
         return self._default_address
 
@@ -136,8 +141,10 @@ class Tron:
         if self._private_key and _private_base58 != _base58:
             self._private_key = None
 
-        self._default_address.hex = _hex
-        self._default_address.base58 = _base58
+        self._default_address = AttributeDict({
+            'hex': _hex,
+            'base58': _base58
+        })
 
     def get_event_result(self, contract_address=None, since=0, event_name=None, block_number=None):
         """Will return all events matching the filters.
@@ -209,10 +216,11 @@ class Tron:
         """
         return Account()
 
-    @staticmethod
-    def create_account():
+    @property
+    def create_account(self):
         """Create account"""
-        return GenerateAccount()
+        generate_key = SigningKey.generate(curve=SECP256k1)
+        return PrivateKey(generate_key.to_string().hex())
 
     def generate_address(self):
         """Generates a random private key and address pair
