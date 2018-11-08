@@ -270,7 +270,6 @@ class Tron:
             )
         )
 
-    @property
     def is_connected(self):
         """List of available providers"""
         return self.manager.is_connected()

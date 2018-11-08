@@ -2,6 +2,7 @@ import http
 import logging
 from math import isnan
 import urllib3
+from eth_utils import to_dict
 from urllib3 import get_host, HTTPConnectionPool, HTTPSConnectionPool
 import json
 
@@ -92,6 +93,7 @@ class TronResponse(object):
 class HttpProvider(object):
     """Encapsulates session attributes and methods to make API calls."""
 
+    logger = logging.getLogger(__name__)
     http_default_port = {
         'http': 80,
         'https': 443
@@ -102,32 +104,36 @@ class HttpProvider(object):
         'https': HTTPSConnectionPool,
     }
 
-    def __init__(self, host,
-                 timeout=60,
-                 user=False,
-                 password=False,
-                 headers=None,
-                 status_page='/wallet/getnowblock'):
+    def __init__(self, host, request_kwargs=None):
         """Initializes the api instance."""
-        if not headers:
-            headers = {}
-
-        headers.copy()
-        headers.update(self.http_default_headers())
 
         self.host = host
-        self.timeout = timeout
-        self.user = user
-        self.password = password
-        self.headers = headers
-        self.status_page = status_page
+        self._request_kwargs = request_kwargs or {}
         self._num_requests_succeeded = 0
         self._num_requests_attempted = 0
-
-        if isnan(timeout) or timeout < 0:
-            raise Exception('Invalid timeout duration provided')
+        self._status_page = None
 
         self.client = self.connect()
+
+    def __str__(self):
+        return "HTTP(S) connection {0}".format(self.host)
+
+    @property
+    def status_page(self):
+        return self._status_page
+
+    @status_page.setter
+    def status_page(self, page):
+        self._status_page = page
+
+    @to_dict
+    def get_request_kwargs(self):
+        if 'headers' not in self._request_kwargs:
+            yield 'headers', self.http_default_headers()
+        if 'timeout' not in self._request_kwargs:
+            yield 'timeout', 60
+        for key, value in self._request_kwargs.items():
+            yield key, value
 
     @staticmethod
     def http_default_headers():
@@ -137,12 +143,13 @@ class HttpProvider(object):
         }
 
     def request(self, url, body=None, method='GET'):
+        self.logger.debug("Making request HTTP. URI: %s, Path: %s",
+                          self.host, url)
         method = method.lower()
         if method not in ['get', 'post']:
             raise Exception('The method is not defined')
 
         self._num_requests_attempted += 1
-
         if method == 'post':
             request = self.client.request(method=method, url=url, body=json.dumps(body))
         else:
@@ -155,15 +162,13 @@ class HttpProvider(object):
                                 'method': method,
                                 'path': url,
                                 'params': body,
-                                'headers': self.headers
-                            },
-                            )
+                                **self.get_request_kwargs()
+                            })
 
         if data.is_failure():
             raise data.error()
 
         response = data.json()
-
         if response == 'OK':
             response = dict({'status': 1})
 
@@ -179,15 +184,13 @@ class HttpProvider(object):
 
     def connect(self):
         scheme, url, port = get_host(self.host)
-
         if port is None:
             port = self.http_default_port[scheme]
 
         pool_cls = self.http_scheme[scheme]
         client = pool_cls(host=url,
                           port=port,
-                          timeout=self.timeout,
-                          headers=self.headers)
+                          **self.get_request_kwargs())
 
         return client
 
@@ -203,7 +206,6 @@ class HttpProvider(object):
             return True
         elif 'status' in response:
             return True
-
         return False
 
     def get_num_requests_attempted(self):
