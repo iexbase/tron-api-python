@@ -6,6 +6,7 @@ from urllib3 import get_host, HTTPConnectionPool, HTTPSConnectionPool
 import json
 
 from tronapi.exceptions import TronRequestError
+from tronapi.utils.help import construct_user_agent
 
 urllib3.disable_warnings()
 LOGGER = logging.getLogger(__name__)
@@ -91,10 +92,6 @@ class TronResponse(object):
 class HttpProvider(object):
     """Encapsulates session attributes and methods to make API calls."""
 
-    http_default_headers = {
-        'content-type': 'application/json'
-    }
-
     http_default_port = {
         'http': 80,
         'https': 443
@@ -116,7 +113,7 @@ class HttpProvider(object):
             headers = {}
 
         headers.copy()
-        headers.update(self.http_default_headers)
+        headers.update(self.http_default_headers())
 
         self.host = host
         self.timeout = timeout
@@ -131,6 +128,13 @@ class HttpProvider(object):
             raise Exception('Invalid timeout duration provided')
 
         self.client = self.connect()
+
+    @staticmethod
+    def http_default_headers():
+        return {
+            'content-type': 'application/json',
+            'user-agent': construct_user_agent(),
+        }
 
     def request(self, url, body=None, method='GET'):
         method = method.lower()

@@ -5,6 +5,14 @@ def string_utf8_to_hex(name):
     return bytes(name, encoding='utf-8').hex()
 
 
+def construct_user_agent():
+    from tronapi import __version__ as tron_version
+    user_agent = 'TronAPI/{version}'.format(
+        version=tron_version
+    )
+    return user_agent
+
+
 def is_valid_url(value):
     """
     Return whether or not given value is a valid URL.
