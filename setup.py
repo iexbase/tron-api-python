@@ -16,7 +16,6 @@ PACKAGE_REQUIRED = [
     'pycryptodome',
     'base58',
     'eth-account',
-    'eth-utils',
     'ecdsa',
     'pysha3'
 ]
