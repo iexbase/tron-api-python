@@ -12,10 +12,12 @@ py_version = platform.python_version()
 
 PACKAGE_VERSION = '2.0.4'
 PACKAGE_REQUIRED = [
+    'toolz',
     'urllib3',
     'pycryptodome',
     'base58',
     'eth-account',
+    'eth-utils',
     'ecdsa',
     'pysha3'
 ]
