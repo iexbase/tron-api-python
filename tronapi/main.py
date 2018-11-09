@@ -30,7 +30,7 @@ from tronapi.manager import TronManager
 from tronapi import HttpProvider
 from tronapi.transactions import TransactionBuilder
 from tronapi.trx import Trx
-from tronapi.base.address import is_address
+from tronapi.base.validation import is_address
 from tronapi.utils.crypto import keccak as tron_keccak
 from tronapi.utils.currency import to_sun, from_sun
 from tronapi.utils.decorators import deprecated_for

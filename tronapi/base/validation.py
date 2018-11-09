@@ -3,6 +3,7 @@ from typing import Any
 
 import base58
 
+from tronapi.utils.help import hex_to_base58
 from tronapi.utils.hexadecimal import is_hex
 from tronapi.utils.types import is_text
 
@@ -15,6 +16,8 @@ def is_address(value: str) -> bool:
         value (str): Address
 
     """
+    if not isinstance(value, str):
+        raise TypeError('Address {} must be provided as a string'.format(value))
     if is_checksum_address(value):
         return True
     elif is_hex_address(value):
@@ -51,7 +54,3 @@ def is_checksum_address(value: str) -> bool:
     check_sum = sha256(sha256(address[:-4]).digest()).digest()[:4]
     if address[-4:] == check_sum:
         return True
-
-
-def hex_to_base58(value: Any) -> str:
-    return base58.b58encode_check(bytes.fromhex(value))

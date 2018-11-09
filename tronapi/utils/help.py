@@ -1,8 +1,14 @@
 import re
+from typing import Any
+
+import base58
 
 
 def string_utf8_to_hex(name):
     return bytes(name, encoding='utf-8').hex()
+
+def hex_to_base58(value: Any) -> str:
+    return base58.b58encode_check(bytes.fromhex(value))
 
 
 def construct_user_agent():
