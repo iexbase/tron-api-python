@@ -349,6 +349,9 @@ class Trx(Module):
             options = assoc(options, 'from', self.tron.default_address.hex)
 
         tx = self.tron.transaction.send_transaction(to, amount, options['from'])
+
+        # If a comment is attached to the transaction,
+        # in this case adding to the object
         if 'message' in options:
             tx['raw_data']['data'] = self.tron.toHex(text=str(options['message']))
 
@@ -357,12 +360,23 @@ class Trx(Module):
 
         return result
 
-    def send_token(self, to, amount, token_id=None, owner_address=None):
+    def send_token(self, to, amount, token_id=None, account=None):
+        """Transfer Token
 
-        if owner_address is None:
-            owner_address = self.tron.default_address.hex
+        Args:
+            to (str): is the recipient address
+            amount (float): is the amount of token to transfer
+            token_id (str): Token Name(NOT SYMBOL)
+            account: (str): is the address of the withdrawal account
 
-        tx = self.tron.transaction.send_token(to, amount, token_id, owner_address)
+        Returns:
+            Token transfer Transaction raw data
+
+        """
+        if account is None:
+            account = self.tron.default_address.hex
+
+        tx = self.tron.transaction.send_token(to, amount, token_id, account)
         sign = self.sign(tx)
         result = self.broadcast(sign)
 
