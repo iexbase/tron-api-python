@@ -798,38 +798,6 @@ class Trx(Module):
 
         return response
 
-    def exchange_transaction(self, owner_address, exchange_id,
-                             token_id, quant, expected):
-        """ Exchanges a transaction.
-
-        Args:
-            owner_address (str):  Address of the creator of the transaction pair
-            exchange_id (str): transaction pair id
-            token_id (str): The id of the sold token
-            quant (int): the number of tokens sold
-            expected (int): the number of tokens expected to be bought
-
-        """
-        if not self.tron.isAddress(owner_address):
-            raise InvalidTronError('Invalid address provided')
-
-        if not isinstance(token_id, str) or len(token_id):
-            raise InvalidTronError('Invalid token ID provided')
-
-        if not isinstance(quant, int) or quant <= 0:
-            raise InvalidTronError('Invalid quantity provided')
-
-        if not isinstance(expected, int) or quant < 0:
-            raise InvalidTronError('Invalid expected provided')
-
-        return self.tron.manager.request('/wallet/exchangetransaction', {
-            'owner_address': self.tron.address.to_hex(owner_address),
-            'exchange_id': exchange_id,
-            'token_id': token_id,
-            'quant': quant,
-            'expected': expected
-        })
-
     def list_exchanges_paginated(self, limit=10, offset=0):
         """Paged query transaction pair list
 
@@ -842,34 +810,3 @@ class Trx(Module):
             'limit': limit,
             'offset': offset
         })
-
-    def exchange_create(self, owner_address, first_token_id, second_token_id,
-                        first_token_balance, second_token_balance):
-        """Create a transaction pair
-
-        Args:
-            owner_address (str):
-            first_token_id (str): the id of the first token
-            second_token_id (str): the id of the second token
-            first_token_balance (int): balance of the first token
-            second_token_balance (int): balance of the second token
-
-        """
-        if not self.tron.isAddress(owner_address):
-            raise InvalidTronError('Invalid address provided')
-
-        if isinstance(first_token_id, str) or len(first_token_id) or \
-                not isinstance(second_token_id, str) or len(second_token_id):
-            raise InvalidTronError('Invalid token ID provided')
-
-        if not isinstance(first_token_balance, int) or first_token_balance <= 0 or \
-                not isinstance(second_token_balance, int) or second_token_balance <= 0:
-            raise InvalidTronError('Invalid amount provided')
-
-        return self.tron.manager.request('/wallet/exchangecreate', {
-            'owner_address': self.tron.address.to_hex(owner_address),
-            'first_token_id': first_token_id,
-            'first_token_balance': first_token_balance,
-            'second_token_id': second_token_id,
-            'second_token_balance': second_token_balance
-        }, 'post')

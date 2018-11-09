@@ -224,3 +224,58 @@ class TransactionBuilder(object):
         })
 
         return response
+
+    def create_trx_exchange(self,
+                            token_name: str,
+                            token_balance: int,
+                            trx_balance: int,
+                            account):
+        """Create an exchange between a token and TRX.
+        Token Name should be a CASE SENSITIVE string.
+        Note: PLEASE VERIFY THIS ON TRONSCAN.
+
+        Args:
+            token_name (str): Token Name
+            token_balance (int): balance of the first token
+            trx_balance (int): balance of the second token
+            account (str): Owner Address
+        """
+
+        if not self.tron.isAddress(account):
+            raise TronError('Invalid address provided')
+
+        if not len(token_name):
+            raise TronError('Invalid tokenName provided')
+
+        if token_balance <= 0 or trx_balance <= 0:
+            raise TronError('Invalid amount provided')
+
+        return self.tron.manager.request('/wallet/exchangecreate', {
+            'owner_address': self.tron.address.to_hex(account),
+            'first_token_id': self.tron.toHex(text=token_name),
+            'first_token_balance': token_balance,
+            'second_token_id': '5f',
+            'second_token_balance': trx_balance
+        })
+
+    def inject_exchange_trx(self,
+                            exchange_id: int,
+                            trx_amount: int,
+                            account: str):
+        """Adds TRX into a bancor style exchange."""
+
+        if not self.tron.isAddress(account):
+            raise TronError('Invalid address provided')
+
+        if exchange_id < 0:
+            raise TronError('Invalid exchangeID provided')
+
+        if trx_amount < 1:
+            raise TronError('Invalid trxAmount provided')
+
+        return self.tron.manager.request('/wallet/exchangeinject', {
+            'owner_address': self.tron.address.to_hex(account),
+            'exchange_id': exchange_id,
+            'token_id': '5f',
+            'quant': trx_amount
+        })
