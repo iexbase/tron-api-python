@@ -183,7 +183,7 @@ class Tron:
         if event_name and not contract_address:
             raise TronError('Usage of event name filtering requires a contract address')
 
-        if block_number and not event_name:
+        if block_number is None and event_name is None:
             raise TronError('Usage of block number filtering requires an event name')
 
         route_params = []
