@@ -16,13 +16,13 @@ tron = Tron(full_node,
             event_server)
 
 
-account = tron.create_account()
+account = tron.create_account
 is_valid = bool(tron.isAddress(account.address.hex))
 
 
 logger.debug('Generated account: ')
-logger.debug('- Private Key: ' + account.private_key())
-logger.debug('- Public Key: ' + account.public_key())
+logger.debug('- Private Key: ' + account.private_key)
+logger.debug('- Public Key: ' + account.public_key)
 logger.debug('- Address: ')
 logger.debug('-- Base58: ' + account.address.base58)
 logger.debug('-- Hex: ' + account.address.hex)
