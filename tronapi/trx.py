@@ -2,14 +2,15 @@ import math
 from typing import Any
 
 from eth_account.account import Account as EthAccount
-from eth_account.messages import defunct_hash_message
-from toolz import compose
 
 from tronapi.exceptions import InvalidTronError, TronError
 from tronapi.module import Module
 from tronapi.utils.blocks import select_method_for_block
 from tronapi.utils.hexadecimal import is_hex
 from tronapi.utils.types import is_integer, is_object, is_string
+from tronapi.base.toolz import (
+    assoc
+)
 
 TRX_MESSAGE_HEADER = '\x19TRON Signed Message:\n32'
 ETH_MESSAGE_HEADER = '\x19Ethereum Signed Message:\n32'
@@ -331,26 +332,27 @@ class Trx(Module):
         """
         return self.send_transaction(*args)
 
-    def send_transaction(self, to, amount, message=None, owner_address=None):
+    def send_transaction(self, to, amount, options=None):
         """Send an asset to another account.
 
         Parameters:
             to (str): Recipient
             amount (float): Amount to transfer
-            message (str, optional): Message
-            owner_address (str, optional): the source account for the transfer
-                if not ``default_address``
+            options (Any, optional): Options
 
         """
 
-        if owner_address is None:
-            owner_address = self.tron.default_address.hex
+        if options is None:
+            options = {}
 
-        if message is not None and not isinstance(message, str):
-            raise InvalidTronError('Invalid Message')
+        if 'from' not in options:
+            options = assoc(options, 'from', self.tron.default_address.hex)
 
-        tx = self.tron.transaction.send_transaction(to, amount, owner_address)
-        sign = self.sign(tx, message)
+        tx = self.tron.transaction.send_transaction(to, amount, options['from'])
+        if 'message' in options:
+            tx['raw_data']['data'] = self.tron.toHex(text=str(options['message']))
+
+        sign = self.sign(tx)
         result = self.broadcast(sign)
 
         return result
@@ -409,7 +411,7 @@ class Trx(Module):
 
         return response
 
-    def sign(self, transaction: Any, message=None, use_tron: bool = True):
+    def sign(self, transaction: Any, use_tron: bool = True):
         """Sign the transaction, the api has the risk of leaking the private key,
         please make sure to call the api in a secure environment
 
@@ -434,9 +436,6 @@ class Trx(Module):
 
         if 'signature' in transaction:
             raise TronError('Transaction is already signed')
-
-        if message is not None:
-            transaction['raw_data']['data'] = self.tron.toHex(text=message)
 
         address = self.tron.address.from_private_key(self.tron.private_key).hex.lower()
         owner_address = transaction['raw_data']['contract'][0]['parameter']['value']['owner_address']
