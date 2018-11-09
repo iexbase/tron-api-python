@@ -5,7 +5,7 @@ class Module:
 
     @classmethod
     def attach(cls, target, module_name=None):
-        if not module_name:
+        if module_name is not None:
             module_name = cls.__name__.lower()
 
         if hasattr(target, module_name):
@@ -17,9 +17,8 @@ class Module:
                 )
             )
 
+        tron = target
         if isinstance(target, Module):
             tron = target.tron
-        else:
-            tron = target
 
         setattr(target, module_name, cls(tron))
