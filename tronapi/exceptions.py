@@ -9,12 +9,10 @@ import re
 
 class TronError(Exception):
     """Base class for TronAPI exceptions."""
-    pass
 
 
 class InvalidTronError(TronError):
     """Raised Tron Error"""
-    pass
 
 
 class TronRequestError(TronError):
@@ -24,13 +22,8 @@ class TronRequestError(TronError):
     only for failure callbacks) if not raised at the core api call method.
     """
 
-    def __init__(
-            self, message=None,
-            request_context=None,
-            http_status=None,
-            http_headers=None,
-            body=None
-    ):
+    def __init__(self, message=None, request_context=None,
+                 http_status=None, http_headers=None, body=None):
         """"Create a new :class:`~.TronRequestError` instance.
 
         Args:
