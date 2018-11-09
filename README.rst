@@ -17,6 +17,9 @@ A Python API for interacting with the Tron (TRX)
 .. image:: https://img.shields.io/github/issues-pr/iexbase/tron-api-python.svg
     :target: https://github.com/iexbase/tron-api-python/pulls
     
+.. image:: https://codecov.io/gh/iexbase/tron-api-python/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/iexbase/tron-api-python
+    
 
 ------------
 
