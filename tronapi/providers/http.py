@@ -1,14 +1,14 @@
-import http
+
 import logging
-import urllib3
+from http import HTTPStatus
 from eth_utils import to_dict
-from urllib3 import get_host, HTTPConnectionPool, HTTPSConnectionPool
+from urllib3 import get_host, HTTPConnectionPool, HTTPSConnectionPool, disable_warnings
 import json
 
 from tronapi.exceptions import TronRequestError
 from tronapi.utils.help import construct_user_agent
 
-urllib3.disable_warnings()
+disable_warnings()
 LOGGER = logging.getLogger(__name__)
 
 
@@ -58,10 +58,10 @@ class TronResponse(object):
 
     def is_success(self) -> bool:
         """Returns boolean indicating if the call was successful."""
-        if self._http_status == http.HTTPStatus.NOT_MODIFIED.value:
+        if self._http_status == HTTPStatus.NOT_MODIFIED.value:
             # ETAG Hit
             return True
-        elif self._http_status == http.HTTPStatus.OK.value:
+        elif self._http_status == HTTPStatus.OK.value:
             # HTTP Okay
             return True
         else:
@@ -129,7 +129,7 @@ class HttpProvider(object):
     def get_request_kwargs(self):
         if 'headers' not in self._request_kwargs:
             yield 'headers', self.http_default_headers()
-        if 'timeout' not in self._request_kwargs:
+        elif 'timeout' not in self._request_kwargs:
             yield 'timeout', 60
         for key, value in self._request_kwargs.items():
             yield key, value
@@ -190,7 +190,6 @@ class HttpProvider(object):
         client = pool_cls(host=url,
                           port=port,
                           **self.get_request_kwargs())
-
         return client
 
     def is_connected(self) -> bool:
