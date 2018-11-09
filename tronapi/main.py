@@ -174,7 +174,7 @@ class Tron:
             block_number (str): Specific block number to query
         """
 
-        if self.isAddress(contract_address):
+        if not self.isAddress(contract_address):
             raise InvalidTronError('Invalid contract address provided')
 
         if event_name and not contract_address:
