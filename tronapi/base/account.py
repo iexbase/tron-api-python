@@ -1,5 +1,5 @@
 import codecs
-from binascii import unhexlify, hexlify
+from binascii import unhexlify
 
 import base58
 from eth_account.datastructures import AttributeDict

@@ -17,22 +17,6 @@ ETH_MESSAGE_HEADER = '\x19Ethereum Signed Message:\n32'
 
 
 class Trx(Module):
-    @property
-    def default_block(self):
-        return self._default_block
-
-    @default_block.setter
-    def default_block(self, block_id):
-        """Sets the default block used as a reference for all future calls."""
-        if block_id in ('latest', 'earliest', 0):
-            self._default_block = block_id
-            return
-
-        if not is_integer(block_id) or not block_id:
-            raise ValueError('Invalid block ID provided')
-
-        self._default_block = abs(block_id)
-
     def get_current_block(self):
         """Query the latest block
 
@@ -431,7 +415,6 @@ class Trx(Module):
 
         Args:
             transaction (Any): transaction details
-            message (str): Message
             use_tron (bool): is Tron header
 
         """

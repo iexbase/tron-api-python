@@ -7,7 +7,7 @@ from tronapi.utils.types import is_string, is_integer
 MIN_SUN = 0
 MAX_SUN = 2 ** 256 - 1
 UNITS = {
-    'sun' : decimal.Decimal('1000000')
+    'sun': decimal.Decimal('1000000')
 }
 
 

@@ -19,7 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from ecdsa import SECP256k1, SigningKey
+
+import ecdsa
 from eth_utils import apply_to_return_value
 
 from tronapi.base.account import Account, PrivateKey
@@ -36,6 +37,7 @@ from tronapi.utils.currency import to_sun, from_sun
 from tronapi.utils.decorators import deprecated_for
 from tronapi.utils.encoding import to_bytes, to_int, to_hex, to_text
 from tronapi.utils.hexbytes import HexBytes
+from tronapi.utils.types import is_integer
 
 DEFAULT_MODULES = {
     'trx': Trx
@@ -43,7 +45,7 @@ DEFAULT_MODULES = {
 
 
 class Tron:
-    _default_block = 'latest'
+    _default_block = None
     _private_key = None
 
     # Encoding and Decoding
@@ -89,6 +91,22 @@ class Tron:
             module_class.attach(self, module_name)
 
         self.transaction = TransactionBuilder(self)
+
+    @property
+    def default_block(self):
+        return self._default_block
+
+    @default_block.setter
+    def default_block(self, block_id):
+        """Sets the default block used as a reference for all future calls."""
+        if block_id in ('latest', 'earliest', 0):
+            self._default_block = block_id
+            return
+
+        if not is_integer(block_id) or not block_id:
+            raise ValueError('Invalid block ID provided')
+
+        self._default_block = abs(block_id)
 
     @property
     def providers(self):
@@ -154,10 +172,6 @@ class Tron:
             since (int): Filter for events since certain timestamp.
             event_name (str): Name of the event to filter by.
             block_number (str): Specific block number to query
-
-        Examples:
-            >>> tron.get_event_result('TQyXdrUaZaw155WrB3F3HAZZ3EeiLVx4V2', 0)
-
         """
 
         if not self.manager.event_server:
@@ -192,10 +206,6 @@ class Tron:
 
         Args:
             tx_id (str): TransactionID to query for events.
-
-        Examples:
-            >>> tron.get_event_transaction_id('660028584562b3ae687090f77e989bc7b0bc8b0a8f677524630002c06fd1d57c')
-
         """
 
         if not self.manager.event_server:
@@ -219,7 +229,7 @@ class Tron:
     @property
     def create_account(self) -> PrivateKey:
         """Create account"""
-        generate_key = SigningKey.generate(curve=SECP256k1)
+        generate_key = ecdsa.SigningKey.generate(curve=ecdsa.SECP256k1)
         return PrivateKey(generate_key.to_string().hex())
 
     def generate_address(self):

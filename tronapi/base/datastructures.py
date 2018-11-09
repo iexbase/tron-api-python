@@ -1,6 +1,4 @@
-from attrdict import (
-    AttrDict,
-)
+from attrdict import AttrDict
 
 
 class AttributeDict(AttrDict):

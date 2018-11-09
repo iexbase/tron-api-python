@@ -7,6 +7,7 @@ import base58
 def string_utf8_to_hex(name):
     return bytes(name, encoding='utf-8').hex()
 
+
 def hex_to_base58(value: Any) -> str:
     return base58.b58encode_check(bytes.fromhex(value))
 
@@ -24,7 +25,6 @@ def is_valid_url(value):
     Return whether or not given value is a valid URL.
 
     :param value: URL address string to validate
-    :param public: (default=False) Set True to only allow a public IP address
     """
     regex = re.compile(
         r'^(?:http|ftp)s?://'
