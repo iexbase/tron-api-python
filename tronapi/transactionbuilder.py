@@ -257,25 +257,3 @@ class TransactionBuilder(object):
             'second_token_id': '5f',
             'second_token_balance': trx_balance
         })
-
-    def inject_exchange_trx(self,
-                            exchange_id: int,
-                            trx_amount: int,
-                            account: str):
-        """Adds TRX into a bancor style exchange."""
-
-        if not self.tron.isAddress(account):
-            raise TronError('Invalid address provided')
-
-        if exchange_id < 0:
-            raise TronError('Invalid exchangeID provided')
-
-        if trx_amount < 1:
-            raise TronError('Invalid trxAmount provided')
-
-        return self.tron.manager.request('/wallet/exchangeinject', {
-            'owner_address': self.tron.address.to_hex(account),
-            'exchange_id': exchange_id,
-            'token_id': '5f',
-            'quant': trx_amount
-        })

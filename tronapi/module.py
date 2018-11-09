@@ -1,11 +1,14 @@
 
 class Module:
+    """Module Class"""
+    tron = None
+
     def __init__(self, tron):
         self.tron = tron
 
     @classmethod
     def attach(cls, target, module_name=None):
-        if module_name is not None:
+        if not module_name:
             module_name = cls.__name__.lower()
 
         if hasattr(target, module_name):
@@ -17,8 +20,9 @@ class Module:
                 )
             )
 
-        tron = target
         if isinstance(target, Module):
             tron = target.tron
+        else:
+            tron = target
 
         setattr(target, module_name, cls(tron))
