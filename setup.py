@@ -12,14 +12,15 @@ py_version = platform.python_version()
 
 PACKAGE_VERSION = '2.0.4'
 PACKAGE_REQUIRED = [
-    'toolz',
-    'urllib3',
-    'pycryptodome',
-    'base58',
-    'eth-account',
-    'eth-utils',
-    'ecdsa',
-    'pysha3'
+    "toolz>=0.9.0,<1.0.0;implementation_name=='pypy'",
+    "cytoolz>=0.9.0,<1.0.0;implementation_name=='cpython'",
+    "urllib3",
+    "pycryptodome",
+    "base58",
+    "eth-account>=0.2.1,<0.4.0",
+    "eth-utils>=1.2.0,<2.0.0",
+    "ecdsa",
+    "pysha3"
 ]
 
 this_dir = os.path.dirname(__file__)
