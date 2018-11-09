@@ -217,7 +217,7 @@ class Tron:
         return Account()
 
     @property
-    def create_account(self):
+    def create_account(self) -> PrivateKey:
         """Create account"""
         generate_key = SigningKey.generate(curve=SECP256k1)
         return PrivateKey(generate_key.to_string().hex())

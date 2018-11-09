@@ -16,8 +16,6 @@ def is_address(value: str) -> bool:
         value (str): Address
 
     """
-    if not isinstance(value, str):
-        raise TypeError('Address {} must be provided as a string'.format(value))
     if is_checksum_address(value):
         return True
     elif is_hex_address(value):
