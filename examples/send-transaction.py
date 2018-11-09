@@ -1,3 +1,5 @@
+import json
+
 from tronapi import Tron
 from tronapi import HttpProvider
 
@@ -14,3 +16,10 @@ result = tron.trx.send('ToAddress', 1)
 
 # Получаем результат
 print(result)
+
+
+# added message
+
+send = tron.trx.send_transaction('to', 1, {
+    'message': 'hello'
+})
