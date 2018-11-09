@@ -1,8 +1,14 @@
+# --------------------------------------------------------------------------------------------
+# Copyright (c) iEXBase. All rights reserved.
+# Licensed under the MIT License. See License.txt in the project root for license information.
+# --------------------------------------------------------------------------------------------
+
 import json
 import re
 
 
 class TronError(Exception):
+    """Base class for TronAPI exceptions."""
     pass
 
 
@@ -64,27 +70,3 @@ class TronRequestError(TronError):
             ) +
             "\n"
         )
-
-    def request_context(self):
-        return self._request_context
-
-    def http_status(self):
-        return self._http_status
-
-    def http_headers(self):
-        return self._http_headers
-
-    def body(self):
-        return self._body
-
-    def api_error_message(self):
-        return self._api_error_message
-
-    def api_error_code(self):
-        return self._api_error_code
-
-    def api_error_type(self):
-        return self._api_error_type
-
-    def get_message(self):
-        return self._message
