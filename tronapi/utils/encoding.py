@@ -1,3 +1,8 @@
+# --------------------------------------------------------------------------------------------
+# Copyright (c) iEXBase. All rights reserved.
+# Licensed under the MIT License. See License.txt in the project root for license information.
+# --------------------------------------------------------------------------------------------
+
 from eth_utils import big_endian_to_int, int_to_big_endian, to_hex
 from tronapi.utils.hexadecimal import remove_0x_prefix, decode_hex
 from tronapi.utils.types import is_integer, is_boolean

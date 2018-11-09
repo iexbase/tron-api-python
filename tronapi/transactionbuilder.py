@@ -1,3 +1,8 @@
+# --------------------------------------------------------------------------------------------
+# Copyright (c) iEXBase. All rights reserved.
+# Licensed under the MIT License. See License.txt in the project root for license information.
+# --------------------------------------------------------------------------------------------
+
 from tronapi.exceptions import InvalidTronError, TronError
 from tronapi.utils.help import is_valid_url
 from tronapi.utils.types import is_string, is_integer, is_boolean

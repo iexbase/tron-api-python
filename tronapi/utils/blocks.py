@@ -1,3 +1,8 @@
+# --------------------------------------------------------------------------------------------
+# Copyright (c) iEXBase. All rights reserved.
+# Licensed under the MIT License. See License.txt in the project root for license information.
+# --------------------------------------------------------------------------------------------
+
 from tronapi.utils.hexadecimal import remove_0x_prefix, is_hex
 from tronapi.utils.types import is_string, is_integer
 

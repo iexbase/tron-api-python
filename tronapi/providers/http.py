@@ -1,95 +1,21 @@
+# --------------------------------------------------------------------------------------------
+# Copyright (c) iEXBase. All rights reserved.
+# Licensed under the MIT License. See License.txt in the project root for license information.
+# --------------------------------------------------------------------------------------------
 
 import logging
-from http import HTTPStatus
 from eth_utils import to_dict
 from urllib3 import get_host, HTTPConnectionPool, HTTPSConnectionPool, disable_warnings
 import json
 
-from tronapi.exceptions import TronRequestError
-from tronapi.utils.help import construct_user_agent
+from tronapi.base.response import TronResponse
+from tronapi.utils.help import (construct_user_agent)
 
 disable_warnings()
 LOGGER = logging.getLogger(__name__)
 
 
-class TronResponse(object):
-    """Encapsulates an http response from Tron."""
-
-    def __init__(self, body=None, http_status=None, headers=None, call=None):
-        """Initializes the object's internal data.
-        Args:
-            body (optional): The response body as text.
-            http_status (optional): The http status code.
-            headers (optional): The http headers.
-            call (optional): The original call that was made.
-        """
-        self._body = body
-        self._http_status = http_status
-        self._headers = headers or {}
-        self._call = call
-
-        if self._http_status in (404, 502, 500):
-            self._body = {
-                'error': 'Request failed, try again'
-            }
-
-    def body(self):
-        """Returns the response body."""
-        return self._body
-
-    def json(self):
-        """Returns the response body -- in json if possible."""
-        try:
-            return json.loads(self._body)
-        except (TypeError, ValueError):
-            return self._body
-
-    def headers(self):
-        """Return the response headers."""
-        return self._headers
-
-    def etag(self):
-        """Returns the ETag header value if it exists."""
-        return self._headers.get('ETag')
-
-    def status(self):
-        """Returns the http status code of the response."""
-        return self._http_status
-
-    def is_success(self) -> bool:
-        """Returns boolean indicating if the call was successful."""
-        if self._http_status == HTTPStatus.NOT_MODIFIED.value:
-            # ETAG Hit
-            return True
-        elif self._http_status == HTTPStatus.OK.value:
-            # HTTP Okay
-            return True
-        else:
-            # Something else
-            return False
-
-    def is_failure(self) -> bool:
-        """Returns boolean indicating if the call failed."""
-        return not self.is_success()
-
-    def error(self):
-        """
-        Returns a TronRequestError (located in the exceptions module) with
-        an appropriate debug message.
-        """
-        if self.is_failure():
-            return TronRequestError(
-                "Call was not successful",
-                self._call,
-                self.status(),
-                self.headers(),
-                self.body(),
-            )
-        else:
-            return None
-
-
-class HttpProvider(object):
+class HttpProvider:
     """Encapsulates session attributes and methods to make API calls."""
 
     logger = logging.getLogger(__name__)
@@ -119,6 +45,7 @@ class HttpProvider(object):
 
     @property
     def status_page(self):
+        """Get the page to check the connection"""
         return self._status_page
 
     @status_page.setter
@@ -127,21 +54,25 @@ class HttpProvider(object):
 
     @to_dict
     def get_request_kwargs(self):
+        """Header settings"""
         if 'headers' not in self._request_kwargs:
-            yield 'headers', self.http_default_headers()
-        elif 'timeout' not in self._request_kwargs:
-            yield 'timeout', 60
+            yield 'headers', self._http_default_headers()
         for key, value in self._request_kwargs.items():
             yield key, value
 
     @staticmethod
-    def http_default_headers():
+    def _http_default_headers():
+        """Add default headers"""
+
         return {
             'content-type': 'application/json',
             'user-agent': construct_user_agent(),
+            'timeout': 60
         }
 
     def request(self, url, body=None, method='GET'):
+        """We send requests to nodes"""
+
         self.logger.debug("Making request HTTP. URI: %s, Path: %s",
                           self.host, url)
         method = method.lower()
@@ -182,6 +113,7 @@ class HttpProvider(object):
         return response
 
     def connect(self):
+        """HTTP provider configuration"""
         scheme, url, port = get_host(self.host)
         if port is None:
             port = self.http_default_port[scheme]
@@ -200,10 +132,9 @@ class HttpProvider(object):
 
         """
         response = self.request(self.status_page)
-        if 'blockID' in response:
+        if 'blockID' in response or 'status' in response:
             return True
-        elif 'status' in response:
-            return True
+
         return False
 
     def get_num_requests_attempted(self):
