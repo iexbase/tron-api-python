@@ -25,16 +25,27 @@ class TronRequestError(TronError):
     """
 
     def __init__(
-            self, message,
-            request_context,
-            http_status,
-            http_headers,
-            body
+            self, message=None,
+            request_context=None,
+            http_status=None,
+            http_headers=None,
+            body=None
     ):
-        self._message = message
-        self._request_context = request_context
-        self._http_status = http_status
-        self._http_headers = http_headers
+        """"Create a new :class:`~.TronRequestError` instance.
+
+        Args:
+            message (str, optional): Text message
+            request_context(object, optional): Context
+            http_status (int): Status code
+            http_headers (object, optional): Headers
+            body (object, optional): Contents
+
+        """
+        self.message = message
+        self.request_context = request_context
+        self.http_status = http_status
+        self.http_headers = http_headers
+
         try:
             self._body = json.loads(body)
         except (TypeError, ValueError):
@@ -55,15 +66,15 @@ class TronRequestError(TronError):
         else:
             self._error = None
 
-        request = self._request_context
+        request = self.request_context
         super(TronRequestError, self).__init__(
             "\n\n" +
-            "  Message: %s\n" % self._message +
+            "  Message: %s\n" % self.message +
             "  Method:  %s\n" % request.get('method') +
             "  Path:    %s\n" % request.get('path', '/') +
             "  Params:  %s\n" % request.get('params') +
             "\n" +
-            "  Status:  %s\n" % self._http_status +
+            "  Status:  %s\n" % self.http_status +
             "  Response:\n    %s" % re.sub(
                 r"\n", "\n    ",
                 json.dumps(self._body, indent=2)
