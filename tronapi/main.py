@@ -28,7 +28,7 @@ from tronapi.base.datastructures import AttributeDict
 from tronapi.exceptions import InvalidTronError, TronError
 from tronapi.manager import TronManager
 from tronapi import HttpProvider
-from tronapi.transactions import TransactionBuilder
+from tronapi.transactionbuilder import TransactionBuilder
 from tronapi.trx import Trx
 from tronapi.base.validation import is_address
 from tronapi.utils.crypto import keccak as tron_keccak
