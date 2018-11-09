@@ -174,16 +174,13 @@ class Tron:
             block_number (str): Specific block number to query
         """
 
-        if not self.manager.event_server:
-            raise TronError('No event server configured')
-
         if not self.isAddress(contract_address):
             raise InvalidTronError('Invalid contract address provided')
 
         if event_name and not contract_address:
             raise TronError('Usage of event name filtering requires a contract address')
 
-        if block_number is None and event_name is None:
+        if block_number and event_name is None:
             raise TronError('Usage of block number filtering requires an event name')
 
         route_params = []
@@ -207,10 +204,6 @@ class Tron:
         Args:
             tx_id (str): TransactionID to query for events.
         """
-
-        if not self.manager.event_server:
-            raise TronError('No event server configured')
-
         response = self.manager.request('/event/transaction/' + tx_id, method='get')
         return response
 
