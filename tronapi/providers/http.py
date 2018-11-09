@@ -56,7 +56,7 @@ class TronResponse(object):
         """Returns the http status code of the response."""
         return self._http_status
 
-    def is_success(self):
+    def is_success(self) -> bool:
         """Returns boolean indicating if the call was successful."""
         if self._http_status == http.HTTPStatus.NOT_MODIFIED.value:
             # ETAG Hit
@@ -68,7 +68,7 @@ class TronResponse(object):
             # Something else
             return False
 
-    def is_failure(self):
+    def is_failure(self) -> bool:
         """Returns boolean indicating if the call failed."""
         return not self.is_success()
 
