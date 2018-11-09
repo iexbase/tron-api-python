@@ -1,14 +1,12 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import os
 import platform
-
-try:
-    import setuptools
-except ImportError:
-    from ez_setup import use_setuptools
-    use_setuptools()
-    import setuptools
-
+from setuptools import (
+    find_packages,
+    setup,
+)
 
 py_version = platform.python_version()
 
@@ -18,6 +16,7 @@ PACKAGE_REQUIRED = [
     'pycryptodome',
     'base58',
     'eth-account',
+    'eth-utils',
     'ecdsa',
     'pysha3'
 ]
@@ -29,7 +28,7 @@ with open(readme_filename) as f:
     PACKAGE_LONG_DESCRIPTION = f.read()
 
 
-setuptools.setup(
+setup(
     name='tronapi',
     version=PACKAGE_VERSION,
     description='A Python API for interacting with Tron (TRX)',
@@ -50,7 +49,7 @@ setuptools.setup(
         'Intended Audience :: Financial and Insurance Industry',
         'Topic :: Office/Business :: Financial',
     ],
-    packages=setuptools.find_packages(),
+    packages=find_packages(),
     include_package_data=True,
     install_requires=PACKAGE_REQUIRED,
 )
