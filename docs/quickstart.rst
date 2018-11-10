@@ -38,7 +38,7 @@ To use the tron library you will need to initialize the
 
 .. code-block:: python
 
-    >>> from tronapi.tron import Tron
+    >>> from tronapi.main import Tron
     >>> full_node = HttpProvider('https://api.trongrid.io')
     >>> solidity_node = HttpProvider('https://api.trongrid.io')
     >>> event_server = 'https://api.trongrid.io'
