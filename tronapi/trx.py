@@ -301,25 +301,13 @@ class Trx(Module):
         response = self.tron.manager.request('/wallet/totaltransaction')
         return response.get('num')
 
-    def send(self, *args):
-        """Send funds to the Tron account (option 2)
+    def send(self, to, amount, options=None):
+        """Send funds to the Tron account (option 2)"""
+        return self.send_transaction(to, amount, options)
 
-        Returns:
-            Returns the details of the transaction being sent.
-            [result = 1] - Successfully sent
-
-            """
-        return self.send_transaction(*args)
-
-    def send_trx(self, *args):
-        """Send funds to the Tron account (option 3)
-
-        Returns:
-            Returns the details of the transaction being sent.
-             [result = 1] - Successfully sent
-
-        """
-        return self.send_transaction(*args)
+    def send_trx(self, to, amount, options=None):
+        """Send funds to the Tron account (option 3)"""
+        return self.send_transaction(to, amount, options)
 
     def send_transaction(self, to, amount, options=None):
         """Send an asset to another account.
