@@ -45,9 +45,11 @@ class PrivateKey(object):
         """
         _private = unhexlify(bytes(private_key, encoding='utf8'))
         self._key = KeyAPI.PrivateKey(_private)
+        _length = len(self._key)
 
         # Key length must not exceed 64 length
-        assert len(repr(self._key)) != 64
+        if _length < 64:
+            raise ValueError('Key length must not exceed 64 length')
 
     @property
     def private_key(self):
