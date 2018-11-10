@@ -8,10 +8,12 @@ from collections import namedtuple
 
 from eth_utils import to_dict
 from requests import Session
-from requests.exceptions import ConnectionError
+from requests.exceptions import (
+    ConnectionError as TrxConnectionError
+)
 
 from tronapi.providers.base import BaseProvider
-from ..exceptions import HTTP_EXCEPTIONS, TransportError, HttpError
+from ..exceptions import HTTP_EXCEPTIONS, TransportError
 
 HttpResponse = namedtuple('HttpResponse', ('status_code', 'headers', 'data'))
 
@@ -59,7 +61,7 @@ class HttpProvider(BaseProvider):
                 params=params,
                 **self.get_request_kwargs(),
             )
-        except ConnectionError as err:
+        except TrxConnectionError as err:
             raise err
 
         return response.data
