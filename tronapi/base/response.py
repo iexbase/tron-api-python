@@ -10,7 +10,8 @@ from tronapi.exceptions import TronRequestError
 class TronResponse:
     """Encapsulates an http response from Tron."""
 
-    def __init__(self, body=None, http_status=None, headers=None, call=None):
+    def __init__(self, body=None, http_status=None, headers=None,
+                 call=None):
         """Initializes the object's internal data.
         Args:
             body (optional): The response body as text.

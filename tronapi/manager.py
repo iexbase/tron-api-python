@@ -3,17 +3,27 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 
+"""This class is designed to configure and define nodes for different types."""
 import logging
+
+from eth_utils import apply_to_return_value
+from hexbytes import HexBytes
 
 from tronapi import HttpProvider
 from tronapi.utils.types import is_string
 
+# In this variable, you can specify the base paths
+# to test the connection with the nodes.
+# It is advisable to leave the settings unchanged.
 STATUS_PAGE = {
     'full_node': '/wallet/getnowblock',
     'solidity_node': '/walletsolidity/getnowblock',
     'event_server': '/healthcheck'
 }
 
+# Here you can specify links to sites of different types.
+# The default is verified links.
+# If you do not know what links are used for, it is recommended not to change
 DEFAULT_NODES = {
     'full_node': 'https://api.trongrid.io',
     'solidity_node': 'https://api.trongrid.io',
@@ -22,6 +32,8 @@ DEFAULT_NODES = {
 
 
 class TronManager(object):
+    """This class is designed to configure and define nodes
+    for different types."""
     logger = logging.getLogger(__name__)
     _providers = None
 
@@ -51,24 +63,38 @@ class TronManager(object):
 
     @property
     def full_node(self) -> HttpProvider:
+        """Getting and managing paths to a full node"""
         if 'full_node' not in self.providers:
             raise ValueError('Full node is not activated.')
         return self.providers.get('full_node')
 
     @property
     def solidity_node(self) -> HttpProvider:
+        """Getting and managing paths to a solidity node"""
         if 'solidity_node' not in self.providers:
             raise ValueError('Solidity node is not activated.')
         return self.providers.get('solidity_node')
 
     @property
     def event_server(self) -> HttpProvider:
+        """Getting and managing paths to a event server"""
         if 'event_server' not in self.providers:
             raise ValueError('Event server is not activated.')
-
         return self.providers.get('event_server')
 
-    def request(self, url, params=None, method='post'):
+    def request(self, url, params=None, method=None):
+        """Prepare and route the request object according to the manager's configuration.
+
+        Args:
+            url (str): Path to send
+            params (object): Options
+            method (str): Request method
+
+        """
+
+        if method is None:
+            method = 'post'
+
         # In this variable, we divide the resulting reference
         # into 2 parts to determine the type of node
         split = url[1:].split('/', 2)
@@ -83,6 +109,7 @@ class TronManager(object):
         raise ValueError('Could not determine the type of node')
 
     def is_connected(self):
+        """Check connection with providers"""
         is_node = dict()
         for key, value in self.providers.items():
             is_node.update({key: value.is_connected()})

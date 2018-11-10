@@ -124,7 +124,7 @@ class Tron:
 
     @default_address.setter
     def default_address(self, address: str) -> None:
-        """Sets the address used with all Tron API's.
+        """Sets the address used with all Tron API.
         Will not sign any transactions.
 
         Args:
