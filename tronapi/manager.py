@@ -6,9 +6,6 @@
 """This class is designed to configure and define nodes for different types."""
 import logging
 
-from eth_utils import apply_to_return_value
-from hexbytes import HexBytes
-
 from tronapi import HttpProvider
 from tronapi.utils.types import is_string
 
