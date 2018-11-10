@@ -5,6 +5,7 @@
 # --------------------------------------------------------------------
 
 from collections import namedtuple
+from urllib.parse import urlparse
 
 from eth_utils import to_dict
 from requests import Session
@@ -13,8 +14,9 @@ from requests.exceptions import (
 )
 
 from tronapi.providers.base import BaseProvider
-from ..exceptions import HTTP_EXCEPTIONS, TransportError
+from tronapi.exceptions import HTTP_EXCEPTIONS, TransportError
 
+HTTP_SCHEMES = {'http', 'https'}
 HttpResponse = namedtuple('HttpResponse', ('status_code', 'headers', 'data'))
 
 
@@ -32,6 +34,18 @@ class HttpProvider(BaseProvider):
         """
 
         self.node_url = node_url.rstrip('/')
+        uri = urlparse(node_url)
+
+        # This condition checks the node that will connect
+        # to work with methods.
+        if uri.scheme not in HTTP_SCHEMES:
+            raise NotImplementedError(
+                'TronAPI does not know how to connect to scheme %r in %r' % (
+                    uri.scheme,
+                    self.node_url,
+                )
+            )
+
         self._request_kwargs = request_kwargs or {}
         self.session = Session()
 
@@ -67,11 +81,14 @@ class HttpProvider(BaseProvider):
         return response.data
 
     def is_connected(self) -> bool:
-        """Checking the connection from the connected node
+        """Connection check
+
+        This method sends a test request to the connected node
+        to determine its health.
 
         Returns:
-            bool: True if successful, False otherwise.
-
+            bool: True if successful,
+            False otherwise.
         """
         response = self.request(path=self.status_page, method='get')
         if 'blockID' in response or response == 'OK':
