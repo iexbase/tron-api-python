@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-# --------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------
 # Copyright (c) iEXBase. All rights reserved.
-# Licensed under the MIT License. See License.txt in the project root for license information.
-# --------------------------------------------------------------------------------------------
+# Licensed under the MIT License.
+# See License.txt in the project root for license information.
+# --------------------------------------------------------------------
 
 import ecdsa
 from eth_utils import apply_to_return_value

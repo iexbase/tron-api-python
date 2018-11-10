@@ -15,62 +15,54 @@ class InvalidTronError(TronError):
     """Raised Tron Error"""
 
 
-class TronRequestError(TronError):
+class TransportError(TronError):
+    """Base exception for transport related errors.
+
+    This is mainly for cases where the status code denotes an HTTP error, and
+    for cases in which there was a connection error.
+
     """
-    Raised when an api request fails. Returned by error() method on a
-    TronResponse object returned through a callback function (relevant
-    only for failure callbacks) if not raised at the core api call method.
-    """
 
-    def __init__(self, message=None, request_context=None,
-                 http_status=None, http_headers=None, body=None):
-        """"Create a new :class:`~.TronRequestError` instance.
+    @property
+    def status_code(self):
+        return self.args[0]
 
-        Args:
-            message (str, optional): Text message
-            request_context(object, optional): Context
-            http_status (int): Status code
-            http_headers (object, optional): Headers
-            body (object, optional): Contents
+    @property
+    def error(self):
+        return self.args[1]
 
-        """
-        self.message = message
-        self.request_context = request_context
-        self.http_status = http_status
-        self.http_headers = http_headers
+    @property
+    def info(self):
+        return self.args[2]
 
-        try:
-            self._body = json.loads(body)
-        except (TypeError, ValueError):
-            self._body = body
+    @property
+    def url(self):
+        return self.args[3]
 
-        self._api_error_code = None
-        self._api_error_type = None
-        self._api_error_message = None
 
-        if self._body and 'error' in self._body:
-            self._error = self._body['error']
-            if 'message' in self._error:
-                self._api_error_message = self._error['message']
-            if 'code' in self._error:
-                self._api_error_code = self._error['code']
-            if 'type' in self._error:
-                self._api_error_type = self._error['type']
-        else:
-            self._error = None
+class HttpError(TransportError):
+    """Exception for errors occurring when connecting, and/or making a request"""
 
-        request = self.request_context
-        super(TronRequestError, self).__init__(
-            "\n\n" +
-            "  Message: %s\n" % self.message +
-            "  Method:  %s\n" % request.get('method') +
-            "  Path:    %s\n" % request.get('path', '/') +
-            "  Params:  %s\n" % request.get('params') +
-            "\n" +
-            "  Status:  %s\n" % self.http_status +
-            "  Response:\n    %s" % re.sub(
-                r"\n", "\n    ",
-                json.dumps(self._body, indent=2)
-            ) +
-            "\n"
-        )
+
+class BadRequest(TransportError):
+    """Exception for HTTP 400 errors."""
+
+
+class NotFoundError(TransportError):
+    """Exception for HTTP 404 errors."""
+
+
+class ServiceUnavailable(TransportError):
+    """Exception for HTTP 503 errors."""
+
+
+class GatewayTimeout(TransportError):
+    """Exception for HTTP 503 errors."""
+
+
+HTTP_EXCEPTIONS = {
+    400: BadRequest,
+    404: NotFoundError,
+    503: ServiceUnavailable,
+    504: GatewayTimeout,
+}

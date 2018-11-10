@@ -17,14 +17,6 @@ def hex_to_base58(value: Any) -> str:
     return base58.b58encode_check(bytes.fromhex(value))
 
 
-def construct_user_agent():
-    from tronapi import __version__ as tron_version
-    user_agent = 'TronAPI/{version}'.format(
-        version=tron_version
-    )
-    return user_agent
-
-
 def is_valid_url(value):
     """
     Return whether or not given value is a valid URL.

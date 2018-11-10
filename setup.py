@@ -17,14 +17,18 @@ PACKAGE_VERSION = '2.0.4'
 
 tests_require = [
     'coverage',
-    'pep8'
+    'pep8',
+    'pyflakes',
+    'pylint',
+    'pytest',
+    'pytest-cov',
 ]
 
 install_requires = [
     "toolz>=0.9.0,<1.0.0;implementation_name=='pypy'",
     "cytoolz>=0.9.0,<1.0.0;implementation_name=='cpython'",
     "hexbytes>=0.1.0,<1.0.0",
-    "urllib3",
+    "requests",
     "pycryptodome",
     "base58",
     "eth-account>=0.2.1,<0.4.0",
@@ -62,8 +66,11 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
-    packages=find_packages(),
+    packages=find_packages(exclude=['examples']),
     include_package_data=True,
     install_requires=install_requires,
-    tests_require=tests_require
+    tests_require=tests_require,
+    extras_require={
+        'test': tests_require
+    },
 )

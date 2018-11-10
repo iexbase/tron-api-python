@@ -1,7 +1,8 @@
-# --------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------
 # Copyright (c) iEXBase. All rights reserved.
-# Licensed under the MIT License. See License.txt in the project root for license information.
-# --------------------------------------------------------------------------------------------
+# Licensed under the MIT License.
+# See License.txt in the project root for license information.
+# --------------------------------------------------------------------
 
 """This class is designed to configure and define nodes for different types."""
 import logging
@@ -40,22 +41,24 @@ class TronManager(object):
         self.preferred_node = None
 
         for key, value in self.providers.items():
-            # Set the default node
+            # This condition checks the nodes,
+            # if the link to the node is not specified,
+            # we insert the default value to avoid an error.
             if not providers[key]:
                 self.providers[key] = HttpProvider(DEFAULT_NODES[key])
 
             if is_string(value):
                 self.providers[key] = HttpProvider(value)
-
-            # Connection Test Path
             self.providers[key].status_page = STATUS_PAGE[key]
 
     @property
     def providers(self):
+        """Getting a list of all providers"""
         return self._providers or tuple()
 
     @providers.setter
-    def providers(self, value):
+    def providers(self, value) -> None:
+        """Add a new provider"""
         self._providers = value
 
     @property
@@ -84,7 +87,7 @@ class TronManager(object):
 
         Args:
             url (str): Path to send
-            params (object): Options
+            params (dict): Options
             method (str): Request method
 
         """
@@ -97,11 +100,11 @@ class TronManager(object):
         split = url[1:].split('/', 2)
 
         if split[0] in ('walletsolidity', 'walletextension'):
-            return self.solidity_node.request(url, params, method)
-        elif 'event' in split:
-            return self.event_server.request(url, params, method)
-        elif 'wallet' in split:
-            return self.full_node.request(url, params, method)
+            return self.solidity_node.request(url, json=params, method=method)
+        elif split[0] in 'wallet':
+            return self.full_node.request(url, json=params, method=method)
+        elif split[0] in ('event', 'healthcheck'):
+            return self.event_server.request(url, json=params, method=method)
 
         raise ValueError('Could not determine the type of node')
 
