@@ -1,8 +1,19 @@
 #!/usr/bin/env python
-# --------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------
 # Copyright (c) iEXBase. All rights reserved.
-# Licensed under the MIT License. See License.txt in the project root for license information.
-# --------------------------------------------------------------------------------------------
+# Licensed under the MIT License.
+# See License.txt in the project root for license information.
+# --------------------------------------------------------------------
+
+"""
+    setup
+    =====
+
+    Tron: A Python API for interacting with Tron (TRX)
+
+    :copyright: © 2018 by the iEXBase.
+    :license: MIT License
+"""
 
 import os
 import platform
@@ -13,7 +24,7 @@ from setuptools import (
 
 py_version = platform.python_version()
 
-PACKAGE_VERSION = '2.0.4'
+PACKAGE_VERSION = '2.0.5'
 
 tests_require = [
     'coverage',

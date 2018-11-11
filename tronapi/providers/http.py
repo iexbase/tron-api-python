@@ -4,6 +4,7 @@
 # See License.txt in the project root for license information.
 # --------------------------------------------------------------------
 
+
 """
     tronapi.providers.http
     ======================
@@ -45,7 +46,7 @@ class HttpProvider(BaseProvider):
 
         self.node_url = node_url.rstrip('/')
         uri = urlparse(node_url)
-
+        
         # This condition checks the node that will connect
         # to work with methods.
         if uri.scheme not in HTTP_SCHEMES:
