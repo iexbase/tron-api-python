@@ -4,7 +4,17 @@
 # See License.txt in the project root for license information.
 # --------------------------------------------------------------------
 
-"""This class is designed to configure and define nodes for different types."""
+"""
+    tronapi.manager
+    ===============
+
+    This class is designed to configure and
+    define nodes for different types.
+
+    :copyright: © 2018 by the iEXBase.
+    :license: MIT License
+"""
+
 import logging
 
 from tronapi import HttpProvider

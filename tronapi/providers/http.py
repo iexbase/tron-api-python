@@ -4,6 +4,16 @@
 # See License.txt in the project root for license information.
 # --------------------------------------------------------------------
 
+"""
+    tronapi.providers.http
+    ======================
+
+    Class for configuring http providers
+
+    :copyright: © 2018 by the iEXBase.
+    :license: MIT License
+"""
+
 from collections import namedtuple
 from urllib.parse import urlparse
 

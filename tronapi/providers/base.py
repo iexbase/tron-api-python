@@ -3,6 +3,7 @@
 # Licensed under the MIT License.
 # See License.txt in the project root for license information.
 # --------------------------------------------------------------------
+from tronapi.utils.help import format_user_agent
 
 
 class BaseProvider(object):
@@ -21,5 +22,6 @@ class BaseProvider(object):
     def _http_default_headers():
         """Add default headers"""
         return {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'User-Agent': format_user_agent()
         }
