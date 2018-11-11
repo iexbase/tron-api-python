@@ -40,7 +40,7 @@ Specify the API endpoints:
 
 .. code-block:: python
     
-    from tronapi.main import Tron
+    from tronapi import Tron
     
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
     logger = logging.getLogger()
