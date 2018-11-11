@@ -12,4 +12,5 @@ Contents
     quickstart
     overview
     node
+    v2_migration
     releases
