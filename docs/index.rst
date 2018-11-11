@@ -1,6 +1,7 @@
-TronApi for Python
+TronAPI
 =======
-A Python API for interacting with the Tron (TRX)
+
+TronAPI is a python library for interacting with Tron Protocol.
 
 Contents
 --------
