@@ -31,16 +31,17 @@ class Trx(Module):
         """
         return self.tron.manager.request(url='/wallet/getnowblock')
 
-    def get_block(self, block=None):
+    def get_block(self, block:Any=None):
         """Get block details using HashString or blockNumber
 
         Args:
-            block (int|str): Number or Hash Block
-
+            block (Any): Number or Hash Block
         """
 
+        # If the block identifier is not specified,
+        # we take the default
         if block is None:
-            raise ValueError('No block identifier provided')
+            block = self.tron.default_block
 
         if block == 'latest':
             return self.get_current_block()
