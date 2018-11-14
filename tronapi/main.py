@@ -206,23 +206,15 @@ class Tron:
 
     @property
     def create_account(self) -> PrivateKey:
-        """Create account"""
-        generate_key = ecdsa.SigningKey.generate(curve=ecdsa.SECP256k1)
-        return PrivateKey(generate_key.to_string().hex())
-
-    def generate_address(self):
-        """Generates a random private key and address pair
+        """Create account
 
         Warning: Please control risks when using this API.
         To ensure environmental security, please do not invoke APIs
         provided by other or invoke this very API on a public network.
 
-        Returns:
-            Value is the corresponding address for the password, encoded in hex.
-            Convert it to base58 to use as the address.
-
         """
-        return self.manager.request('/wallet/generateaddress')
+        generate_key = ecdsa.SigningKey.generate(curve=ecdsa.SECP256k1)
+        return PrivateKey(generate_key.to_string().hex())
 
     @staticmethod
     def is_valid_provider(provider) -> bool:
