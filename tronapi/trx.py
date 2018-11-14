@@ -31,7 +31,7 @@ class Trx(Module):
         """
         return self.tron.manager.request(url='/wallet/getnowblock')
 
-    def get_block(self, block: Any = None):
+    def get_block(self, block: Any=None):
         """Get block details using HashString or blockNumber
 
         Args:
