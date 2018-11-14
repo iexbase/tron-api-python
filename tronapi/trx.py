@@ -31,7 +31,7 @@ class Trx(Module):
         """
         return self.tron.manager.request(url='/wallet/getnowblock')
 
-    def get_block(self, block:Any=None):
+    def get_block(self, block: Any = None):
         """Get block details using HashString or blockNumber
 
         Args:
@@ -57,34 +57,26 @@ class Trx(Module):
         response = self.tron.manager.request(method['url'], {
             method['field']: block
         })
-
-        if len(response) == 0:
-            raise ValueError('Block not found')
-
         return response
 
-    def get_block_transaction_count(self, block=None):
+    def get_block_transaction_count(self, block: Any):
         """Total number of transactions in a block
 
         Args:
-            block (int | str): Number or Hash Block
+            block (Any): Number or Hash Block
 
         """
         transaction = self.get_block(block)
-
         if 'transactions' not in transaction:
             raise TronError('Parameter "transactions" not found')
 
-        if transaction is None:
-            return 0
-
         return len(transaction)
 
-    def get_transaction_from_block(self, block=None, index=0):
+    def get_transaction_from_block(self, block: Any, index=0):
         """Get transaction details from Block
 
         Args:
-            block (int|str): Number or Hash Block
+            block (Any): Number or Hash Block
             index (int) Position
 
         """
@@ -92,7 +84,6 @@ class Trx(Module):
             raise InvalidTronError('Invalid transaction index provided')
 
         transactions = self.get_block(block).get('transactions')
-
         if not transactions or len(transactions) < index:
             raise TronError('Transaction not found in block')
 
