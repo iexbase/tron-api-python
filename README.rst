@@ -57,8 +57,8 @@ Specify the API endpoints:
     is_valid = bool(tron.trx.is_address(account.address.hex))
 
     logger.debug('Generated account: ')
-    logger.debug('- Private Key: ' + account.private_key())
-    logger.debug('- Public Key: ' + account.public_key())
+    logger.debug('- Private Key: ' + account.private_key)
+    logger.debug('- Public Key: ' + account.public_key)
     logger.debug('- Address: ')
     logger.debug('-- Base58: ' + account.address.base58)
     logger.debug('-- Hex: ' + account.address.hex)
