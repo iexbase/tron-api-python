@@ -140,12 +140,8 @@ class Contract:
     # class properties (overridable at instance level)
     abi = None
 
-    asm = None
-    ast = None
-
     bytecode = None
     bytecode_runtime = None
-    clone_bin = None
 
     functions = None
     events = None
@@ -235,7 +231,7 @@ class Contract:
         deploy_transaction.setdefault('abi', cls.abi)
         deploy_transaction.setdefault('bytecode', bytecode)
 
-        if not is_integer(fee_limit) or fee_limit <= 0 or fee_limit > 10 ** 9:
+        if not is_integer(fee_limit) or fee_limit <= 0 or fee_limit > 10**9:
             raise ValueError('Invalid fee limit provided')
 
         if not is_integer(call_value) or call_value < 0:
