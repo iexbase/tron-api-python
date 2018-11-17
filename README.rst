@@ -76,13 +76,13 @@ Example Smart Contract
     compiled_sol = compile_source(contract_source_code)
     contract_interface = compiled_sol['<stdin>:Hello']
 
-    greeter = tron.trx.contract(
+    hello = tron.trx.contract(
         abi=contract_interface['abi'],
         bytecode=contract_interface['bin']
     )
 
     # Submit the transaction that deploys the contract
-    tx = greeter.constructor().transact(
+    tx = hello.constructor().transact(
         fee_limit=10**9,
         call_value=0,
         consume_user_resource_percent=1
