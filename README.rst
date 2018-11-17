@@ -91,6 +91,11 @@ Example Smart Contract
         consume_user_resource_percent=1
     )
 
+..
+
+Base Example
+-------
+
 .. code-block:: python
     
     from tronapi import Tron
