@@ -85,7 +85,7 @@ Example Smart Contract
     tx = hello.deploy(
         fee_limit=10**9,
         call_value=0,
-        consume_user_resource_percent=12
+        consume_user_resource_percent=1
     )
 
 ..
