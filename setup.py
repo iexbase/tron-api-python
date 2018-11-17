@@ -38,13 +38,16 @@ tests_require = [
 install_requires = [
     "toolz>=0.9.0,<1.0.0;implementation_name=='pypy'",
     "cytoolz>=0.9.0,<1.0.0;implementation_name=='cpython'",
-    "hexbytes>=0.1.0,<1.0.0",
-    'eth-abi>=1.2.0,<2.0.0',
-    "requests",
-    "pycryptodome",
-    "base58",
+
+    "eth-abi>=1.2.0,<2.0.0",
     "eth-account>=0.2.1,<0.4.0",
     "eth-utils>=1.2.0,<2.0.0",
+
+    "hexbytes>=0.1.0,<1.0.0",
+
+    "requests>=2.16.0,<3.0.0",
+    "pycryptodome",
+    "base58",
     "ecdsa",
     "pysha3",
     'attrdict',
