@@ -26,14 +26,53 @@ py_version = platform.python_version()
 
 PACKAGE_VERSION = '2.0.5'
 
-tests_require = [
-    'coverage',
-    'pep8',
-    'pyflakes',
-    'pylint',
-    'pytest',
-    'pytest-cov',
-]
+EXTRAS_REQUIRE = {
+    'tester': [
+        'coverage',
+        'pep8',
+        'pyflakes',
+        'pylint',
+        'pytest-cov'
+    ],
+
+    'docs': [
+        "mock",
+        "sphinx-better-theme>=0.1.4",
+        "click>=5.1",
+        "configparser==3.5.0",
+        "contextlib2>=0.5.4",
+        "py-solc>=0.4.0",
+        "pytest>=2.7.2",
+        "sphinx",
+        "sphinx_rtd_theme>=0.1.9",
+        "toposort>=1.4",
+        "urllib3",
+        "tronapi",
+        "wheel"
+    ],
+
+    'dev': [
+        "bumpversion",
+        "flaky>=3.3.0",
+        "hypothesis>=3.31.2",
+        "pytest>=3.5.0,<4",
+        "pytest-mock==1.*",
+        "pytest-pythonpath>=0.3",
+        "pytest-watch==4.*",
+        "pytest-xdist==1.*",
+        "setuptools>=36.2.0",
+        "tox>=1.8.0",
+        "tqdm",
+        "when-changed"
+    ]
+
+}
+
+EXTRAS_REQUIRE['dev'] = (
+        EXTRAS_REQUIRE['tester'] +
+        EXTRAS_REQUIRE['docs'] +
+        EXTRAS_REQUIRE['dev']
+)
 
 install_requires = [
     "toolz>=0.9.0,<1.0.0;implementation_name=='pypy'",
@@ -85,8 +124,6 @@ setup(
     packages=find_packages(exclude=['examples']),
     include_package_data=True,
     install_requires=install_requires,
-    tests_require=tests_require,
-    extras_require={
-        'test': tests_require
-    },
+    tests_require=EXTRAS_REQUIRE['tester'],
+    extras_require=EXTRAS_REQUIRE,
 )
