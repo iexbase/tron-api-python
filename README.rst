@@ -59,25 +59,22 @@ Example Smart Contract
     contract_source_code = '''
     pragma solidity ^0.4.25;
 
-    contract Greeter {
-        string public greeting;
+    contract Hello {
+        string public message;
 
-        function Greeter() public {
-            greeting = 'Hello';
+        function Hello(string initialMessage) public {
+            message = initialMessage;
         }
 
-        function setGreeting(string _greeting) public {
-            greeting = _greeting;
-        }
-
-        function greet() view public returns (string) {
-            return greeting;
+        function setMessage(string newMessage) public {
+            message = newMessage;
         }
     }
+
     '''
 
     compiled_sol = compile_source(contract_source_code)
-    contract_interface = compiled_sol['<stdin>:Greeter']
+    contract_interface = compiled_sol['<stdin>:Hello']
 
     greeter = tron.trx.contract(
         abi=contract_interface['abi'],
