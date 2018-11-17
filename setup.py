@@ -89,7 +89,6 @@ install_requires = [
     "pycryptodome",
     "base58",
     "ecdsa",
-    "pysha3",
     'attrdict',
 ]
 

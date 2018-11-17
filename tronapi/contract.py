@@ -6,7 +6,7 @@ from tronapi.base.abi import filter_by_type, merge_args_and_kwargs, abi_to_signa
     fallback_func_abi_exists, check_if_arguments_can_be_encoded
 from tronapi.base.contracts import find_matching_fn_abi
 from tronapi.base.datatypes import PropertyCheckingFactory
-from tronapi.base.decorators import combomethod
+from tronapi.base.decorators import combomethod, deprecated_for
 from tronapi.base.encoding import to_4byte_hex
 from tronapi.base.function_identifiers import FallbackFn
 from tronapi.base.normalizers import normalize_abi, normalize_bytecode
@@ -150,14 +150,6 @@ class Contract:
     functions = None
     events = None
 
-    dev_doc = None
-    interface = None
-    metadata = None
-    opcodes = None
-    src_map = None
-    src_map_runtime = None
-    user_doc = None
-
     def __init__(self, address=None):
         """Create a new smart contract proxy object.
         :param address: Contract address as 0x hex string
@@ -197,6 +189,68 @@ class Contract:
         setattr(contract, 'fallback', Contract.get_fallback_function(contract.abi, contract.tron))
 
         return contract
+
+    @classmethod
+    @deprecated_for("contract.constructor.transact")
+    def deploy(cls, **kwargs):
+        """
+        Deploys the contract on a blockchain.
+
+        Example:
+        .. code-block:: python
+            >>> MyContract.deploy(
+                fee_limit=10**9,
+                call_value=0,
+                consume_user_resource_percent=12
+            )
+
+        Args:
+            **kwargs: Transaction parameters for the deployment
+            transaction as a dict
+
+        """
+
+        if not cls.bytecode:
+            raise ValueError(
+                "Cannot deploy a contract that does not have 'bytecode' associated "
+                "with it"
+            )
+
+        # Maximum TRX consumption, measured in SUN (1 TRX = 1,000,000 SUN).
+        fee_limit = kwargs.setdefault('fee_limit', 0)
+        # The same as User Pay Ratio.
+        # The percentage of resources specified for users who use this contract.
+        # This field accepts integers between [0, 100].
+        user_fee_percentage = kwargs.setdefault('consume_user_resource_percent', 0)
+        # Amount of TRX transferred with this transaction, measured in SUN (1TRX = 1,000,000 SUN)
+        call_value = kwargs.setdefault('call_value', 0)
+        # Contract owner address, converted to a hex string
+        owner_address = kwargs.setdefault('owner_address', cls.tron.default_address.hex)
+
+        # The compiled contract's identifier, used to interact with the Virtual Machine.
+        bytecode = to_hex(cls.bytecode)
+
+        # We write all the results in one object
+        deploy_transaction = dict(**kwargs)
+        deploy_transaction.setdefault('abi', cls.abi)
+        deploy_transaction.setdefault('bytecode', bytecode)
+
+        if not is_integer(fee_limit) or fee_limit <= 0 or fee_limit > 10 ** 9:
+            raise ValueError('Invalid fee limit provided')
+
+        if not is_integer(call_value) or call_value < 0:
+            raise ValueError('Invalid call value provided')
+
+        if not is_integer(user_fee_percentage) or user_fee_percentage < 0 or \
+                user_fee_percentage > 100:
+            raise ValueError('Invalid user fee percentage provided')
+
+        if not cls.tron.isAddress(owner_address):
+            raise InvalidAddress('Invalid issuer address provided')
+
+        deploy_data = cls.tron.manager.request('/wallet/deploycontract',
+                                               deploy_transaction)
+        return deploy_data
 
     @classmethod
     def constructor(cls):
