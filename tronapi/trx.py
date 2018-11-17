@@ -9,6 +9,7 @@ from typing import Any
 
 from eth_account.account import Account as EthAccount
 
+from tronapi.contract import Contract
 from tronapi.exceptions import InvalidTronError, TronError
 from tronapi.module import Module
 from tronapi.utils.blocks import select_method_for_block
@@ -23,6 +24,8 @@ ETH_MESSAGE_HEADER = '\x19Ethereum Signed Message:\n32'
 
 
 class Trx(Module):
+    defaultContractFactory = Contract
+
     def get_current_block(self):
         """Query the latest block
 
@@ -31,7 +34,7 @@ class Trx(Module):
         """
         return self.tron.manager.request(url='/wallet/getnowblock')
 
-    def get_block(self, block: Any=None):
+    def get_block(self, block: Any = None):
         """Get block details using HashString or blockNumber
 
         Args:
@@ -663,6 +666,15 @@ class Trx(Module):
         return self.tron.manager.request('/wallet/getcontract', {
             'value': self.tron.address.to_hex(contract_address)
         })
+
+    def contract(self, address=None, **kwargs):
+        ContractFactoryClass = kwargs.pop('ContractFactoryClass', self.defaultContractFactory)
+        ContractFactory = ContractFactoryClass.factory(self.tron, **kwargs)
+
+        if address:
+            return ContractFactory(address)
+        else:
+            return ContractFactory
 
     def validate_address(self, address, _is_hex=False):
         """Validate address

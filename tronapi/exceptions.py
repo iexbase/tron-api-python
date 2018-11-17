@@ -12,6 +12,35 @@ class InvalidTronError(TronError):
     """Raised Tron Error"""
 
 
+class FallbackNotFound(Exception):
+    """
+    Raised when fallback function doesn't exist in contract.
+    """
+    pass
+
+
+class MismatchedABI(Exception):
+    """
+    Raised when an ABI does not match with supplied parameters, or when an
+    attempt is made to access a function/event that does not exist in the ABI.
+    """
+    pass
+
+
+class InvalidAddress(ValueError):
+    """
+    The supplied address does not have a valid checksum, as defined in EIP-55
+    """
+    pass
+
+
+class NoABIFunctionsFound(AttributeError):
+    """
+    Raised when an ABI doesn't contain any functions.
+    """
+    pass
+
+
 class TransportError(TronError):
     """Base exception for transport related errors.
 

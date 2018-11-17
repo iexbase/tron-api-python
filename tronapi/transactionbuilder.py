@@ -4,8 +4,6 @@
 # --------------------------------------------------------------------------------------------
 
 from datetime import datetime, timedelta
-import json
-from typing import Any
 
 from tronapi.exceptions import InvalidTronError, TronError
 from tronapi.utils.help import is_valid_url
@@ -400,3 +398,4 @@ class TransactionBuilder(object):
         })
 
         return response
+
