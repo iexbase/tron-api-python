@@ -83,7 +83,7 @@ Example Smart Contract
 
     # Submit the transaction that deploys the contract
     tx = hello.deploy(
-        fee_limit=12,
+        fee_limit=10**9,
         call_value=0,
         consume_user_resource_percent=12
     )
