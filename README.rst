@@ -82,10 +82,10 @@ Example Smart Contract
     )
 
     # Submit the transaction that deploys the contract
-    tx = hello.constructor().transact(
-        fee_limit=10**9,
+    tx = hello.deploy(
+        fee_limit=12,
         call_value=0,
-        consume_user_resource_percent=1
+        consume_user_resource_percent=12
     )
 
 ..
