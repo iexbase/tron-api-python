@@ -22,15 +22,69 @@ from tronapi.base.toolz import (
     pipe,
 )
 
+DYNAMIC_TYPES = ['bytes', 'string']
 
-def filter_by_argument_count(num_arguments, contract_abi):
-    return [
-        abi
-        for abi
-        in contract_abi
-        if len(abi['inputs']) == num_arguments
-    ]
+INT_SIZES = range(8, 257, 8)
+BYTES_SIZES = range(1, 33)
+UINT_TYPES = ['uint{0}'.format(i) for i in INT_SIZES]
+INT_TYPES = ['int{0}'.format(i) for i in INT_SIZES]
+BYTES_TYPES = ['bytes{0}'.format(i) for i in BYTES_SIZES] + ['bytes32.byte']
 
+STATIC_TYPES = list(itertools.chain(
+    ['address', 'bool'],
+    UINT_TYPES,
+    INT_TYPES,
+    BYTES_TYPES,
+))
+
+BASE_TYPE_REGEX = '|'.join((
+    _type + '(?![a-z0-9])'
+    for _type
+    in itertools.chain(STATIC_TYPES, DYNAMIC_TYPES)
+))
+
+SUB_TYPE_REGEX = (
+    r'\['
+    '[0-9]*'
+    r'\]'
+)
+
+TYPE_REGEX = (
+    '^'
+    '(?:{base_type})'
+    '(?:(?:{sub_type})*)?'
+    '$'
+).format(
+    base_type=BASE_TYPE_REGEX,
+    sub_type=SUB_TYPE_REGEX,
+)
+
+NAME_REGEX = (
+    '[a-zA-Z_]'
+    '[a-zA-Z0-9_]*'
+)
+
+ENUM_REGEX = (
+    '^'
+    '{lib_name}'
+    r'\.'
+    '{enum_name}'
+    '$'
+).format(lib_name=NAME_REGEX, enum_name=NAME_REGEX)
+
+END_BRACKETS_OF_ARRAY_TYPE_REGEX = r"\[[^]]*\]$"
+
+NAME_REGEX = (
+    '[a-zA-Z_]'
+    '[a-zA-Z0-9_]*'
+)
+
+ARRAY_REGEX = (
+    "^"
+    "[a-zA-Z0-9_]+"
+    "({sub_type})+"
+    "$"
+).format(sub_type=SUB_TYPE_REGEX)
 
 def filter_by_argument_name(argument_names, contract_abi):
     return [
@@ -95,56 +149,6 @@ except ImportError:
     def collapse_type(base, sub, arrlist):
         return base + str(sub) + ''.join(map(repr, arrlist))
 
-DYNAMIC_TYPES = ['bytes', 'string']
-
-INT_SIZES = range(8, 257, 8)
-BYTES_SIZES = range(1, 33)
-UINT_TYPES = ['uint{0}'.format(i) for i in INT_SIZES]
-INT_TYPES = ['int{0}'.format(i) for i in INT_SIZES]
-BYTES_TYPES = ['bytes{0}'.format(i) for i in BYTES_SIZES] + ['bytes32.byte']
-
-STATIC_TYPES = list(itertools.chain(
-    ['address', 'bool'],
-    UINT_TYPES,
-    INT_TYPES,
-    BYTES_TYPES,
-))
-
-BASE_TYPE_REGEX = '|'.join((
-    _type + '(?![a-z0-9])'
-    for _type
-    in itertools.chain(STATIC_TYPES, DYNAMIC_TYPES)
-))
-
-SUB_TYPE_REGEX = (
-    r'\['
-    '[0-9]*'
-    r'\]'
-)
-
-TYPE_REGEX = (
-    '^'
-    '(?:{base_type})'
-    '(?:(?:{sub_type})*)?'
-    '$'
-).format(
-    base_type=BASE_TYPE_REGEX,
-    sub_type=SUB_TYPE_REGEX,
-)
-
-NAME_REGEX = (
-    '[a-zA-Z_]'
-    '[a-zA-Z0-9_]*'
-)
-
-ENUM_REGEX = (
-    '^'
-    '{lib_name}'
-    r'\.'
-    '{enum_name}'
-    '$'
-).format(lib_name=NAME_REGEX, enum_name=NAME_REGEX)
-
 
 def filter_by_type(_type, contract_abi):
     return [abi for abi in contract_abi if abi['type'] == _type]
@@ -160,10 +164,6 @@ def filter_by_name(name, contract_abi):
                 abi['name'] == name
         )
     ]
-
-
-def is_recognized_type(abi_type):
-    return bool(re.match(TYPE_REGEX, abi_type))
 
 
 def get_abi_input_types(abi):
@@ -209,6 +209,69 @@ def get_constructor_abi(contract_abi):
         return None
     elif len(candidates) > 1:
         raise ValueError("Found multiple constructors.")
+
+
+def is_recognized_type(abi_type):
+    return bool(re.match(TYPE_REGEX, abi_type))
+
+
+def is_bool_type(abi_type):
+    return abi_type == 'bool'
+
+
+def is_uint_type(abi_type):
+    return abi_type in UINT_TYPES
+
+
+def is_int_type(abi_type):
+    return abi_type in INT_TYPES
+
+
+def is_address_type(abi_type):
+    return abi_type == 'address'
+
+
+def is_bytes_type(abi_type):
+    return abi_type in BYTES_TYPES + ['bytes']
+
+
+def is_string_type(abi_type):
+    return abi_type == 'string'
+
+
+@curry
+def is_length(target_length, value):
+    return len(value) == target_length
+
+
+def size_of_type(abi_type):
+    """
+    Returns size in bits of abi_type
+    """
+    if 'string' in abi_type:
+        return None
+    if 'byte' in abi_type:
+        return None
+    if '[' in abi_type:
+        return None
+    if abi_type == 'bool':
+        return 8
+    if abi_type == 'address':
+        return 160
+    return int(re.sub(r"\D", "", abi_type))
+
+
+def is_array_type(abi_type):
+    return bool(re.match(ARRAY_REGEX, abi_type))
+
+
+def sub_type_of_array_type(abi_type):
+    if not is_array_type(abi_type):
+        raise ValueError(
+            "Cannot parse subtype of nonarray abi-type: {0}".format(abi_type)
+        )
+
+    return re.sub(END_BRACKETS_OF_ARRAY_TYPE_REGEX, '', abi_type, 1)
 
 
 def is_probably_enum(abi_type):
@@ -353,8 +416,8 @@ def abi_sub_tree(data_type, data_value):
 
 @curry
 def map_abi_data(normalizers, types, data):
-    '''
-    This function will apply normalizers to your data, in the
+    """
+        This function will apply normalizers to your data, in the
     context of the relevant types. Each normalizer is in the format:
 
     def normalizer(datatype, data):
@@ -374,7 +437,7 @@ def map_abi_data(normalizers, types, data):
     1. Decorating the data tree with types
     2. Recursively mapping each of the normalizers to the data
     3. Stripping the types back out of the tree
-    '''
+    """
     pipeline = itertools.chain(
         [abi_data_tree(types)],
         map(data_tree_map, normalizers),
@@ -385,7 +448,7 @@ def map_abi_data(normalizers, types, data):
 
 
 @curry
-def abi_data_tree(types, data):
+def abi_data_tree(types, data=None):
     """Decorate the data tree with pairs of (type, data). The pair tuple is actually an
     ABITypedData, but can be accessed as a tuple.
 
