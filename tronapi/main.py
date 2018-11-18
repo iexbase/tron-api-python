@@ -6,12 +6,17 @@
 # --------------------------------------------------------------------
 
 import ecdsa
-from eth_utils import apply_to_return_value
+from eth_utils import apply_to_return_value, to_hex
 from hexbytes import HexBytes
 
 from tronapi.base.account import Account, PrivateKey
 from tronapi.base.datastructures import AttributeDict
 from tronapi.base.decorators import deprecated_for
+from tronapi.base.encoding import (
+    to_bytes,
+    to_int,
+    to_text
+)
 
 from tronapi.exceptions import InvalidTronError, TronError
 from tronapi.manager import TronManager
@@ -21,7 +26,6 @@ from tronapi.trx import Trx
 from tronapi.base.validation import is_address
 from tronapi.utils.crypto import keccak as tron_keccak
 from tronapi.utils.currency import to_sun, from_sun
-from tronapi.utils.encoding import to_bytes, to_int, to_hex, to_text
 from tronapi.utils.types import is_integer
 
 DEFAULT_MODULES = {
