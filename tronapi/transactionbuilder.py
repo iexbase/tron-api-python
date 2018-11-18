@@ -4,7 +4,7 @@
 # --------------------------------------------------------------------------------------------
 
 from datetime import datetime, timedelta
-from typing import Dict
+from typing import Dict, Any, Tuple, List
 
 from tronapi.exceptions import InvalidTronError, TronError, InvalidAddress
 from tronapi.utils.help import is_valid_url
@@ -216,7 +216,7 @@ class TransactionBuilder(object):
             'url': self.tron.toHex(text=url)
         })
 
-    def vote(self, votes: Dict[str, int], voter_address: str = None):
+    def vote(self, votes: List[Tuple[str, int]], voter_address: str = None):
         """Vote
         Vote on the super representative
 
@@ -226,11 +226,9 @@ class TransactionBuilder(object):
 
         Examples:
             >>> from tronapi import Tron
-            >>>
             >>> data = [
             >>>     ('TRJpw2uqohP7FUmAEJgt57wakRn6aGQU6Z', 1)
             >>> ]
-            >>>
             >>> tron = Tron()
             >>> tron.transaction.vote(data)
 
@@ -260,6 +258,36 @@ class TransactionBuilder(object):
         return self.tron.manager.request('/wallet/votewitnessaccount', {
             'owner_address': self.tron.address.to_hex(voter_address),
             'votes': _view_vote
+        })
+
+    def create_proposal(self, parameters: Any, issuer_address=None):
+        """Creates a proposal to modify the network.
+        Can only be created by a current Super Representative.
+
+        Args:
+            parameters (Any): proposal parameters
+            issuer_address: owner address
+
+        Examples:
+            >>> from tronapi import Tron
+            >>> data = [
+            >>>     {'key': 1, 'value': 2},
+            >>>     {'key': 1, 'value': 2}
+            >>> ]
+            >>> tron = Tron()
+            >>> tron.transaction.create_proposal(data)
+
+
+        """
+        if issuer_address is None:
+            issuer_address = self.tron.default_address.hex
+
+        if not self.tron.isAddress(issuer_address):
+            raise InvalidAddress('Invalid issuerAddress provided')
+
+        return self.tron.manager.request('/wallet/proposalcreate', {
+            'owner_address': self.tron.address.to_hex(issuer_address),
+            'parameters': parameters
         })
 
     def vote_proposal(self, proposal_id, has_approval, voter_address):
@@ -353,9 +381,6 @@ class TransactionBuilder(object):
         if not self.tron.isAddress(account):
             raise TronError('Invalid address provided')
 
-        if not len(token_name):
-            raise TronError('Invalid tokenName provided')
-
         if token_balance <= 0 or trx_balance <= 0:
             raise TronError('Invalid amount provided')
 
@@ -365,6 +390,78 @@ class TransactionBuilder(object):
             'first_token_balance': token_balance,
             'second_token_id': '5f',
             'second_token_balance': trx_balance
+        })
+
+    def create_token_exchange(self,
+                              first_token_name: str,
+                              first_token_balance: int,
+                              second_token_name: str,
+                              second_token_balance: int,
+                              owner_address=None):
+        """Create an exchange between a token and another token.
+        DO NOT USE THIS FOR TRX.
+        Token Names should be a CASE SENSITIVE string.
+
+        Args:
+            first_token_name (str): the id of the first token
+            first_token_balance (int): balance of the first token
+            second_token_name (str): the id of the second token
+            second_token_balance (int): balance of the second token
+            owner_address: owner address
+
+        """
+        if owner_address is None:
+            owner_address = self.tron.default_address.hex
+
+        if not self.tron.isAddress(owner_address):
+            raise InvalidAddress('Invalid address provided')
+
+        if second_token_balance <= 0 or first_token_balance <= 0:
+            raise ValueError('Invalid amount provided')
+
+        return self.tron.manager.request('/wallet/exchangecreate', {
+            'owner_address': self.tron.address.to_hex(owner_address),
+            'first_token_id': self.tron.toHex(text=first_token_name),
+            'first_token_balance': first_token_balance,
+            'second_token_id': self.tron.toHex(text=second_token_name),
+            'second_token_balance': second_token_balance
+        })
+
+    def inject_exchange_tokens(self,
+                               exchange_id: int,
+                               token_name: str,
+                               token_amount: int = 0,
+                               owner_address=None
+                               ):
+        """Adds tokens into a bancor style exchange.
+        Will add both tokens at market rate.
+
+        Args:
+            exchange_id (int): non-negative integer exchange id
+            token_name (str): token name
+            token_amount (int): amount of token
+            owner_address (str): token owner address in hex
+
+        Returns:
+
+        """
+        if owner_address is None:
+            owner_address = self.tron.default_address.hex
+
+        if not self.tron.isAddress(owner_address):
+            raise InvalidAddress('Invalid owner_address provided')
+
+        if exchange_id < 0:
+            raise ValueError('Invalid exchange_id provided')
+
+        if token_amount < 1:
+            raise ValueError('Invalid token_amount provided')
+
+        return self.tron.manager.request('/wallet/exchangeinject', {
+            'owner_address': self.tron.address.to_hex(owner_address),
+            'exchange_id': exchange_id,
+            'token_id': self.tron.toHex(text=token_name),
+            'quant': token_amount
         })
 
     def create_token(self, **kwargs):
@@ -496,3 +593,78 @@ class TransactionBuilder(object):
         })
 
         return response
+
+    def withdraw_exchange_tokens(self,
+                                 exchange_id: int,
+                                 token_name: str,
+                                 token_amount: int = 0,
+                                 owner_address=None):
+        """Withdraws tokens from a bancor style exchange.
+        Will withdraw at market rate both tokens.
+
+        Args:
+            exchange_id (int): non-negative integer exchange id
+            token_name (str): token name
+            token_amount (int): number of tokens withdraw
+            owner_address (str): owner address in hex
+
+        """
+        if owner_address is None:
+            owner_address = self.tron.default_address.hex
+
+        if not self.tron.isAddress(owner_address):
+            raise InvalidAddress('Invalid owner_address provided')
+
+        if exchange_id < 0:
+            raise ValueError('Invalid exchange_id provided')
+
+        if token_amount < 1:
+            raise ValueError('Invalid token_amount provided')
+
+        return self.tron.manager.request('/wallet/exchangewithdraw', {
+            'owner_address': self.tron.address.to_hex(owner_address),
+            'exchange_id': exchange_id,
+            'token_id': self.tron.toHex(text=token_name),
+            'quant': token_amount
+        })
+
+    def trade_exchange_tokens(self,
+                              exchange_id: int,
+                              token_name: str,
+                              token_amount_sold: int = 0,
+                              token_amount_expected: int = 0,
+                              owner_address=None):
+        """Trade tokens on a bancor style exchange.
+        Expected value is a validation and used to cap the total amt of token 2 spent.
+
+        Args:
+            exchange_id (int): non-negative integer exchange id
+            token_name (str): token name
+            token_amount_sold (int): amount f token actually sold
+            token_amount_expected (int): amount of token expected
+            owner_address (str): token owner address in hex
+
+        """
+
+        if owner_address is None:
+            owner_address = self.tron.default_address.hex
+
+        if not self.tron.isAddress(owner_address):
+            raise InvalidAddress('Invalid owner_address provided')
+
+        if exchange_id < 0:
+            raise ValueError('Invalid exchange_id provided')
+
+        if token_amount_sold < 1:
+            raise ValueError('Invalid token_amount_sold provided')
+
+        if token_amount_expected < 1:
+            raise ValueError('Invalid token_amount_expected provided')
+
+        return self.tron.manager.request('/wallet/exchangewithdraw', {
+            'owner_address': self.tron.address.to_hex(owner_address),
+            'exchange_id': exchange_id,
+            'token_id': self.tron.toHex(text=token_name),
+            'quant': token_amount_sold,
+            'expected': token_amount_expected
+        })
