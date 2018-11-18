@@ -1,18 +1,39 @@
+# --------------------------------------------------------------------
+# Copyright (c) iEXBase. All rights reserved.
+# Licensed under the MIT License.
+# See License.txt in the project root for license information.
+# --------------------------------------------------------------------
+
 import copy
-from typing import Dict, Any
 
 from eth_utils import function_abi_to_4byte_selector, to_hex
 
-from tronapi.base.abi import filter_by_type, merge_args_and_kwargs, abi_to_signature, get_constructor_abi, \
-    fallback_func_abi_exists, check_if_arguments_can_be_encoded
+from tronapi.base.abi import (
+    filter_by_type,
+    merge_args_and_kwargs,
+    abi_to_signature,
+    fallback_func_abi_exists,
+    check_if_arguments_can_be_encoded
+)
 from tronapi.base.contracts import find_matching_fn_abi
 from tronapi.base.datatypes import PropertyCheckingFactory
-from tronapi.base.decorators import combomethod, deprecated_for
+from tronapi.base.decorators import (
+    combomethod,
+    deprecated_for
+)
 from tronapi.base.encoding import to_4byte_hex
 from tronapi.base.function_identifiers import FallbackFn
-from tronapi.base.normalizers import normalize_abi, normalize_bytecode
-from tronapi.exceptions import NoABIFunctionsFound, MismatchedABI, InvalidAddress, FallbackNotFound
-from tronapi.utils.hexadecimal import encode_hex, add_0x_prefix
+from tronapi.base.normalizers import (
+    normalize_abi,
+    normalize_bytecode
+)
+from tronapi.exceptions import (
+    NoABIFunctionsFound,
+    MismatchedABI,
+    InvalidAddress,
+    FallbackNotFound
+)
+from tronapi.utils.hexadecimal import encode_hex
 from tronapi.utils.types import is_text, is_integer
 
 

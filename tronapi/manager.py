@@ -15,8 +15,6 @@
     :license: MIT License
 """
 
-import logging
-
 from tronapi import HttpProvider
 from tronapi.utils.types import is_string
 

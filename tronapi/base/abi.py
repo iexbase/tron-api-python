@@ -1,3 +1,9 @@
+# --------------------------------------------------------------------
+# Copyright (c) iEXBase. All rights reserved.
+# Licensed under the MIT License.
+# See License.txt in the project root for license information.
+# --------------------------------------------------------------------
+
 import itertools
 import re
 
@@ -380,15 +386,15 @@ def map_abi_data(normalizers, types, data):
 
 @curry
 def abi_data_tree(types, data):
-    '''
-    Decorate the data tree with pairs of (type, data). The pair tuple is actually an
+    """Decorate the data tree with pairs of (type, data). The pair tuple is actually an
     ABITypedData, but can be accessed as a tuple.
 
-    As an example:
+    Examples:
+        >>> abi_data_tree(types=["bool[2]", "uint"], data=[[True, False], 0])
 
-    >>> abi_data_tree(types=["bool[2]", "uint"], data=[[True, False], 0])
-    [("bool[2]", [("bool", True), ("bool", False)]), ("uint256", 0)]
-    '''
+    Returns:
+        [("bool[2]", [("bool", True), ("bool", False)]), ("uint256", 0)]
+    """
     return [
         abi_sub_tree(data_type, data_value)
         for data_type, data_value

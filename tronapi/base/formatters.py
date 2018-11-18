@@ -1,12 +1,16 @@
+# --------------------------------------------------------------------
+# Copyright (c) iEXBase. All rights reserved.
+# Licensed under the MIT License.
+# See License.txt in the project root for license information.
+# --------------------------------------------------------------------
+
 from collections import Mapping, Iterable
 
 from eth_utils import to_dict
 
 from tronapi.base.decorators import reject_recursive_repeats
 from tronapi.base.toolz import (
-    compose,
-    curry,
-    dissoc,
+    curry
 )
 from tronapi.utils.types import is_string
 

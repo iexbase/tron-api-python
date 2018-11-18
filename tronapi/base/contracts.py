@@ -1,7 +1,19 @@
+# --------------------------------------------------------------------
+# Copyright (c) iEXBase. All rights reserved.
+# Licensed under the MIT License.
+# See License.txt in the project root for license information.
+# --------------------------------------------------------------------
+
 import functools
 
-from tronapi.base.abi import filter_by_name, filter_by_encodability, filter_by_argument_count, get_fallback_func_abi, \
+from tronapi.base.abi import (
+    filter_by_name,
+    filter_by_encodability,
+    filter_by_argument_count,
+    get_fallback_func_abi,
     abi_to_signature
+)
+
 from tronapi.base.function_identifiers import FallbackFn
 from tronapi.base.toolz import (
     pipe,
