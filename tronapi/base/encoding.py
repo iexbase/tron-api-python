@@ -1,3 +1,5 @@
+from typing import Optional, Union
+
 from eth_utils import hexstr_if_str, to_hex
 
 from tronapi.utils.hexadecimal import remove_0x_prefix, decode_hex, encode_hex, add_0x_prefix
@@ -5,7 +7,10 @@ from tronapi.utils.types import is_boolean, is_integer
 from tronapi.utils.validation import assert_one_val
 
 
-def to_bytes(primitive=None, hexstr=None, text=None):
+def to_bytes(primitive: Optional[Union[bytes, int]] = None,
+             hexstr: Optional[str] = None,
+             text: Optional[str] = None) -> bytes:
+
     assert_one_val(primitive, hexstr=hexstr, text=text)
 
     if is_boolean(primitive):
@@ -23,7 +28,7 @@ def to_bytes(primitive=None, hexstr=None, text=None):
     raise TypeError("expected an int in first arg, or keyword of hexstr or text")
 
 
-def pad_hex(value, bit_size):
+def pad_hex(value: str, bit_size: int) -> str:
     """
     Pads a hex string up to the given bit_size
     """
@@ -31,7 +36,7 @@ def pad_hex(value, bit_size):
     return add_0x_prefix(value.zfill(int(bit_size / 4)))
 
 
-def to_4byte_hex(hex_or_str_or_bytes):
+def to_4byte_hex(hex_or_str_or_bytes: Union[int, str, bytes]) -> str:
     size_of_4bytes = 4 * 8
     byte_str = hexstr_if_str(to_bytes, hex_or_str_or_bytes)
     if len(byte_str) > 4:

@@ -27,18 +27,15 @@ class Trx(Module):
     defaultContractFactory = Contract
 
     def get_current_block(self):
-        """Query the latest block
-
-        Returns:
-            Latest block on full node
-        """
+        """Query the latest block"""
         return self.tron.manager.request(url='/wallet/getnowblock')
 
     def get_block(self, block: Any = None):
         """Get block details using HashString or blockNumber
 
         Args:
-            block (Any): Number or Hash Block
+            block (Any): ID or height for the block
+
         """
 
         # If the block identifier is not specified,
@@ -307,10 +304,11 @@ class Trx(Module):
 
     def send_transaction(self, to, amount, options=None):
         """Send an asset to another account.
+        Will create and broadcast the transaction if a private key is provided.
 
-        Parameters:
-            to (str): Recipient
-            amount (float): Amount to transfer
+        Args:
+            to (str): Address to send TRX to.
+            amount (float): Amount of TRX to send.
             options (Any, optional): Options
 
         """
@@ -322,7 +320,6 @@ class Trx(Module):
             options = assoc(options, 'from', self.tron.default_address.hex)
 
         tx = self.tron.transaction.send_transaction(to, amount, options['from'])
-
         # If a comment is attached to the transaction,
         # in this case adding to the object
         if 'message' in options:
@@ -402,6 +399,10 @@ class Trx(Module):
         """Sign the transaction, the api has the risk of leaking the private key,
         please make sure to call the api in a secure environment
 
+        Warnings:
+            Do not use this in any web / user-facing applications.
+            This will expose the private key.
+
         Args:
             transaction (Any): transaction details
             use_tron (bool): is Tron header
@@ -439,9 +440,6 @@ class Trx(Module):
 
         Args:
             signed_transaction (object): signed transaction contract data
-
-        Returns:
-            broadcast success or failure
 
         """
         if not is_object(signed_transaction):

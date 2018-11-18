@@ -1,19 +1,20 @@
 import functools
 import threading
 import warnings
+from typing import Callable
 
 
 class combomethod:
     def __init__(self, method):
         self.method = method
 
-    def __get__(self, obj=None, objtype=None):
+    def __get__(self, obj=None, obj_type=None) -> Callable:
         @functools.wraps(self.method)
         def _wrapper(*args, **kwargs):
             if obj is not None:
                 return self.method(obj, *args, **kwargs)
             else:
-                return self.method(objtype, *args, **kwargs)
+                return self.method(obj_type, *args, **kwargs)
 
         return _wrapper
 

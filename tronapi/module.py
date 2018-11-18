@@ -8,11 +8,11 @@
 class Module:
     """Module Class"""
 
-    def __init__(self, tron):
+    def __init__(self, tron) -> None:
         self.tron = tron
 
     @classmethod
-    def attach(cls, target, module_name=None):
+    def attach(cls, target, module_name: str = None) -> None:
         if not module_name:
             module_name = cls.__name__.lower()
 

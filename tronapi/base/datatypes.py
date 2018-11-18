@@ -11,8 +11,18 @@ from tronapi.base.toolz import (
 )
 
 
+@curry
+def verify_attr(class_name, key, namespace):
+    if key not in namespace:
+        raise AttributeError(
+            "Property {0} not found on {1} class. "
+            "`{1}.factory` only accepts keyword arguments which are "
+            "present on the {1} class".format(key, class_name)
+        )
+
+
 class PropertyCheckingFactory(type):
-    def __init__(cls, name, bases, namespace):
+    def __init__(cls, name, bases, namespace, **kargs):
         # see PEP487.  To accept kwargs in __new__, they need to be
         # filtered out here.
         super().__init__(name, bases, namespace)
@@ -31,13 +41,3 @@ class PropertyCheckingFactory(type):
             processed_namespace = namespace
 
         return super().__new__(mcs, name, bases, processed_namespace)
-
-
-@curry
-def verify_attr(class_name, key, namespace):
-    if key not in namespace:
-        raise AttributeError(
-            "Property {0} not found on {1} class. "
-            "`{1}.factory` only accepts keyword arguments which are "
-            "present on the {1} class".format(key, class_name)
-        )
