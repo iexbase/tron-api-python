@@ -112,6 +112,7 @@ class HttpProvider(BaseProvider):
         kwargs.setdefault('timeout', 60)
         response = self.session.request(**kwargs)
         text = response.text
+
         try:
             json = response.json()
         except ValueError:
@@ -122,4 +123,8 @@ class HttpProvider(BaseProvider):
             raise exc_cls(response.status_code, text, json, kwargs.get('url'))
 
         data = json if json is not None else text
+
+        # Additional error interceptor that will occur in case of failed requests
+        if 'Error' in data:
+            raise ValueError(data['Error'])
         return HttpResponse(response.status_code, response.headers, data)

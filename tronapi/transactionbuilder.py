@@ -4,8 +4,9 @@
 # --------------------------------------------------------------------------------------------
 
 from datetime import datetime, timedelta
+from typing import Dict
 
-from tronapi.exceptions import InvalidTronError, TronError
+from tronapi.exceptions import InvalidTronError, TronError, InvalidAddress
 from tronapi.utils.help import is_valid_url
 from tronapi.utils.types import is_string, is_integer, is_boolean
 
@@ -145,6 +146,57 @@ class TransactionBuilder(object):
 
         return response
 
+    def purchase_token(self, to: str, token_id: str, amount: int, buyer=None):
+        """Purchase a Token
+        Creates an unsigned ICO token purchase transaction.
+
+        Args:
+            to (str): is the address of the Token issuer
+            token_id (str): is the name of the token
+            amount (int): is the number of tokens created
+            buyer (str): is the address of the Token owner
+
+        """
+        if buyer is None:
+            buyer = self.tron.default_address.hex
+
+        if not self.tron.isAddress(to):
+            raise InvalidAddress('Invalid to address provided')
+
+        if not len(token_id):
+            raise ValueError('Invalid token ID provided')
+
+        if amount <= 0:
+            raise ValueError('Invalid amount provided')
+
+        _to = self.tron.address.to_hex(to)
+        _from = self.tron.address.to_hex(buyer)
+
+        return self.tron.manager.request('/wallet/participateassetissue', {
+            'to_address': _to,
+            'owner_address': _from,
+            'asset_name': self.tron.toHex(text=token_id),
+            'amount': int(amount)
+        })
+
+    def withdraw_block_rewards(self, address: str = None):
+        """Withdraw block rewards
+        Creates an unsigned Super Representative award balance withdraw transaction.
+
+        Args:
+            address (str): Optional address to withdraw from.
+
+        """
+        if not address:
+            address = self.tron.default_address.hex
+
+        if not self.tron.isAddress(address):
+            raise InvalidAddress('Invalid address provided')
+
+        return self.tron.manager.request('/wallet/withdrawbalance', {
+            'owner_address': self.tron.address.to_hex(address)
+        })
+
     def apply_for_sr(self, url, address):
         """Apply to become a super representative
 
@@ -162,6 +214,52 @@ class TransactionBuilder(object):
         return self.tron.manager.request('/wallet/createwitness', {
             'owner_address': self.tron.address.to_hex(address),
             'url': self.tron.toHex(text=url)
+        })
+
+    def vote(self, votes: Dict[str, int], voter_address: str = None):
+        """Vote
+        Vote on the super representative
+
+        Args:
+            votes (dict): dictionary of SR address : vote count key-value pair
+            voter_address: voter address
+
+        Examples:
+            >>> from tronapi import Tron
+            >>>
+            >>> data = [
+            >>>     ('TRJpw2uqohP7FUmAEJgt57wakRn6aGQU6Z', 1)
+            >>> ]
+            >>>
+            >>> tron = Tron()
+            >>> tron.transaction.vote(data)
+
+        """
+        if voter_address is None:
+            voter_address = self.tron.default_address.hex
+
+        _view_vote = []
+
+        # We create a cycle to check all the received data for voting.
+        for sr_address, vote_count in votes:
+            if not self.tron.isAddress(sr_address):
+                raise InvalidAddress(
+                    'Invalid SR address provided: ' + sr_address
+                )
+
+            if not is_integer(vote_count) or vote_count <= 0:
+                raise ValueError(
+                    'Invalid vote count provided for SR: ' + sr_address
+                )
+
+            _view_vote.append({
+                'vote_address': self.tron.address.to_hex(sr_address),
+                'vote_count': int(vote_count)
+            })
+
+        return self.tron.manager.request('/wallet/votewitnessaccount', {
+            'owner_address': self.tron.address.to_hex(voter_address),
+            'votes': _view_vote
         })
 
     def vote_proposal(self, proposal_id, has_approval, voter_address):
@@ -398,4 +496,3 @@ class TransactionBuilder(object):
         })
 
         return response
-

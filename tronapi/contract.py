@@ -1,4 +1,5 @@
 import copy
+from typing import Dict, Any
 
 from eth_utils import function_abi_to_4byte_selector, to_hex
 
@@ -189,15 +190,17 @@ class Contract:
     @classmethod
     @deprecated_for("contract.constructor.transact")
     def deploy(cls, **kwargs):
-        """
-        Deploys the contract on a blockchain.
+        """Deploy Contract
+
+        Deploys a contract.
+        Returns TransactionExtention, which contains an unsigned transaction.
 
         Example:
         .. code-block:: python
             >>> MyContract.deploy(
                 fee_limit=10**9,
                 call_value=0,
-                consume_user_resource_percent=12
+                consume_user_resource_percent=10
             )
 
         Args:
@@ -205,7 +208,6 @@ class Contract:
             transaction as a dict
 
         """
-
         if not cls.bytecode:
             raise ValueError(
                 "Cannot deploy a contract that does not have 'bytecode' associated "
@@ -223,15 +225,15 @@ class Contract:
         # Contract owner address, converted to a hex string
         owner_address = kwargs.setdefault('owner_address', cls.tron.default_address.hex)
 
-        # The compiled contract's identifier, used to interact with the Virtual Machine.
-        bytecode = to_hex(cls.bytecode)
-
         # We write all the results in one object
-        deploy_transaction = dict(**kwargs)
-        deploy_transaction.setdefault('abi', cls.abi)
-        deploy_transaction.setdefault('bytecode', bytecode)
+        transaction = dict(**kwargs)
+        # Smart Contract's Application Binary Interface
+        transaction.setdefault('abi', cls.abi)
+        # The compiled contract's identifier, used to interact with the Virtual Machine.
+        transaction.setdefault('bytecode', to_hex(cls.bytecode))
 
-        if not is_integer(fee_limit) or fee_limit <= 0 or fee_limit > 10**9:
+        if not is_integer(fee_limit) or fee_limit <= 0 or \
+                fee_limit > 10 ** 9:
             raise ValueError('Invalid fee limit provided')
 
         if not is_integer(call_value) or call_value < 0:
@@ -244,9 +246,7 @@ class Contract:
         if not cls.tron.isAddress(owner_address):
             raise InvalidAddress('Invalid issuer address provided')
 
-        deploy_data = cls.tron.manager.request('/wallet/deploycontract',
-                                               deploy_transaction)
-        return deploy_data
+        return cls.tron.manager.request('/wallet/deploycontract', transaction)
 
     @classmethod
     def constructor(cls):

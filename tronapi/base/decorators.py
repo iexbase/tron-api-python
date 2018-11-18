@@ -43,11 +43,10 @@ def deprecated_for(replace_message):
     """
     Decorate a deprecated function, with info about what to use instead, like:
 
-    @deprecated_for("toBytes()")
-    def toAscii(arg):
-        ...
+    Examples:
+        >>> @deprecated_for("toBytes()")
+        >>> def toAscii(arg):
     """
-
     def decorator(to_wrap):
         @functools.wraps(to_wrap)
         def wrapper(*args, **kwargs):

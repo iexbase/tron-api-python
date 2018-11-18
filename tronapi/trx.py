@@ -75,7 +75,7 @@ class Trx(Module):
 
         return len(transaction)
 
-    def get_transaction_from_block(self, block: Any, index=0):
+    def get_transaction_from_block(self, block: Any, index: int = 0):
         """Get transaction details from Block
 
         Args:
@@ -528,7 +528,8 @@ class Trx(Module):
         """List the nodes which the api fullnode is connecting on the network"""
         response = self.tron.manager.request('/wallet/listnodes')
         callback = map(lambda x: {
-            'address': '{}:{}'.format(self.tron.toText(x['address']['host']), str(x['address']['port']))
+            'address': '{}:{}'.format(self.tron.toText(x['address']['host']),
+                                      str(x['address']['port']))
         }, response['nodes'])
 
         return list(callback)
