@@ -11,6 +11,7 @@ from hexbytes import HexBytes
 
 from tronapi.base.account import Account, PrivateKey
 from tronapi.base.datastructures import AttributeDict
+from tronapi.base.decorators import deprecated_for
 
 from tronapi.exceptions import InvalidTronError, TronError
 from tronapi.manager import TronManager
@@ -20,7 +21,6 @@ from tronapi.trx import Trx
 from tronapi.base.validation import is_address
 from tronapi.utils.crypto import keccak as tron_keccak
 from tronapi.utils.currency import to_sun, from_sun
-from tronapi.utils.decorators import deprecated_for
 from tronapi.utils.encoding import to_bytes, to_int, to_hex, to_text
 from tronapi.utils.types import is_integer
 
@@ -226,7 +226,7 @@ class Tron:
         return isinstance(provider, HttpProvider)
 
     @staticmethod
-    @deprecated_for("This method has been renamed to keccak")
+    @deprecated_for("keccak")
     @apply_to_return_value(HexBytes)
     def sha3(primitive=None, text=None, hexstr=None):
         """Returns the Keccak SHA256 of the given value.
