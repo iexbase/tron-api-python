@@ -3,8 +3,8 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 
-from datetime import datetime, timedelta
-from typing import Dict, Any, Tuple, List
+from datetime import datetime
+from typing import Any, Tuple, List
 
 from tronapi.exceptions import InvalidTronError, TronError, InvalidAddress
 from tronapi.utils.help import is_valid_url
