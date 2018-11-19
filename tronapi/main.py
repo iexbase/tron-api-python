@@ -4,6 +4,7 @@
 # Licensed under the MIT License.
 # See License.txt in the project root for license information.
 # --------------------------------------------------------------------
+from typing import Union, Any
 
 import ecdsa
 from eth_utils import apply_to_return_value, to_hex
@@ -52,16 +53,18 @@ class Tron:
     # Validate address
     isAddress = staticmethod(is_address)
 
-    def __init__(self, full_node, solidity_node,
-                 event_server=None,
-                 private_key=None,
-                 modules=None):
+    def __init__(self,
+                 full_node: Union[str, HttpProvider],
+                 solidity_node: Union[str, HttpProvider],
+                 event_server: Union[str, HttpProvider]=None,
+                 private_key: str=None,
+                 modules: Any=None):
         """Connect to the Tron network.
 
         Args:
-            full_node (:obj:`str`): A provider connected to a valid full node
-            solidity_node (:obj:`str`): A provider connected to a valid solidity node
-            event_server (:obj:`str`, optional): Optional for smart contract events. Expects a valid event server URL
+            full_node (Any): A provider connected to a valid full node
+            solidity_node (Any): A provider connected to a valid solidity node
+            event_server (Any): Optional for smart contract events. Expects a valid event server URL
             private_key (str): Optional default private key used when signing transactions
 
         """
