@@ -1,5 +1,5 @@
 import re
-from typing import Optional, Union
+from typing import Union
 
 from eth_utils import hexstr_if_str, to_hex, big_endian_to_int, int_to_big_endian
 

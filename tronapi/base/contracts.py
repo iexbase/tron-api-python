@@ -23,11 +23,11 @@ from tronapi.utils.types import is_text
 
 
 def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
-    global diagnosis
     args = args or tuple()
     kwargs = kwargs or dict()
     filters = []
     num_arguments = len(args) + len(kwargs)
+    diagnosis = None
 
     if fn_identifier is FallbackFn:
         return get_fallback_func_abi(abi)
