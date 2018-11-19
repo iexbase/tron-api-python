@@ -4,7 +4,17 @@
 # Licensed under the MIT License.
 # See License.txt in the project root for license information.
 # --------------------------------------------------------------------
-from typing import Union, Any
+
+"""
+    tronapi.main
+    ===============
+
+    Connect to the Tron network.
+
+    :copyright: © 2018 by the iEXBase.
+    :license: MIT License
+"""
+
 
 import ecdsa
 from eth_utils import apply_to_return_value, to_hex
@@ -58,10 +68,8 @@ class Tron:
         """Connect to the Tron network.
 
         Args:
-            full_node (Any): A provider connected to a valid full node
-            solidity_node (Any): A provider connected to a valid solidity node
-            event_server (Any): Optional for smart contract events. Expects a valid event server URL
-            private_key (str): Optional default private key used when signing transactions
+            kwargs (Any): We fill the most necessary parameters
+            for working with blockchain Tron
 
         """
 
@@ -85,14 +93,18 @@ class Tron:
         if 'private_key' in kwargs:
             self.private_key = kwargs.get('private_key')
 
+        # We check whether the default wallet address is set when
+        # defining the class, and then written to the variable
+        if 'default_address' in kwargs:
+            self.default_address = kwargs.get('default_address')
+
         # If custom methods are not declared,
         # we take the default from the list
         modules = kwargs.setdefault('modules', DEFAULT_MODULES)
-
         for module_name, module_class in modules.items():
             module_class.attach(self, module_name)
 
-        self.transaction = TransactionBuilder(self)
+        self.transaction_builder = TransactionBuilder(self)
 
     @property
     def default_block(self):

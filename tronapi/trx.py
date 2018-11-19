@@ -4,6 +4,16 @@
 # See License.txt in the project root for license information.
 # --------------------------------------------------------------------
 
+"""
+    tronapi.trx
+    ===============
+
+    Work with basic methods
+
+    :copyright: © 2018 by the iEXBase.
+    :license: MIT License
+"""
+
 import math
 from typing import Any
 
@@ -321,7 +331,11 @@ class Trx(Module):
         if 'from' not in options:
             options = assoc(options, 'from', self.tron.default_address.hex)
 
-        tx = self.tron.transaction.send_transaction(to, amount, options['from'])
+        tx = self.tron.transaction_builder.send_transaction(
+            to,
+            amount,
+            options['from']
+        )
         # If a comment is attached to the transaction,
         # in this case adding to the object
         if 'message' in options:
@@ -348,7 +362,12 @@ class Trx(Module):
         if account is None:
             account = self.tron.default_address.hex
 
-        tx = self.tron.transaction.send_token(to, amount, token_id, account)
+        tx = self.tron.transaction_builder.send_token(
+            to,
+            amount,
+            token_id,
+            account
+        )
         sign = self.sign(tx)
         result = self.broadcast(sign)
 
@@ -371,7 +390,12 @@ class Trx(Module):
         if account is None:
             account = self.tron.default_address.hex
 
-        transaction = self.tron.transaction.freeze_balance(amount, duration, resource, account)
+        transaction = self.tron.transaction_builder.freeze_balance(
+            amount,
+            duration,
+            resource,
+            account
+        )
         sign = self.sign(transaction)
         response = self.broadcast(sign)
 
@@ -391,7 +415,10 @@ class Trx(Module):
         if account is None:
             account = self.tron.default_address.hex
 
-        transaction = self.tron.transaction.unfreeze_balance(resource, account)
+        transaction = self.tron.transaction_builder.unfreeze_balance(
+            resource,
+            account
+        )
         sign = self.sign(transaction)
         response = self.broadcast(sign)
 
@@ -499,7 +526,10 @@ class Trx(Module):
         if address is None:
             address = self.tron.default_address.hex
 
-        transaction = self.tron.transaction.update_account(account_name, address)
+        transaction = self.tron.transaction_builder.update_account(
+            account_name,
+            address
+        )
         sign = self.sign(transaction)
         response = self.broadcast(sign)
 
@@ -518,7 +548,10 @@ class Trx(Module):
         if address is None:
             address = self.tron.default_address.hex
 
-        transaction = self.tron.transaction.apply_for_sr(url, address)
+        transaction = self.tron.transaction_builder.apply_for_sr(
+            url,
+            address
+        )
         sign = self.sign(transaction)
         response = self.broadcast(sign)
 
@@ -755,7 +788,11 @@ class Trx(Module):
         if voter_address is None:
             voter_address = self.tron.default_address.hex
 
-        transaction = self.tron.transaction.vote_proposal(proposal_id, has_approval, voter_address)
+        transaction = self.tron.transaction_builder.vote_proposal(
+            proposal_id,
+            has_approval,
+            voter_address
+        )
         sign = self.sign(transaction)
         response = self.broadcast(sign)
 
@@ -775,7 +812,10 @@ class Trx(Module):
         if issuer_address is None:
             issuer_address = self.tron.default_address.hex
 
-        transaction = self.tron.transaction.delete_proposal(proposal_id, issuer_address)
+        transaction = self.tron.transaction_builder.delete_proposal(
+            proposal_id,
+            issuer_address
+        )
         sign = self.sign(transaction)
         response = self.broadcast(sign)
 
