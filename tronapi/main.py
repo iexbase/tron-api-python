@@ -20,7 +20,7 @@ from tronapi.base.encoding import (
 
 from tronapi.exceptions import InvalidTronError, TronError
 from tronapi.manager import TronManager
-from tronapi import HttpProvider
+from tronapi import HttpProvider, constants
 from tronapi.transactionbuilder import TransactionBuilder
 from tronapi.trx import Trx
 from tronapi.base.validation import is_address
@@ -39,6 +39,7 @@ class Tron:
 
     _default_block = None
     _private_key = None
+    _default_address = AttributeDict({})
 
     # Encoding and Decoding
     toBytes = staticmethod(to_bytes)
@@ -53,12 +54,7 @@ class Tron:
     # Validate address
     isAddress = staticmethod(is_address)
 
-    def __init__(self,
-                 full_node: Union[str, HttpProvider],
-                 solidity_node: Union[str, HttpProvider],
-                 event_server: Union[str, HttpProvider]=None,
-                 private_key: str=None,
-                 modules: Any=None):
+    def __init__(self, **kwargs):
         """Connect to the Tron network.
 
         Args:
@@ -69,26 +65,29 @@ class Tron:
 
         """
 
-        self._default_address = AttributeDict({})
+        # We check the obtained nodes, if the necessary parameters
+        # are not specified, then we take the default
+        kwargs.setdefault('full_node', constants.DEFAULT_FULL_NODE)
+        kwargs.setdefault('solidity_node', constants.DEFAULT_SOLIDITY_NODE)
+        kwargs.setdefault('event_server', constants.DEFAULT_EVENT_SERVER)
 
         # The node manager allows you to automatically determine the node
         # on the router or manually refer to a specific node.
         # solidity_node, full_node or event_server
         self.manager = TronManager(self, dict(
-            full_node=full_node,
-            solidity_node=solidity_node,
-            event_server=event_server
+            full_node=kwargs.get('full_node'),
+            solidity_node=kwargs.get('solidity_node'),
+            event_server=kwargs.get('event_server')
         ))
 
         # If the parameter of the private key is not empty,
         # then write to the variable
-        if private_key is not None:
-            self.private_key = private_key
+        if 'private_key' in kwargs:
+            self.private_key = kwargs.get('private_key')
 
         # If custom methods are not declared,
         # we take the default from the list
-        if modules is None:
-            modules = DEFAULT_MODULES
+        modules = kwargs.setdefault('modules', DEFAULT_MODULES)
 
         for module_name, module_class in modules.items():
             module_class.attach(self, module_name)

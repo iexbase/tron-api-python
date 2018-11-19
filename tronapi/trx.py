@@ -89,15 +89,17 @@ class Trx(Module):
 
         return transactions[index]
 
-    def get_transaction(self, transaction_id):
+    def get_transaction(self, transaction_id: str,
+                        is_confirm: bool = False):
         """Query transaction based on id
 
         Args:
             transaction_id (str): transaction id
-
+            is_confirm (bool):
         """
 
-        response = self.tron.manager.request('/wallet/gettransactionbyid', {
+        method = 'walletsolidity' if is_confirm else 'wallet'
+        response = self.tron.manager.request('/{}/gettransactionbyid'.format(method), {
             'value': transaction_id
         })
 
