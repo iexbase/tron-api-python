@@ -7,7 +7,7 @@
 import math
 from typing import Any
 
-from eth_account.account import Account as EthAccount
+from eth_account import Account
 
 from tronapi.contract import Contract
 from tronapi.exceptions import InvalidTronError, TronError
@@ -24,7 +24,7 @@ ETH_MESSAGE_HEADER = '\x19Ethereum Signed Message:\n32'
 
 
 class Trx(Module):
-    defaultContractFactory = Contract
+    default_contract_factory = Contract
 
     def get_current_block(self):
         """Query the latest block"""
@@ -417,7 +417,7 @@ class Trx(Module):
             # before encrypting or decrypting
             header = TRX_MESSAGE_HEADER if use_tron else ETH_MESSAGE_HEADER
             message_hash = self.tron.sha3(text=header + transaction)
-            signed_message = EthAccount.signHash(message_hash, private_key=self.tron.private_key)
+            signed_message = Account.signHash(message_hash, private_key=self.tron.private_key)
 
             return signed_message
 
@@ -475,7 +475,7 @@ class Trx(Module):
         header = TRX_MESSAGE_HEADER if use_tron else ETH_MESSAGE_HEADER
 
         message_hash = self.tron.sha3(text=header + message)
-        recovered = EthAccount.recoverHash(message_hash, signature=signed_message.signature)
+        recovered = Account.recoverHash(message_hash, signature=signed_message.signature)
 
         tron_address = '41' + recovered[2:]
         base58address = self.tron.address.from_hex(tron_address).decode()
@@ -667,13 +667,14 @@ class Trx(Module):
         })
 
     def contract(self, address=None, **kwargs):
-        ContractFactoryClass = kwargs.pop('ContractFactoryClass', self.defaultContractFactory)
-        ContractFactory = ContractFactoryClass.factory(self.tron, **kwargs)
+        contract_factory_class = kwargs.pop('contract_factory_class',
+                                            self.default_contract_factory)
+        contract_factory = contract_factory_class.factory(self.tron, **kwargs)
 
         if address:
-            return ContractFactory(address)
+            return contract_factory(address)
         else:
-            return ContractFactory
+            return contract_factory
 
     def validate_address(self, address, _is_hex=False):
         """Validate address

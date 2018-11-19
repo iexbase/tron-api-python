@@ -23,6 +23,7 @@ from tronapi.utils.types import is_text
 
 
 def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
+    global diagnosis
     args = args or tuple()
     kwargs = kwargs or dict()
     filters = []

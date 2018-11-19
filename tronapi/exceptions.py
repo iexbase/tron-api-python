@@ -41,6 +41,11 @@ class NoABIFunctionsFound(AttributeError):
     """
     pass
 
+class ValidationError(Exception):
+    """
+    Raised when a supplied value is invalid.
+    """
+    pass
 
 class TransportError(TronError):
     """Base exception for transport related errors.

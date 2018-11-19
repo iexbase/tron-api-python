@@ -11,7 +11,6 @@ from hexbytes import HexBytes
 
 from tronapi.base.account import Account, PrivateKey
 from tronapi.base.datastructures import AttributeDict
-from tronapi.base.decorators import deprecated_for
 from tronapi.base.encoding import (
     to_bytes,
     to_int,
@@ -24,7 +23,7 @@ from tronapi import HttpProvider
 from tronapi.transactionbuilder import TransactionBuilder
 from tronapi.trx import Trx
 from tronapi.base.validation import is_address
-from tronapi.utils.crypto import keccak as tron_keccak
+from tronapi.utils.crypto import keccak
 from tronapi.utils.currency import to_sun, from_sun
 from tronapi.utils.types import is_integer
 
@@ -34,6 +33,9 @@ DEFAULT_MODULES = {
 
 
 class Tron:
+    # Providers
+    HTTPProvider = HttpProvider
+
     _default_block = None
     _private_key = None
 
@@ -51,7 +53,9 @@ class Tron:
     isAddress = staticmethod(is_address)
 
     def __init__(self, full_node, solidity_node,
-                 event_server=None, private_key=None):
+                 event_server=None,
+                 private_key=None,
+                 modules=None):
         """Connect to the Tron network.
 
         Args:
@@ -73,10 +77,17 @@ class Tron:
             event_server=event_server
         ))
 
+        # If the parameter of the private key is not empty,
+        # then write to the variable
         if private_key is not None:
             self.private_key = private_key
 
-        for module_name, module_class in DEFAULT_MODULES.items():
+        # If custom methods are not declared,
+        # we take the default from the list
+        if modules is None:
+            modules = DEFAULT_MODULES
+
+        for module_name, module_class in modules.items():
             module_class.attach(self, module_name)
 
         self.transaction = TransactionBuilder(self)
@@ -230,27 +241,18 @@ class Tron:
         return isinstance(provider, HttpProvider)
 
     @staticmethod
-    @deprecated_for("keccak")
     @apply_to_return_value(HexBytes)
     def sha3(primitive=None, text=None, hexstr=None):
-        """Returns the Keccak SHA256 of the given value.
-        Text is encoded to UTF-8 before computing the hash, just like Solidity.
-        Any of the following are valid and equivalent:
-        """
-        return Tron.keccak(primitive, text, hexstr)
-
-    @staticmethod
-    @apply_to_return_value(HexBytes)
-    def keccak(primitive=None, text=None, hexstr=None):
         if isinstance(primitive, (bytes, int, type(None))):
             input_bytes = to_bytes(primitive, hexstr=hexstr, text=text)
-            return tron_keccak(input_bytes)
+            return keccak(input_bytes)
 
         raise TypeError(
-            "You called keccak with first arg %r and keywords %r. You must call it with one of "
-            "these approaches: keccak(text='txt'), keccak(hexstr='0x747874'), "
-            "keccak(b'\\x74\\x78\\x74'), or keccak(0x747874)." % (
-                primitive, {'text': text, 'hexstr': hexstr}
+            "You called sha3 with first arg %r and keywords %r. You must call it with one of "
+            "these approaches: sha3(text='txt'), sha3(hexstr='0x747874'), "
+            "sha3(b'\\x74\\x78\\x74'), or sha3(0x747874)." % (
+                primitive,
+                {'text': text, 'hexstr': hexstr}
             )
         )
 
