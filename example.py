@@ -11,9 +11,9 @@ solidity_node = 'https://api.trongrid.io'
 event_server = 'https://api.trongrid.io/'
 private_key = 'da146374a75310b9666e834ee4ad0866d6f4035967bfc76217c5a495fff9f0d0'
 
-tron = Tron(full_node,
-            solidity_node,
-            event_server)
+tron = Tron(full_node=full_node,
+            solidity_node=solidity_node,
+            event_server=event_server)
 
 
 account = tron.create_account
