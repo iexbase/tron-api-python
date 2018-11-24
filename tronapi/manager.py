@@ -16,6 +16,7 @@
 """
 
 from tronapi import HttpProvider
+from tronapi.constants import DEFAULT_NODES
 from tronapi.utils.types import is_string
 
 # In this variable, you can specify the base paths
@@ -25,15 +26,6 @@ STATUS_PAGE = {
     'full_node': '/wallet/getnowblock',
     'solidity_node': '/walletsolidity/getnowblock',
     'event_server': '/healthcheck'
-}
-
-# Here you can specify links to sites of different types.
-# The default is verified links.
-# If you do not know what links are used for, it is recommended not to change
-DEFAULT_NODES = {
-    'full_node': 'https://api.trongrid.io',
-    'solidity_node': 'https://api.trongrid.io',
-    'event_server': 'https://api.trongrid.io'
 }
 
 

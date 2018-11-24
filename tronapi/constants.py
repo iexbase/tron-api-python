@@ -4,7 +4,11 @@
 # See License.txt in the project root for license information.
 # --------------------------------------------------------------------
 
-# Tron nodes
-DEFAULT_FULL_NODE = "https://api.trongrid.io"
-DEFAULT_SOLIDITY_NODE = "https://api.trongrid.io"
-DEFAULT_EVENT_SERVER = 'https://api.trongrid.io'
+# Here you can specify links to sites of different types.
+# The default is verified links.
+# If you do not know what links are used for, it is recommended not to change
+DEFAULT_NODES = {
+    'full_node': 'https://api.trongrid.io',
+    'solidity_node': 'https://api.trongrid.io',
+    'event_server': 'https://api.trongrid.io'
+}

@@ -75,9 +75,9 @@ class Tron:
 
         # We check the obtained nodes, if the necessary parameters
         # are not specified, then we take the default
-        kwargs.setdefault('full_node', constants.DEFAULT_FULL_NODE)
-        kwargs.setdefault('solidity_node', constants.DEFAULT_SOLIDITY_NODE)
-        kwargs.setdefault('event_server', constants.DEFAULT_EVENT_SERVER)
+        kwargs.setdefault('full_node', constants.DEFAULT_NODES['full_node'])
+        kwargs.setdefault('solidity_node', constants.DEFAULT_NODES['solidity_node'])
+        kwargs.setdefault('event_server', constants.DEFAULT_NODES['event_server'])
 
         # The node manager allows you to automatically determine the node
         # on the router or manually refer to a specific node.
