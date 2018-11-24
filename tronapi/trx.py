@@ -477,10 +477,14 @@ class Trx(Module):
         if 'signature' not in signed_transaction:
             raise TronError('Transaction is not signed')
 
-        result = self.tron.manager.request('/wallet/broadcasttransaction', signed_transaction)
-        result.update(signed_transaction)
+        response = self.tron.manager.request('/wallet/broadcasttransaction',
+                                             signed_transaction)
 
-        return result
+        if 'result' in response:
+            response.update({
+                'transaction': signed_transaction
+            })
+        return response
 
     def verify_message(self, message, signed_message=None, address=None, use_tron: bool = True):
         """ Get the address of the account that signed the message with the given hash.
