@@ -424,6 +424,35 @@ class Trx(Module):
 
         return response
 
+    def offline_sign(self, transaction: dict):
+        """Offline transaction signature
+        Sign the transaction, the api has the risk of leaking the private key,
+        please make sure to call the api in a secure environment
+
+        Warnings:
+            Do not use this in any web / user-facing applications.
+            This will expose the private key.
+
+        Args:
+            transaction (dict): transaction details
+
+        """
+
+        if 'signature' in transaction:
+            raise TronError('Transaction is already signed')
+
+        address = self.tron.address.from_private_key(self.tron.private_key).hex.lower()
+        owner_address = transaction['raw_data']['contract'][0]['parameter']['value']['owner_address']
+
+        if address != owner_address:
+            raise ValueError('Private key does not match address in transaction')
+
+        signed_message = Account.signHash(transaction['txID'],
+                                          private_key=self.tron.private_key)
+        transaction['signature'] = [signed_message['signature'].hex()]
+
+        return transaction
+
     def sign(self, transaction: Any, use_tron: bool = True):
         """Sign the transaction, the api has the risk of leaking the private key,
         please make sure to call the api in a secure environment
