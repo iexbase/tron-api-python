@@ -29,8 +29,8 @@ from tronapi.base.toolz import (
     assoc
 )
 
-TRX_MESSAGE_HEADER = '\x19TRON Signed Message:\n32'
-ETH_MESSAGE_HEADER = '\x19Ethereum Signed Message:\n32'
+TRX_MESSAGE_HEADER = '\x19TRON Signed Message:\n'
+ETH_MESSAGE_HEADER = '\x19Ethereum Signed Message:\n'
 
 
 class Trx(Module):
@@ -447,11 +447,10 @@ class Trx(Module):
         if address != owner_address:
             raise ValueError('Private key does not match address in transaction')
 
-        signed_message = Account.signHash(transaction['txID'],
-                                          private_key=self.tron.private_key)
-        transaction['signature'] = [signed_message['signature'].hex()]
-
-        return transaction
+        return self.tron.manager.request('/wallet/gettransactionsign', {
+            'transaction': transaction,
+            'privateKey': self.tron.private_key
+        })
 
     def sign(self, transaction: Any, use_tron: bool = True):
         """Sign the transaction, the api has the risk of leaking the private key,
@@ -474,6 +473,8 @@ class Trx(Module):
             # Determine which header to attach to the message
             # before encrypting or decrypting
             header = TRX_MESSAGE_HEADER if use_tron else ETH_MESSAGE_HEADER
+            header += len(transaction)
+
             message_hash = self.tron.sha3(text=header + transaction)
             signed_message = Account.signHash(message_hash, private_key=self.tron.private_key)
 
@@ -488,10 +489,12 @@ class Trx(Module):
         if address != owner_address:
             raise ValueError('Private key does not match address in transaction')
 
-        return self.tron.manager.request('/wallet/gettransactionsign', {
-            'transaction': transaction,
-            'privateKey': self.tron.private_key
-        })
+        # This option deals with signing of transactions, and writing to the array
+        signed_tx = Account.signHash(message_hash=transaction['txID'],
+                                     private_key=self.tron.private_key)
+        transaction['signature'] = [signed_tx['signature'].hex()[2:]]
+
+        return transaction
 
     def broadcast(self, signed_transaction):
         """Broadcast the signed transaction
