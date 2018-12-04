@@ -178,7 +178,13 @@ class Tron:
             'base58': _base58
         })
 
-    def get_event_result(self, contract_address=None, since=0, event_name=None, block_number=None):
+    def get_event_result(self,
+                         contract_address=None,
+                         since=0,
+                         event_name=None,
+                         block_number=None,
+                         size=20,
+                         page=1):
         """Will return all events matching the filters.
 
         Args:
@@ -186,6 +192,9 @@ class Tron:
             since (int): Filter for events since certain timestamp.
             event_name (str): Name of the event to filter by.
             block_number (str): Specific block number to query
+                        page:
+            size (int): size
+            page (int): page str
         """
 
         if not self.isAddress(contract_address):
@@ -196,6 +205,9 @@ class Tron:
 
         if block_number and event_name is None:
             raise TronError('Usage of block number filtering requires an event name')
+
+        if size > 200:
+            raise ValueError('Defaulting to maximum accepted size: 200')
 
         route_params = []
 
@@ -210,7 +222,8 @@ class Tron:
 
         route = '/'.join(route_params)
 
-        return self.manager.request("/event/contract/{0}?since={1}".format(route, since), method='get')
+        return self.manager.request("/event/contract/{0}?since={1}&size={2}&page={3}"
+                                    .format(route, since, size, page), method='get')
 
     def get_event_transaction_id(self, tx_id):
         """Will return all events within a transactionID.
