@@ -26,10 +26,18 @@ A Python API for interacting with the Tron (TRX)
 
 **A Command-Line Interface framework**
 
-Installation is easy via pip:
+You can install it in a system-wide location via pip:
 
 .. code-block:: bash
 
+    sudo pip3 install tronapi
+
+Or install it locally using `virtualenv <https://github.com/pypa/virtualenv>`__:
+
+.. code-block:: bash
+
+    virtualenv -p /usr/bin/python3 ~/tronapi
+    source ~/tronapi/bin/activate
     pip3 install tronapi
 
 ------------
