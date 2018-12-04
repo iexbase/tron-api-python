@@ -424,8 +424,8 @@ class Trx(Module):
 
         return response
 
-    def offline_sign(self, transaction: dict):
-        """Offline transaction signature
+    def online_sign(self, transaction: dict):
+        """Online transaction signature
         Sign the transaction, the api has the risk of leaking the private key,
         please make sure to call the api in a secure environment
 
@@ -473,9 +473,11 @@ class Trx(Module):
             # Determine which header to attach to the message
             # before encrypting or decrypting
             header = TRX_MESSAGE_HEADER if use_tron else ETH_MESSAGE_HEADER
-            header += len(transaction)
+            header += str(len(transaction))
 
-            message_hash = self.tron.sha3(text=header + transaction)
+            message_hash = self.tron.sha3(
+                text=header + transaction
+            )
             signed_message = Account.signHash(message_hash, private_key=self.tron.private_key)
 
             return signed_message
