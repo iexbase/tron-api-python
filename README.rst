@@ -54,7 +54,7 @@ Example Smart Contract
 
     from tronapi import Tron
     from solc import compile_source
-
+    from tronapi import HttpProvider
     full_node = HttpProvider('https://api.trongrid.io')
     solidity_node = HttpProvider('https://api.trongrid.io')
     event_server = HttpProvider('https://api.trongrid.io')
@@ -107,7 +107,7 @@ Base Example
 .. code-block:: python
     
     from tronapi import Tron
-    
+    from tronapi import HttpProvider
     logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
     logger = logging.getLogger()
 
