@@ -54,6 +54,7 @@ Example Smart Contract
 
     from tronapi import Tron
     from solc import compile_source
+
     full_node = 'https://api.trongrid.io'
     solidity_node = 'https://api.trongrid.io'
     event_server = 'https://api.trongrid.io'
