@@ -192,7 +192,6 @@ class Tron:
             since (int): Filter for events since certain timestamp.
             event_name (str): Name of the event to filter by.
             block_number (str): Specific block number to query
-                        page:
             size (int): size
             page (int): page str
         """

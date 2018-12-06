@@ -291,9 +291,16 @@ class Trx(Module):
         if not self.tron.isAddress(address):
             raise InvalidTronError('Invalid address provided')
 
-        return self.tron.manager.request('/wallet/getaccountnet', {
+        response = self.tron.manager.request('/wallet/getaccountnet', {
             'address': self.tron.address.to_hex(address)
         })
+
+        free_net_limit = 0 if 'freeNetLimit' not in response else response['freeNetLimit']
+        free_net_used = 0 if 'freeNetUsed' not in response else response['freeNetUsed']
+        net_limit = 0 if 'NetLimit' not in response else response['NetLimit']
+        net_used = 0 if 'NetUsed' not in response else response['NetUsed']
+
+        return (free_net_limit - free_net_used) + (net_limit - net_used)
 
     def get_transaction_count(self):
         """Count all transactions on the network
