@@ -15,7 +15,7 @@
 """
 
 import math
-from typing import Any
+from typing import Any, Tuple, List
 
 from eth_account import Account
 
@@ -173,6 +173,24 @@ class Trx(Module):
             return self.tron.fromSun(response['balance'])
 
         return response['balance']
+    
+    def get_frozen_balance(self, address=None, is_float=False):
+        """Getting a frozen balance
+
+        Args:
+            address (str): Address
+            is_float (bool): Convert to float format
+
+        """
+        response = self.get_account(address)
+        if 'frozen' not in response:
+            return 0
+
+        data = response['frozen'][0]
+        if is_float:
+            return self.tron.fromSun(data['frozen_balance'])
+
+        return data['frozen_balance']
 
     def get_transactions_related(self, address, direction='all', limit=30, offset=0):
         """Getting data in the "from", "to" and "all" directions
@@ -366,6 +384,30 @@ class Trx(Module):
             to,
             amount,
             token_id,
+            account
+        )
+        sign = self.sign(tx)
+        result = self.broadcast(sign)
+
+        return result
+
+    def vote_sr(self, votes: List[Tuple[str, int]], account=None):
+        """vote_sr
+        Vote on the super representative
+
+        Args:
+            votes (dict): dictionary of SR address : vote count key-value pair
+            account: (str): is the address of the account to vote from
+
+        Returns:
+            Vote Transaction raw data
+
+        """
+        if account is None:
+            account = self.tron.default_address.hex
+
+        tx = self.tron.transaction_builder.vote(
+            votes,
             account
         )
         sign = self.sign(tx)
