@@ -19,8 +19,9 @@ from typing import Any
 
 from eth_account import Account
 
+from tronapi.base.transactions import wait_for_transaction_id
 from tronapi.contract import Contract
-from tronapi.exceptions import InvalidTronError, TronError
+from tronapi.exceptions import InvalidTronError, TronError, TimeExhausted
 from tronapi.module import Module
 from tronapi.utils.blocks import select_method_for_block
 from tronapi.utils.hexadecimal import is_hex
@@ -98,6 +99,31 @@ class Trx(Module):
             raise TronError('Transaction not found in block')
 
         return transactions[index]
+
+    def wait_for_transaction_id(self, transaction_hash: str, timeout: int=120):
+        """
+        Waits for the transaction specified by transaction_hash
+        to be included in a block, then returns its transaction receipt.
+
+        Optionally, specify a timeout in seconds.
+        If timeout elapses before the transaction is added to a block,
+        then wait_for_transaction_id() raises a Timeout exception.
+
+
+        Args:
+            transaction_hash (str): Transaction Hash
+            timeout (int): TimeOut
+
+        """
+        try:
+            return wait_for_transaction_id(self.tron, transaction_hash, timeout)
+        except TimeoutError:
+            raise TimeExhausted(
+                "Transaction {} is not in the chain, after {} seconds".format(
+                    transaction_hash,
+                    timeout,
+                )
+            )
 
     def get_transaction(self, transaction_id: str,
                         is_confirm: bool = False):

@@ -41,11 +41,13 @@ class NoABIFunctionsFound(AttributeError):
     """
     pass
 
+
 class ValidationError(Exception):
     """
     Raised when a supplied value is invalid.
     """
     pass
+
 
 class TransportError(TronError):
     """Base exception for transport related errors.
@@ -90,6 +92,13 @@ class ServiceUnavailable(TransportError):
 
 class GatewayTimeout(TransportError):
     """Exception for HTTP 503 errors."""
+
+
+class TimeExhausted(Exception):
+    """
+    Raised when a method has not retrieved the desired result within a specified timeout.
+    """
+    pass
 
 
 HTTP_EXCEPTIONS = {
