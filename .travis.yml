@@ -13,7 +13,6 @@ install: "pip install -U setuptools setuptools_scm codecov pandas"
 # command to run tests
 script:
   - python setup.py test
-  - coverage run setup.py test
   
 after_success:
   - codecov
