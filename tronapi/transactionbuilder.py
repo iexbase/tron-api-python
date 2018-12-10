@@ -7,8 +7,11 @@
 from datetime import datetime
 from typing import Any, Tuple, List
 
+from eth_abi import encode_abi
+
 from tronapi.exceptions import InvalidTronError, TronError, InvalidAddress
 from tronapi.utils.help import is_valid_url
+from tronapi.utils.hexadecimal import encode_hex
 from tronapi.utils.types import is_string, is_integer, is_boolean
 
 DEFAULT_TIME = datetime.now()
@@ -362,6 +365,92 @@ class TransactionBuilder(object):
         })
 
         return response
+
+    def trigger_smart_contract(self, contract_address,
+                               function_selector,
+                               fee_limit: int = 1000000000,
+                               call_value: int = 0,
+                               parameters=None,
+                               issuer_address=None
+                               ):
+        """Trigger Smart Contract (Beta Version)
+        Calls a function on a contract
+
+        Args:
+            contract_address (str): Contract address, converted to a hex string
+            function_selector (str): Function signature. No spaces.
+            fee_limit (int): Maximum TRX consumption, measured in SUN（1TRX = 1,000,000SUN）
+            call_value (int): Amount of TRX transferred with this transaction, measured in SUN（1TRX = 1,000,000SUN）
+            parameters (any): Call the virtual machine format of the parameter [1, 2],
+                                use the js tool provided by remix, convert the parameter array [1, 2]
+                                called by the contract caller into
+                                the parameter format required by the virtual machine.
+
+            issuer_address (str): address that is trigger the contract
+
+        Examples:
+            >>> tron = Tron()
+            >>> tron.transaction_builder.trigger_smart_contract(
+            >>> '413c8143e98b3e2fe1b1a8fb82b34557505a752390',
+            >>> 'set(uint256,uint256)',
+            >>> 30000,
+            >>> 0,
+            >>> [
+            >>>     {'type': 'int256', 'value': 1},
+            >>>     {'type': 'int256', 'value': 1}
+            >>> ])
+
+        Returns:
+            TransactionExtention, TransactionExtention contains unsigned Transaction
+        """
+
+        if parameters is None:
+            parameters = []
+
+        if issuer_address is None:
+            issuer_address = self.tron.default_address.hex
+
+        if not self.tron.isAddress(contract_address):
+            raise InvalidAddress('Invalid contract address provided')
+
+        if not is_string(function_selector):
+            raise ValueError('Invalid function selector provided')
+
+        if not is_integer(call_value) or call_value < 0:
+            raise ValueError('Invalid call value provided')
+
+        if not is_integer(fee_limit) or fee_limit <= 0 or fee_limit > 1000000000:
+            raise ValueError('Invalid fee limit provided')
+
+        if len(parameters) > 0:
+            types = []
+            values = []
+            for abi in parameters:
+                if 'type' not in abi or not is_string(abi['type']):
+                    raise ValueError('Invalid parameter type provided: ' + abi['type'])
+
+                if abi['type'] == 'address':
+                    abi['value'] = self.tron.address.to_hex(abi['value']).replace('41', '0x', 2)
+
+                types.append(abi['type'])
+                values.append(abi['value'])
+
+            try:
+                parameters = encode_hex(encode_abi(types, values)).replace('0x', '', 2)
+            except ValueError as ex:
+                print(ex)
+
+        else:
+            parameters = ''
+
+        return self.tron.manager.request('/wallet/triggersmartcontract', {
+            'contract_address': self.tron.address.to_hex(contract_address),
+            'owner_address': self.tron.address.to_hex(issuer_address),
+            'function_selector': function_selector,
+            'fee_limit': int(fee_limit),
+            'call_value': int(call_value),
+            'parameter': parameters
+        })
 
     def create_trx_exchange(self,
                             token_name: str,

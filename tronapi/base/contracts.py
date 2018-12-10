@@ -11,8 +11,7 @@ from tronapi.base.abi import (
     filter_by_encodability,
     filter_by_argument_count,
     get_fallback_func_abi,
-    abi_to_signature
-)
+    abi_to_signature)
 
 from tronapi.base.function_identifiers import FallbackFn
 from tronapi.base.toolz import (
