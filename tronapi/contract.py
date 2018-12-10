@@ -245,13 +245,10 @@ class Contract:
         call_value = kwargs.setdefault('call_value', 0)
         # Contract owner address, converted to a hex string
         owner_address = kwargs.setdefault('owner_address', cls.tron.default_address.hex)
-
-        # We write all the results in one object
-        transaction = dict(**kwargs)
-        # Smart Contract's Application Binary Interface
-        transaction.setdefault('abi', cls.abi)
-        # The compiled contract's identifier, used to interact with the Virtual Machine.
-        transaction.setdefault('bytecode', to_hex(cls.bytecode))
+        # The max energy which will be consumed by the owner
+        # in the process of excution or creation of the contract,
+        # is an integer which should be greater than 0.
+        origin_energy_limit = kwargs.setdefault('origin_energy_limit', 10000000)
 
         if not is_integer(fee_limit) or fee_limit <= 0 or \
                 fee_limit > 10 ** 9:
@@ -264,10 +261,22 @@ class Contract:
                 user_fee_percentage > 100:
             raise ValueError('Invalid user fee percentage provided')
 
+        if not is_integer(origin_energy_limit) or origin_energy_limit < 0:
+            return ValueError('Invalid origin_energy_limit provided')
+
         if not cls.tron.isAddress(owner_address):
             raise InvalidAddress('Invalid issuer address provided')
 
-        return cls.tron.manager.request('/wallet/deploycontract', transaction)
+        # We write all the results in one object
+        transaction = dict(**kwargs)
+        transaction.setdefault('owner_address', cls.tron.address.to_hex(owner_address))
+        # Smart Contract's Application Binary Interface
+        transaction.setdefault('abi', cls.abi)
+        # The compiled contract's identifier, used to interact with the Virtual Machine.
+        transaction.setdefault('bytecode', to_hex(cls.bytecode))
+
+        return cls.tron.manager.request('/wallet/deploycontract',
+                                        transaction)
 
     @classmethod
     def constructor(cls):
@@ -375,7 +384,7 @@ class ContractConstructor:
         """
 
         # Maximum TRX consumption, measured in SUN (1 TRX = 1,000,000 SUN).
-        fee_limit = kwargs.setdefault('fee_limit', 0)
+        fee_limit = kwargs.setdefault('fee_limit', 1000000000)
         # The same as User Pay Ratio.
         # The percentage of resources specified for users who use this contract.
         # This field accepts integers between [0, 100].
@@ -384,16 +393,15 @@ class ContractConstructor:
         call_value = kwargs.setdefault('call_value', 0)
         # Contract owner address, converted to a hex string
         owner_address = kwargs.setdefault('owner_address', self.tron.default_address.hex)
+        # The max energy which will be consumed by the owner
+        # in the process of excution or creation of the contract,
+        # is an integer which should be greater than 0.
+        origin_energy_limit = kwargs.setdefault('origin_energy_limit', 10000000)
 
         # The compiled contract's identifier, used to interact with the Virtual Machine.
         bytecode = to_hex(self.bytecode)
 
-        # We write all the results in one object
-        transact_transaction = dict(**kwargs)
-        transact_transaction.setdefault('abi', self.abi)
-        transact_transaction.setdefault('bytecode', bytecode)
-
-        if not is_integer(fee_limit) or fee_limit <= 0 or fee_limit > 10 ** 9:
+        if not is_integer(fee_limit) or fee_limit <= 0 or fee_limit > 1000000000:
             raise ValueError('Invalid fee limit provided')
 
         if not is_integer(call_value) or call_value < 0:
@@ -403,8 +411,17 @@ class ContractConstructor:
                 user_fee_percentage > 100:
             raise ValueError('Invalid user fee percentage provided')
 
+        if not is_integer(origin_energy_limit) or origin_energy_limit < 0:
+            return ValueError('Invalid origin_energy_limit provided')
+
         if not self.tron.isAddress(owner_address):
             raise InvalidAddress('Invalid issuer address provided')
+
+        # We write all the results in one object
+        transact_transaction = dict(**kwargs)
+        transact_transaction.setdefault('owner_address', self.tron.address.to_hex(owner_address))
+        transact_transaction.setdefault('abi', self.abi)
+        transact_transaction.setdefault('bytecode', bytecode)
 
         return self.tron.manager.request('/wallet/deploycontract',
                                          transact_transaction)
