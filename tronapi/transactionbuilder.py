@@ -60,7 +60,7 @@ class TransactionBuilder(object):
 
         Args:
             to (str): is the recipient address
-            amount (float): is the amount of token to transfer
+            amount (int): is the amount of token to transfer. must be integer instead of float
             token_id (str): Token Name(NOT SYMBOL)
             account: (str): is the address of the withdrawal account
 
@@ -71,7 +71,7 @@ class TransactionBuilder(object):
         if not self.tron.isAddress(to):
             raise InvalidTronError('Invalid recipient address provided')
 
-        if not isinstance(amount, float) or amount <= 0:
+        if not isinstance(amount, int) or amount <= 0:
             raise InvalidTronError('Invalid amount provided')
 
         if not is_string(token_id) or not len(token_id):
@@ -91,7 +91,7 @@ class TransactionBuilder(object):
             'to_address': _to,
             'owner_address': _from,
             'asset_name': _token_id,
-            'amount': self.tron.toSun(amount)
+            'amount': amount
         })
 
     def freeze_balance(self, amount, duration, resource, account):
