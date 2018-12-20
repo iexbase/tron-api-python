@@ -758,3 +758,71 @@ class TransactionBuilder(object):
             'quant': token_amount_sold,
             'expected': token_amount_expected
         })
+
+    def update_setting(self,
+                       contract_address,
+                       user_fee_percentage,
+                       owner_address=None):
+        """Update userFeePercentage.
+
+        Args:
+            contract_address (str): the address of the contract to be modified
+            user_fee_percentage (int): the percentage of resources specified for users using this contract
+            owner_address (str): is the address of the creator
+
+        Returns:
+            Contains unsigned transaction Transaction
+        """
+
+        if owner_address is None:
+            owner_address = self.tron.default_address.hex
+
+        if not self.tron.isAddress(owner_address):
+            raise InvalidAddress('Invalid owner_address provided')
+
+        if not self.tron.isAddress(contract_address):
+            raise InvalidAddress('Invalid contract_address provided')
+
+        if not is_integer(user_fee_percentage) or user_fee_percentage < 0 or \
+                user_fee_percentage > 100:
+            raise ValueError('Invalid user_fee_percentage provided')
+
+        return self.tron.manager.request('wallet/updatesetting', {
+            'owner_address': self.tron.address.to_hex(owner_address),
+            'contract_address': self.tron.address.to_hex(contract_address),
+            'consume_user_resource_percent': user_fee_percentage
+        })
+
+    def update_energy_limit(self,
+                            contract_address,
+                            origin_energy_limit,
+                            owner_address=None):
+        """Update energy limit.
+
+        Args:
+            contract_address (str): The address of the contract to be modified
+            origin_energy_limit (int): The maximum energy set by the creator that is created
+            owner_address (str): Is the address of the creator
+
+        Returns:
+            Contains unsigned transaction Transaction
+        """
+
+        if owner_address is None:
+            owner_address = self.tron.default_address.hex
+
+        if not self.tron.isAddress(owner_address):
+            raise InvalidAddress('Invalid owner_address provided')
+
+        if not self.tron.isAddress(contract_address):
+            raise InvalidAddress('Invalid contractAddress provided')
+
+        if not is_integer(origin_energy_limit) or origin_energy_limit < 0 or \
+                origin_energy_limit > 10000000:
+            raise ValueError('Invalid originEnergyLimit  provided')
+
+        return self.tron.manager.request('wallet/updateenergylimit', {
+            'owner_address': self.tron.address.to_hex(owner_address),
+            'contract_address': self.tron.address.to_hex(contract_address),
+            'origin_energy_limit': origin_energy_limit
+        })

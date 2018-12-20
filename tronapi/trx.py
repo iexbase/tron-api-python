@@ -100,7 +100,7 @@ class Trx(Module):
 
         return transactions[index]
 
-    def wait_for_transaction_id(self, transaction_hash: str, timeout: int=120):
+    def wait_for_transaction_id(self, transaction_hash: str, timeout: int = 120):
         """
         Waits for the transaction specified by transaction_hash
         to be included in a block, then returns its transaction receipt.
@@ -904,3 +904,7 @@ class Trx(Module):
             'limit': limit,
             'offset': offset
         })
+
+    def get_node_info(self):
+        """Get info about thre node"""
+        return self.tron.manager.request('wallet/getnodeinfo', {})

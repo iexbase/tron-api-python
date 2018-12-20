@@ -205,6 +205,12 @@ class Tron:
         if block_number and event_name is None:
             raise TronError('Usage of block number filtering requires an event name')
 
+        if not is_integer(page):
+            raise ValueError('Invalid size provided')
+
+        if not is_integer(since):
+            raise ValueError('Invalid sinceTimestamp provided')
+
         if size > 200:
             raise ValueError('Defaulting to maximum accepted size: 200')
 
