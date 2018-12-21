@@ -78,7 +78,7 @@ install_requires = [
     "toolz>=0.9.0,<1.0.0;implementation_name=='pypy'",
     "cytoolz>=0.9.0,<1.0.0;implementation_name=='cpython'",
 
-    "eth-abi>=1.2.0,<2.0.0",
+    "eth-abi>=2.0.0a1,<3.0.0",
     "eth-account>=0.2.1,<0.4.0",
     "eth-utils>=1.2.0,<2.0.0",
 
@@ -109,15 +109,15 @@ setup(
     author_email='steein.shamsudin@gmail.com',
     license='MIT License',
     zip_safe=False,
-    python_requires='>=3.5.3,<4',
+    python_requires='>=3.6.3,<4',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
     packages=find_packages(exclude=['examples']),
     include_package_data=True,
