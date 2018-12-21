@@ -109,7 +109,7 @@ setup(
     author_email='steein.shamsudin@gmail.com',
     license='MIT License',
     zip_safe=False,
-    python_requires='>=3.6.3,<4',
+    python_requires='>=3.6,<4',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
