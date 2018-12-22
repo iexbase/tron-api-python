@@ -15,7 +15,6 @@
     :license: MIT License
 """
 
-
 import ecdsa
 from eth_utils import apply_to_return_value, to_hex
 from hexbytes import HexBytes
@@ -178,23 +177,20 @@ class Tron:
             'base58': _base58
         })
 
-    def get_event_result(self,
-                         contract_address=None,
-                         since=0,
-                         event_name=None,
-                         block_number=None,
-                         size=20,
-                         page=1):
+    def get_event_result(self, **kwargs):
         """Will return all events matching the filters.
 
         Args:
-            contract_address (str): Address to query for events.
-            since (int): Filter for events since certain timestamp.
-            event_name (str): Name of the event to filter by.
-            block_number (str): Specific block number to query
-            size (int): size
-            page (int): page str
+            kwargs (any): List parameters
         """
+
+        # Check the most necessary parameters
+        contract_address = kwargs.setdefault('contract_address', self.default_address.hex)
+        event_name = kwargs.setdefault('event_name', 'Notify')
+        since_timestamp = kwargs.setdefault('since_timestamp', 0)
+        block_number = kwargs.setdefault('block_number', '')
+        size = kwargs.setdefault('size', 20)
+        page = kwargs.setdefault('page', 1)
 
         if not self.isAddress(contract_address):
             raise InvalidTronError('Invalid contract address provided')
@@ -208,27 +204,25 @@ class Tron:
         if not is_integer(page):
             raise ValueError('Invalid size provided')
 
-        if not is_integer(since):
+        if not is_integer(since_timestamp):
             raise ValueError('Invalid sinceTimestamp provided')
 
+        # If the size exceeds 200, displays an error
         if size > 200:
             raise ValueError('Defaulting to maximum accepted size: 200')
 
+        # We collect all parameters in one array
         route_params = []
-
         if contract_address:
             route_params.append(contract_address)
-
         if event_name:
             route_params.append(event_name)
-
         if block_number:
             route_params.append(block_number)
 
         route = '/'.join(route_params)
-
         return self.manager.request("/event/contract/{0}?since={1}&size={2}&page={3}"
-                                    .format(route, since, size, page), method='get')
+                                    .format(route, since_timestamp, size, page), method='get')
 
     def get_event_transaction_id(self, tx_id):
         """Will return all events within a transactionID.
