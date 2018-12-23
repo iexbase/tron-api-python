@@ -1,7 +1,15 @@
+import json
 import re
 from typing import Union
 
-from eth_utils import hexstr_if_str, to_hex, big_endian_to_int, int_to_big_endian
+from hexbytes import HexBytes
+
+from eth_utils import (
+    hexstr_if_str,
+    to_hex,
+    big_endian_to_int,
+    int_to_big_endian
+)
 
 from tronapi.utils.hexadecimal import (
     remove_0x_prefix,
@@ -11,10 +19,16 @@ from tronapi.utils.hexadecimal import (
 )
 
 from tronapi.base.toolz import (
-    curry,
+    curry
 )
 
-from tronapi.utils.types import is_boolean, is_integer
+from tronapi.utils.types import (
+    is_boolean,
+    is_integer,
+    is_list_like
+)
+
+from tronapi.base.datastructures import AttributeDict
 from tronapi.utils.validation import assert_one_val
 
 
@@ -129,3 +143,71 @@ def to_4byte_hex(hex_or_str_or_bytes: Union[int, str, bytes]) -> str:
         )
     hex_str = encode_hex(byte_str)
     return pad_hex(hex_str, size_of_4bytes)
+
+
+class FriendlyJsonSerialize:
+    """
+    Friendly JSON serializer & deserializer
+    When encoding or decoding fails, this class collects
+    information on which fields failed, to show more
+    helpful information in the raised error messages.
+    """
+
+    def _json_mapping_errors(self, mapping):
+        for key, val in mapping.items():
+            try:
+                self._friendly_json_encode(val)
+            except TypeError as exc:
+                yield "%r: because (%s)" % (key, exc)
+
+    def _json_list_errors(self, iterable):
+        for index, element in enumerate(iterable):
+            try:
+                self._friendly_json_encode(element)
+            except TypeError as exc:
+                yield "%d: because (%s)" % (index, exc)
+
+    def _friendly_json_encode(self, obj, cls=None):
+        try:
+            encoded = json.dumps(obj, cls=cls)
+            return encoded
+        except TypeError as full_exception:
+            if hasattr(obj, 'items'):
+                item_errors = '; '.join(self._json_mapping_errors(obj))
+                raise TypeError("dict had unencodable value at keys: {{{}}}".format(item_errors))
+            elif is_list_like(obj):
+                element_errors = '; '.join(self._json_list_errors(obj))
+                raise TypeError("list had unencodable value at index: [{}]".format(element_errors))
+            else:
+                raise full_exception
+
+    @staticmethod
+    def json_decode(json_str):
+        try:
+            decoded = json.loads(json_str)
+            return decoded
+        except json.decoder.JSONDecodeError as exc:
+            err_msg = 'Could not decode {} because of {}.'.format(repr(json_str), exc)
+            # Calling code may rely on catching JSONDecodeError to recognize bad json
+            # so we have to re-raise the same type.
+            raise json.decoder.JSONDecodeError(err_msg, exc.doc, exc.pos)
+
+    def json_encode(self, obj, cls=None):
+        try:
+            return self._friendly_json_encode(obj, cls=cls)
+        except TypeError as exc:
+            raise TypeError("Could not encode to JSON: {}".format(exc))
+
+
+class TronJsonEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, AttributeDict):
+            return {k: v for k, v in obj.items()}
+        if isinstance(obj, HexBytes):
+            return obj.hex()
+        return json.JSONEncoder.default(self, obj)
+
+
+def to_json(obj: object) -> object:
+    """Convert a complex object (like a transaction object) to a JSON string"""
+    return FriendlyJsonSerialize().json_encode(obj, cls=TronJsonEncoder)

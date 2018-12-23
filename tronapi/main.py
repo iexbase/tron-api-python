@@ -24,7 +24,8 @@ from tronapi.base.datastructures import AttributeDict
 from tronapi.base.encoding import (
     to_bytes,
     to_int,
-    to_text
+    to_text,
+    to_json
 )
 
 from tronapi.exceptions import InvalidTronError, TronError
@@ -55,6 +56,7 @@ class Tron:
     toInt = staticmethod(to_int)
     toHex = staticmethod(to_hex)
     toText = staticmethod(to_text)
+    toJSON = staticmethod(to_json)
 
     # Currency Utility
     toSun = staticmethod(to_sun)
