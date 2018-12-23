@@ -100,7 +100,10 @@ class Trx(Module):
 
         return transactions[index]
 
-    def wait_for_transaction_id(self, transaction_hash: str, timeout: int = 120):
+    def wait_for_transaction_id(self,
+                                transaction_hash: str,
+                                timeout: int=120,
+                                poll_latency: (int, float)=0.2):
         """
         Waits for the transaction specified by transaction_hash
         to be included in a block, then returns its transaction receipt.
@@ -113,10 +116,11 @@ class Trx(Module):
         Args:
             transaction_hash (str): Transaction Hash
             timeout (int): TimeOut
+            poll_latency (any):  between subsequent requests
 
         """
         try:
-            return wait_for_transaction_id(self.tron, transaction_hash, timeout)
+            return wait_for_transaction_id(self.tron, transaction_hash, timeout, poll_latency)
         except TimeoutError:
             raise TimeExhausted(
                 "Transaction {} is not in the chain, after {} seconds".format(
