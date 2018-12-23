@@ -102,8 +102,8 @@ class Trx(Module):
 
     def wait_for_transaction_id(self,
                                 transaction_hash: str,
-                                timeout: int=120,
-                                poll_latency: (int, float)=0.2):
+                                timeout=120,
+                                poll_latency=0.2):
         """
         Waits for the transaction specified by transaction_hash
         to be included in a block, then returns its transaction receipt.
@@ -120,6 +120,9 @@ class Trx(Module):
 
         """
         try:
+            if poll_latency > timeout:
+                poll_latency = timeout
+
             return wait_for_transaction_id(self.tron, transaction_hash, timeout, poll_latency)
         except TimeoutError:
             raise TimeExhausted(
