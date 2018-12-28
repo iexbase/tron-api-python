@@ -914,4 +914,30 @@ class Trx(Module):
 
     def get_node_info(self):
         """Get info about thre node"""
-        return self.tron.manager.request('wallet/getnodeinfo', {})
+        return self.tron.manager.request('/wallet/getnodeinfo', {})
+
+    def get_token_list_name(self, token_id:  str) -> any:
+        """Query token list by name.
+
+            Args:
+                token_id (str): The name of the token
+        """
+        if not is_string(token_id):
+            raise ValueError('Invalid token ID provided')
+
+        return self.tron.manager.request('/wallet/getassetissuelistbyname', {
+            'value': self.tron.toHex(text=token_id)
+        })
+
+    def get_token_by_id(self, token_id: str) -> any:
+        """Query token by id.
+
+            Args:
+                token_id (str): The id of the token, it's a string
+        """
+        if not is_string(token_id):
+            raise ValueError('Invalid token ID provided')
+
+        return self.tron.manager.request('/wallet/getassetissuebyid', {
+            'value': self.tron.toHex(text=token_id)
+        })
