@@ -914,7 +914,7 @@ class Trx(Module):
 
     def get_node_info(self):
         """Get info about thre node"""
-        return self.tron.manager.request('/wallet/getnodeinfo', {})
+        return self.tron.manager.request('/wallet/getnodeinfo')
 
     def get_token_list_name(self, token_id:  str) -> any:
         """Query token list by name.
