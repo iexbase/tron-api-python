@@ -450,7 +450,7 @@ class TransactionBuilder(object):
             'fee_limit': int(fee_limit),
             'call_value': int(call_value),
             'parameter': parameters
-        })['transaction']
+        })
 
     def create_trx_exchange(self,
                             token_name: str,
