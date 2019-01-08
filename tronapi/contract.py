@@ -13,9 +13,9 @@ from tronapi.base.abi import (
     merge_args_and_kwargs,
     abi_to_signature,
     fallback_func_abi_exists,
-    check_if_arguments_can_be_encoded
-)
-from tronapi.base.contracts import find_matching_fn_abi
+    check_if_arguments_can_be_encoded,
+    get_constructor_abi)
+from tronapi.base.contracts import find_matching_fn_abi, encode_abi
 from tronapi.base.datatypes import PropertyCheckingFactory
 from tronapi.base.decorators import (
     combomethod,
@@ -33,7 +33,7 @@ from tronapi.exceptions import (
     InvalidAddress,
     FallbackNotFound
 )
-from tronapi.utils.hexadecimal import encode_hex
+from tronapi.utils.hexadecimal import encode_hex, add_0x_prefix
 from tronapi.utils.types import is_text, is_integer
 
 
@@ -242,7 +242,9 @@ class Contract:
                 "Cannot call constructor on a contract that does not have 'bytecode' associated "
                 "with it"
             )
-        return ContractConstructor(cls.tron, cls.abi, cls.bytecode)
+        return ContractConstructor(cls.tron,
+                                   cls.abi,
+                                   cls.bytecode)
 
     @staticmethod
     def get_fallback_function(abi, tron, address=None):
@@ -374,4 +376,3 @@ def get_function_by_identifier(fns, identifier):
             'Could not find any function with matching {0}'.format(identifier)
         )
     return fns[0]
-

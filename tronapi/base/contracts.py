@@ -6,19 +6,31 @@
 
 import functools
 
+from eth_utils import to_hex
+from hexbytes import HexBytes
+
 from tronapi.base.abi import (
     filter_by_name,
     filter_by_encodability,
     filter_by_argument_count,
     get_fallback_func_abi,
-    abi_to_signature)
+    abi_to_signature, get_abi_input_types, check_if_arguments_can_be_encoded, map_abi_data)
 
 from tronapi.base.function_identifiers import FallbackFn
+from tronapi.base.normalizers import abi_address_to_hex, abi_bytes_to_bytes, abi_string_to_text
 from tronapi.base.toolz import (
     pipe,
     valmap,
 )
+from tronapi.utils.hexadecimal import encode_hex
 from tronapi.utils.types import is_text
+from eth_abi import (
+    encode_abi as eth_abi_encode_abi,
+)
+
+from eth_abi.exceptions import (
+    EncodingError,
+)
 
 
 def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
@@ -74,3 +86,43 @@ def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
             diagnosis=diagnosis,
         )
         raise ValueError(message)
+
+
+def encode_abi(tron, abi, arguments, data=None):
+    argument_types = get_abi_input_types(abi)
+
+    if not check_if_arguments_can_be_encoded(abi, arguments, {}):
+        raise TypeError(
+            "One or more arguments could not be encoded to the necessary "
+            "ABI type.  Expected types are: {0}".format(
+                ', '.join(argument_types),
+            )
+        )
+
+    try:
+        normalizers = [
+            abi_address_to_hex,
+            abi_bytes_to_bytes,
+            abi_string_to_text,
+        ]
+
+        normalized_arguments = map_abi_data(
+            normalizers,
+            argument_types,
+            arguments,
+        )
+
+        encoded_arguments = eth_abi_encode_abi(
+            argument_types,
+            normalized_arguments,
+        )
+    except EncodingError as e:
+        raise TypeError(
+            "One or more arguments could not be encoded to the necessary "
+            "ABI type: {0}".format(str(e))
+        )
+
+    if data:
+        return to_hex(HexBytes(data) + encoded_arguments)
+    else:
+        return encode_hex(encoded_arguments)
