@@ -14,8 +14,6 @@ tron.private_key = 'private_key'
 tron.default_address = 'default address'
 
 # added message
-send = tron.trx.send_transaction('to', 1, {
-    'message': 'hello'
-})
+send = tron.trx.send_transaction('to', 1)
 
 print(send)
