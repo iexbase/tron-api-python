@@ -493,12 +493,10 @@ class Trx(Module):
         })
 
     def sign(self, transaction: Any, use_tron: bool = True):
-        """Sign the transaction, the api has the risk of leaking the private key,
-        please make sure to call the api in a secure environment
+        """Safe method for signing your transaction
 
         Warnings:
-            Do not use this in any web / user-facing applications.
-            This will expose the private key.
+            method: online_sign() - Use only in extreme cases.
 
         Args:
             transaction (Any): transaction details
