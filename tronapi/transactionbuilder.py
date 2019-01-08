@@ -11,7 +11,7 @@ from eth_abi import encode_abi
 
 from tronapi.exceptions import InvalidTronError, TronError, InvalidAddress
 from tronapi.utils.help import is_valid_url
-from tronapi.utils.hexadecimal import encode_hex
+from tronapi.utils.hexadecimal import encode_hex, is_hex
 from tronapi.utils.types import is_string, is_integer, is_boolean
 
 DEFAULT_TIME = datetime.now()
@@ -365,6 +365,77 @@ class TransactionBuilder(object):
         })
 
         return response
+
+    def create_smart_contract(self, **kwargs):
+        """Deploy Contract
+
+        Deploys a contract.
+        Returns TransactionExtention, which contains an unsigned transaction.
+
+        Example:
+        .. code-block:: python
+            >>> from tronapi import Tron
+            >>>
+            >>> tron = Tron()
+            >>> tron.transaction_builder.create_smart_contract(
+            >>>    fee_limit=10**9,
+            >>>    call_value=0,
+            >>>    consume_user_resource_percent=10
+            >>> )
+
+        Args:
+            **kwargs: Transaction parameters for the deployment
+            transaction as a dict
+
+        """
+
+        if 'bytecode' not in kwargs:
+            raise ValueError(
+                "Cannot deploy a contract that does not have 'bytecode' associated "
+                "with it"
+            )
+
+        # Maximum TRX consumption, measured in SUN (1 TRX = 1,000,000 SUN).
+        fee_limit = kwargs.setdefault('fee_limit', 0)
+        # The same as User Pay Ratio.
+        # The percentage of resources specified for users who use this contract.
+        # This field accepts integers between [0, 100].
+        user_fee_percentage = kwargs.setdefault('consume_user_resource_percent', 0)
+        # Amount of TRX transferred with this transaction, measured in SUN (1TRX = 1,000,000 SUN)
+        call_value = kwargs.setdefault('call_value', 0)
+        # Contract owner address, converted to a hex string
+        owner_address = kwargs.setdefault('owner_address', self.tron.default_address.hex)
+        # The max energy which will be consumed by the owner
+        # in the process of excution or creation of the contract,
+        # is an integer which should be greater than 0.
+        origin_energy_limit = kwargs.setdefault('origin_energy_limit', 10000000)
+
+        if not is_hex(kwargs.get('bytecode')):
+            raise ValueError('Invalid bytecode provided')
+
+        if not is_integer(fee_limit) or fee_limit <= 0 or \
+                fee_limit > 1000000000:
+            raise ValueError('Invalid fee limit provided')
+
+        if not is_integer(call_value) or call_value < 0:
+            raise ValueError('Invalid call value provided')
+
+        if not is_integer(user_fee_percentage) or user_fee_percentage < 0 or \
+                user_fee_percentage > 100:
+            raise ValueError('Invalid user fee percentage provided')
+
+        if not is_integer(origin_energy_limit) or origin_energy_limit < 0:
+            return ValueError('Invalid origin_energy_limit provided')
+
+        if not self.tron.isAddress(owner_address):
+            raise InvalidAddress('Invalid issuer address provided')
+
+        # We write all the results in one object
+        transaction = dict(**kwargs)
+        transaction.setdefault('owner_address', self.tron.address.to_hex(owner_address))
+
+        return self.tron.manager.request('/wallet/deploycontract',
+                                         transaction)
 
     def trigger_smart_contract(self, contract_address,
                                function_selector,
