@@ -89,7 +89,7 @@ class TransactionBuilder(object):
 
         # In case if "TRX" is specified, we redirect to another method.
         if token_id.upper() == 'TRX':
-            return self.send_transaction(to, amount, _from)
+            return self.send_transaction(_to, amount, _from)
 
         return self.tron.manager.request('/wallet/transferasset', {
             'to_address': _to,
