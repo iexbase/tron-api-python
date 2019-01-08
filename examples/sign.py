@@ -13,7 +13,7 @@ tron = Tron(full_node=full_node,
 tron.private_key = 'private_key'
 tron.default_address = 'default address'
 
-# added message
+# create transaction
 create_tx = tron.transaction_builder.send_transaction('to', 1, 'from')
 
 # offline sign
