@@ -688,6 +688,7 @@ class TransactionBuilder(object):
         frozen_amount = kwargs.setdefault('frozenAmount', 0)
         frozen_duration = kwargs.setdefault('frozenDuration', 0)
         vote_score = kwargs.setdefault('voteScore', 0)
+        precision = kwargs.setdefault('precision', 0)
 
         if not is_string(kwargs.get('name')):
             raise ValueError('Invalid token name provided')
@@ -705,7 +706,10 @@ class TransactionBuilder(object):
             raise ValueError('Token ratio must be a positive integer')
 
         if not is_integer(vote_score) or vote_score <= 0:
-            raise ValueError('Invalid vote score provided')
+            raise ValueError('voteScore must be a positive integer greater than 0')
+
+        if not is_integer(precision) or precision <= 0 or precision > 6:
+            raise ValueError('precision must be a positive integer > 0 and <= 6')
 
         if not is_integer(sale_start) or sale_start < START_DATE:
             raise ValueError('Invalid sale start timestamp provided')
@@ -754,7 +758,8 @@ class TransactionBuilder(object):
             'free_asset_net_limit': int(free_bandwidth),
             'public_free_asset_net_limit': int(free_bandwidth_limit),
             'frozen_supply': frozen_supply,
-            'vote_score': vote_score
+            'vote_score': vote_score,
+            'precision': precision
         })
 
         return response
