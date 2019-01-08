@@ -13,9 +13,9 @@ from tronapi.base.abi import (
     merge_args_and_kwargs,
     abi_to_signature,
     fallback_func_abi_exists,
-    check_if_arguments_can_be_encoded,
-    get_constructor_abi)
-from tronapi.base.contracts import find_matching_fn_abi, encode_abi
+    check_if_arguments_can_be_encoded
+)
+from tronapi.base.contracts import find_matching_fn_abi
 from tronapi.base.datatypes import PropertyCheckingFactory
 from tronapi.base.decorators import (
     combomethod,
@@ -30,11 +30,10 @@ from tronapi.base.normalizers import (
 from tronapi.exceptions import (
     NoABIFunctionsFound,
     MismatchedABI,
-    InvalidAddress,
     FallbackNotFound
 )
-from tronapi.utils.hexadecimal import encode_hex, add_0x_prefix
-from tronapi.utils.types import is_text, is_integer
+from tronapi.utils.hexadecimal import encode_hex
+from tronapi.utils.types import is_text
 
 
 class NonExistentFallbackFunction:
@@ -47,11 +46,7 @@ class NonExistentFallbackFunction:
 
 
 class ContractFunction:
-    """Base class for contract functions
-
-    A function accessed via the api contract.functions.myMethod(*args, **kwargs)
-    is a subclass of this class.
-    """
+    """Base class for contract functions"""
     address = None
     function_identifier = None
     tron = None
