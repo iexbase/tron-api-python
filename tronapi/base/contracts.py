@@ -6,15 +6,23 @@
 
 import functools
 
-from eth_utils import to_hex
 from hexbytes import HexBytes
 
+from eth_utils import (
+    to_hex,
+    function_abi_to_4byte_selector
+)
 from tronapi.base.abi import (
     filter_by_name,
     filter_by_encodability,
     filter_by_argument_count,
     get_fallback_func_abi,
-    abi_to_signature, get_abi_input_types, check_if_arguments_can_be_encoded, map_abi_data)
+    abi_to_signature,
+    get_abi_input_types,
+    check_if_arguments_can_be_encoded,
+    map_abi_data,
+    merge_args_and_kwargs
+)
 
 from tronapi.base.function_identifiers import FallbackFn
 from tronapi.base.normalizers import abi_address_to_hex, abi_bytes_to_bytes, abi_string_to_text
@@ -126,3 +134,19 @@ def encode_abi(tron, abi, arguments, data=None):
         return to_hex(HexBytes(data) + encoded_arguments)
     else:
         return encode_hex(encoded_arguments)
+
+
+def get_function_info(fn_name, contract_abi=None, fn_abi=None, args=None, kwargs=None):
+    if args is None:
+        args = tuple()
+    if kwargs is None:
+        kwargs = {}
+
+    if fn_abi is None:
+        fn_abi = find_matching_fn_abi(contract_abi, fn_name, args, kwargs)
+
+    fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))
+
+    fn_arguments = merge_args_and_kwargs(fn_abi, args, kwargs)
+
+    return fn_abi, fn_selector, fn_arguments

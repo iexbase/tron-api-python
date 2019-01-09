@@ -15,7 +15,7 @@ from tronapi.base.abi import (
     fallback_func_abi_exists,
     check_if_arguments_can_be_encoded
 )
-from tronapi.base.contracts import find_matching_fn_abi
+from tronapi.base.contracts import find_matching_fn_abi, encode_abi, get_function_info
 from tronapi.base.datatypes import PropertyCheckingFactory
 from tronapi.base.decorators import (
     combomethod,
@@ -240,6 +240,20 @@ class Contract:
         return ContractConstructor(cls.tron,
                                    cls.abi,
                                    cls.bytecode)
+
+    @combomethod
+    def encodeABI(cls, fn_name, args=None, kwargs=None, data=None):
+        """Encodes the arguments using the Tron ABI for the contract function
+        that matches the given name and arguments..
+        """
+        fn_abi, fn_selector, fn_arguments = get_function_info(
+            fn_name, contract_abi=cls.abi, args=args, kwargs=kwargs,
+        )
+
+        if data is None:
+            data = fn_selector
+
+        return encode_abi(cls.tron, fn_abi, fn_arguments, data)
 
     @staticmethod
     def get_fallback_function(abi, tron, address=None):
