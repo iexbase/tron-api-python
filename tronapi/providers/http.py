@@ -24,6 +24,7 @@ from requests.exceptions import (
     ConnectionError as TrxConnectionError
 )
 
+from tronapi.base.encoding import to_text
 from tronapi.providers.base import BaseProvider
 from tronapi.exceptions import HTTP_EXCEPTIONS, TransportError
 
@@ -126,4 +127,23 @@ class HttpProvider(BaseProvider):
         # Additional error interceptor that will occur in case of failed requests
         if 'Error' in data:
             raise ValueError(data['Error'])
+
+        self.__error_manager(data)
+
         return HttpResponse(response.status_code, response.headers, data)
+
+    @staticmethod
+    def __error_manager(data):
+        """Manager error
+
+        Args:
+            data (any): response data
+
+        """
+        # Additional error interceptor that will occur in case of failed requests
+        if 'Error' in data:
+            raise ValueError(data['Error'])
+
+        # Convert hash errors
+        if 'code' in data and 'message' in data:
+            data['message'] = to_text(hexstr=data['message'])
