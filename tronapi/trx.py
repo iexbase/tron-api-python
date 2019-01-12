@@ -70,6 +70,19 @@ class Trx(Module):
         })
         return response
 
+    def get_transaction_count_by_blocknum(self, num: int):
+        """Query transaction's count on a specified block by height
+
+        Args:
+            num (int): block number
+        """
+        if not is_integer(num) or num < 0:
+            raise ValueError('Invalid num provider')
+
+        return self.tron.manager.request('/wallet/gettransactioncountbyblocknum', {
+            'num': num
+        })
+
     def get_block_transaction_count(self, block: Any):
         """Total number of transactions in a block
 
