@@ -86,6 +86,7 @@ ARRAY_REGEX = (
     "$"
 ).format(sub_type=SUB_TYPE_REGEX)
 
+
 def filter_by_argument_name(argument_names, contract_abi):
     return [
         abi
@@ -185,6 +186,19 @@ def get_abi_input_names(abi):
         return []
     else:
         return [arg['name'] for arg in abi['inputs']]
+
+
+def length_of_array_type(abi_type):
+    if not is_array_type(abi_type):
+        raise ValueError(
+            "Cannot parse length of nonarray abi-type: {0}".format(abi_type)
+        )
+
+    inner_brackets = re.search(END_BRACKETS_OF_ARRAY_TYPE_REGEX, abi_type).group(0).strip("[]")
+    if not inner_brackets:
+        return None
+    else:
+        return int(inner_brackets)
 
 
 def get_fallback_func_abi(contract_abi):
@@ -438,6 +452,7 @@ def map_abi_data(normalizers, types, data):
     2. Recursively mapping each of the normalizers to the data
     3. Stripping the types back out of the tree
     """
+
     pipeline = itertools.chain(
         [abi_data_tree(types)],
         map(data_tree_map, normalizers),
@@ -448,7 +463,7 @@ def map_abi_data(normalizers, types, data):
 
 
 @curry
-def abi_data_tree(types, data=None):
+def abi_data_tree(types, data):
     """Decorate the data tree with pairs of (type, data). The pair tuple is actually an
     ABITypedData, but can be accessed as a tuple.
 
@@ -458,6 +473,7 @@ def abi_data_tree(types, data=None):
     Returns:
         [("bool[2]", [("bool", True), ("bool", False)]), ("uint256", 0)]
     """
+
     return [
         abi_sub_tree(data_type, data_value)
         for data_type, data_value

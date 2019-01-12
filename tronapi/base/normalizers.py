@@ -1,8 +1,10 @@
 import functools
 import json
 
+
 from eth_utils import is_binary_address, to_hex, hexstr_if_str
 from hexbytes import HexBytes
+from toolz import curry
 
 from tronapi.base.abi import process_type
 from tronapi.base.encoding import to_bytes, text_if_str, to_text
@@ -55,3 +57,8 @@ def abi_bytes_to_bytes(abi_type, data):
     base, sub, arrlist = process_type(abi_type)
     if base == 'bytes' and not arrlist:
         return abi_type, hexstr_if_str(to_bytes, data)
+
+
+@curry
+def abi_resolver(abi_type, val):
+    return abi_type, val

@@ -18,14 +18,17 @@
 import ecdsa
 from eth_utils import apply_to_return_value, to_hex
 from hexbytes import HexBytes
+from tronapi.base.abi import map_abi_data
 
 from tronapi.base.account import Account, PrivateKey
 from tronapi.base.datastructures import AttributeDict
+from tronapi.base.normalizers import abi_resolver
 from tronapi.base.encoding import (
     to_bytes,
     to_int,
     to_text,
-    to_json
+    to_json,
+    hex_encode_abi_type
 )
 
 from tronapi.exceptions import InvalidTronError, TronError
@@ -36,6 +39,7 @@ from tronapi.trx import Trx
 from tronapi.base.validation import is_address
 from tronapi.utils.crypto import keccak
 from tronapi.utils.currency import to_sun, from_sun
+from tronapi.utils.hexadecimal import remove_0x_prefix, add_0x_prefix
 from tronapi.utils.types import is_integer
 
 DEFAULT_MODULES = {
@@ -267,6 +271,37 @@ class Tron:
             provider(HttpProvider): Provider
         """
         return isinstance(provider, HttpProvider)
+
+    def solidity_sha3(self, abi_types, values):
+        """
+            Executes keccak256 exactly as Solidity does.
+            Takes list of abi_types as inputs -- `[uint24, int8[], bool]`
+            and list of corresponding values  -- `[20, [-1, 5, 0], True]`
+
+            Args:
+                abi_types (any): types abi
+                values (any): values
+
+            Examples:
+                >>> tron = Tron()
+                >>> sol = tron.solidity_sha3(['uint8[]'], [[1, 2, 3, 4, 5]])
+                >>> assert sol.hex() == '0x5917e5a395fb9b454434de59651d36822a9e29c5ec57474df3e67937b969460c'
+
+        """
+        if len(abi_types) != len(values):
+            raise ValueError(
+                "Length mismatch between provided abi types and values.  Got "
+                "{0} types and {1} values.".format(len(abi_types), len(values))
+            )
+
+        normalized_values = map_abi_data([abi_resolver()], abi_types, values)
+
+        hex_string = add_0x_prefix(''.join(
+            remove_0x_prefix(hex_encode_abi_type(abi_type, value))
+            for abi_type, value
+            in zip(abi_types, normalized_values)
+        ))
+        return self.sha3(hexstr=hex_string)
 
     @staticmethod
     @apply_to_return_value(HexBytes)

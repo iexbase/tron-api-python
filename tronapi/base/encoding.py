@@ -11,6 +11,9 @@ from eth_utils import (
     int_to_big_endian
 )
 
+from tronapi.base.abi import size_of_type, sub_type_of_array_type, is_array_type, is_bool_type, is_uint_type, \
+    is_int_type, is_address_type, is_bytes_type, is_string_type
+from tronapi.base.validation import validate_abi_type, validate_abi_value
 from tronapi.utils.hexadecimal import (
     remove_0x_prefix,
     decode_hex,
@@ -25,11 +28,43 @@ from tronapi.base.toolz import (
 from tronapi.utils.types import (
     is_boolean,
     is_integer,
-    is_list_like
-)
+    is_list_like,
+    is_bytes)
 
 from tronapi.base.datastructures import AttributeDict
 from tronapi.utils.validation import assert_one_val
+
+
+def hex_encode_abi_type(abi_type, value, force_size=None):
+    """
+    Encodes value into a hex string in format of abi_type
+    """
+    validate_abi_type(abi_type)
+    validate_abi_value(abi_type, value)
+
+    data_size = force_size or size_of_type(abi_type)
+    if is_array_type(abi_type):
+        sub_type = sub_type_of_array_type(abi_type)
+        return "".join([remove_0x_prefix(hex_encode_abi_type(sub_type, v, 256)) for v in value])
+    elif is_bool_type(abi_type):
+        return to_hex_with_size(value, data_size)
+    elif is_uint_type(abi_type):
+        return to_hex_with_size(value, data_size)
+    elif is_int_type(abi_type):
+        return to_hex_twos_compliment(value, data_size)
+    elif is_address_type(abi_type):
+        return pad_hex(value, data_size)
+    elif is_bytes_type(abi_type):
+        if is_bytes(value):
+            return encode_hex(value)
+        else:
+            return value
+    elif is_string_type(abi_type):
+        return to_hex(text=value)
+    else:
+        raise ValueError(
+            "Unsupported ABI type: {0}".format(abi_type)
+        )
 
 
 def to_hex_twos_compliment(value, bit_size):
