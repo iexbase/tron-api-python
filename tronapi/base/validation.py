@@ -17,10 +17,12 @@ from tronapi.base.toolz import (
     valmap,
 )
 
-from tronapi.base.abi import filter_by_type, abi_to_signature, is_recognized_type
+from tronapi.base.abi import filter_by_type, abi_to_signature, is_recognized_type, is_string_type, is_bytes_type, \
+    is_address_type, is_int_type, is_uint_type, is_bool_type, sub_type_of_array_type, is_array_type, \
+    length_of_array_type
 from tronapi.utils.help import hex_to_base58
-from tronapi.utils.hexadecimal import is_hex, encode_hex
-from tronapi.utils.types import is_text, is_list_like, is_dict
+from tronapi.utils.hexadecimal import is_hex, encode_hex, is_0x_prefixed
+from tronapi.utils.types import is_text, is_list_like, is_dict, is_string, is_bytes, is_boolean, is_integer
 
 
 def _prepare_selector_collision_msg(duplicates):
@@ -105,3 +107,58 @@ def validate_abi_type(abi_type):
     """
     if not is_recognized_type(abi_type):
         raise ValueError("Unrecognized abi_type: {abi_type}".format(abi_type=abi_type))
+
+
+def validate_abi_value(abi_type, value):
+    """
+    Helper function for validating a value against the expected abi_type
+    Note: abi_type 'bytes' must either be python3 'bytes' object or ''
+    """
+    if is_array_type(abi_type) and is_list_like(value):
+        # validate length
+        specified_length = length_of_array_type(abi_type)
+        if specified_length is not None:
+            if specified_length < 1:
+                raise TypeError(
+                    "Invalid abi-type: {abi_type}. Length of fixed sized arrays"
+                    "must be greater than 0."
+                        .format(abi_type=abi_type)
+                )
+            if specified_length != len(value):
+                raise TypeError(
+                    "The following array length does not the length specified"
+                    "by the abi-type, {abi_type}: {value}"
+                        .format(abi_type=abi_type, value=value)
+                )
+
+        # validate sub_types
+        sub_type = sub_type_of_array_type(abi_type)
+        for v in value:
+            validate_abi_value(sub_type, v)
+        return
+    elif is_bool_type(abi_type) and is_boolean(value):
+        return
+    elif is_uint_type(abi_type) and is_integer(value) and value >= 0:
+        return
+    elif is_int_type(abi_type) and is_integer(value):
+        return
+    elif is_address_type(abi_type):
+        is_address(value)
+        return
+    elif is_bytes_type(abi_type):
+        if is_bytes(value):
+            return
+        elif is_string(value):
+            if is_0x_prefixed(value):
+                return
+            else:
+                raise TypeError(
+                    "ABI values of abi-type 'bytes' must be either"
+                    "a python3 'bytes' object or an '0x' prefixed string."
+                )
+    elif is_string_type(abi_type) and is_string(value):
+        return
+
+    raise TypeError(
+        "The following abi value is not a '{abi_type}': {value}".format(abi_type=abi_type, value=value)
+    )
