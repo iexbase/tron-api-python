@@ -22,7 +22,7 @@ class TransactionBuilder(object):
     def __init__(self, tron):
         self.tron = tron
 
-    def send_transaction(self, to, amount, account):
+    def send_transaction(self, to, amount, account=None):
         """Creates a transaction of transfer.
         If the recipient address does not exist, a corresponding account will be created.
 
@@ -35,6 +35,11 @@ class TransactionBuilder(object):
             Transaction contract data
 
         """
+
+        # If the address of the sender is not specified, we prescribe the default
+        if account is None:
+            account = self.tron.default_address.hex
+
         if not self.tron.isAddress(to):
             raise InvalidTronError('Invalid recipient address provided')
 
@@ -55,7 +60,7 @@ class TransactionBuilder(object):
 
         return response
 
-    def send_token(self, to, amount, token_id, account):
+    def send_token(self, to, amount, token_id, account=None):
         """Transfer Token
 
         Args:
@@ -68,6 +73,11 @@ class TransactionBuilder(object):
             Token transfer Transaction raw data
 
         """
+
+        # If the address of the sender is not specified, we prescribe the default
+        if account is None:
+            account = self.tron.default_address.hex
+
         if not self.tron.isAddress(to):
             raise InvalidTronError('Invalid recipient address provided')
 
@@ -98,7 +108,7 @@ class TransactionBuilder(object):
             'amount': amount
         })
 
-    def freeze_balance(self, amount, duration, resource, account):
+    def freeze_balance(self, amount, duration, resource, account=None):
         """
         Freezes an amount of TRX.
         Will give bandwidth OR Energy and TRON Power(voting rights)
@@ -111,6 +121,10 @@ class TransactionBuilder(object):
             account (str): address that is freezing trx account
 
         """
+
+        # If the address of the sender is not specified, we prescribe the default
+        if account is None:
+            account = self.tron.default_address.hex
 
         if resource not in ('BANDWIDTH', 'ENERGY',):
             raise InvalidTronError('Invalid resource provided: Expected "BANDWIDTH" or "ENERGY"')
@@ -137,6 +151,19 @@ class TransactionBuilder(object):
         return response
 
     def unfreeze_balance(self, resource='BANDWIDTH', account=None):
+        """
+        Unfreeze TRX that has passed the minimum freeze duration.
+        Unfreezing will remove bandwidth and TRON Power.
+
+        Args:
+            resource (str): type of resource, must be either "ENERGY" or "BANDWIDTH"
+            account (str): address that is freezing trx account
+
+        """
+
+        # If the address of the sender is not specified, we prescribe the default
+        if account is None:
+            account = self.tron.default_address.hex
 
         if resource not in ('BANDWIDTH', 'ENERGY',):
             raise InvalidTronError('Invalid resource provided: Expected "BANDWIDTH" or "ENERGY"')
@@ -165,6 +192,7 @@ class TransactionBuilder(object):
             buyer (str): is the address of the Token owner
 
         """
+
         if buyer is None:
             buyer = self.tron.default_address.hex
 
@@ -205,7 +233,7 @@ class TransactionBuilder(object):
             'owner_address': self.tron.address.to_hex(address)
         })
 
-    def apply_for_sr(self, url, address):
+    def apply_for_sr(self, url, address=None):
         """Apply to become a super representative
 
         Args:
@@ -213,6 +241,11 @@ class TransactionBuilder(object):
             address (str): address
 
         """
+
+        # If the address of the sender is not specified, we prescribe the default
+        if address is None:
+            address = self.tron.default_address.hex
+
         if not self.tron.isAddress(address):
             raise TronError('Invalid address provided')
 
@@ -298,7 +331,7 @@ class TransactionBuilder(object):
             'parameters': parameters
         })
 
-    def vote_proposal(self, proposal_id, has_approval, voter_address):
+    def vote_proposal(self, proposal_id, has_approval, voter_address=None):
         """Proposal approval
 
         Args:
@@ -307,6 +340,11 @@ class TransactionBuilder(object):
             voter_address (str): Approve address
 
         """
+
+        # If the address of the sender is not specified, we prescribe the default
+        if voter_address is None:
+            voter_address = self.tron.default_address.hex
+
         if not self.tron.isAddress(voter_address):
             raise TronError('Invalid voter_address address provided')
 
@@ -322,7 +360,7 @@ class TransactionBuilder(object):
             'is_add_approval': bool(has_approval)
         })
 
-    def delete_proposal(self, proposal_id: int, issuer_address: str):
+    def delete_proposal(self, proposal_id: int, issuer_address: str = None):
         """Delete proposal
 
         Args:
@@ -333,6 +371,11 @@ class TransactionBuilder(object):
             Delete the proposal's transaction
 
         """
+
+        # If the address of the sender is not specified, we prescribe the default
+        if issuer_address is None:
+            issuer_address = self.tron.default_address.hex
+
         if not self.tron.isAddress(issuer_address):
             raise InvalidTronError('Invalid issuer_address provided')
 
@@ -344,7 +387,7 @@ class TransactionBuilder(object):
             'proposal_id': int(proposal_id)
         })
 
-    def update_account(self, account_name, account):
+    def update_account(self, account_name, account: str=None):
         """Modify account name
 
         Note: Username is allowed to edit only once.
@@ -357,6 +400,11 @@ class TransactionBuilder(object):
             modified Transaction Object
 
         """
+
+        # If the address of the sender is not specified, we prescribe the default
+        if account is None:
+            account = self.tron.default_address.hex
+
         if not is_string(account_name):
             raise ValueError('Name must be a string')
 
@@ -531,7 +579,7 @@ class TransactionBuilder(object):
                             token_name: str,
                             token_balance: int,
                             trx_balance: int,
-                            account):
+                            account: str=None):
         """Create an exchange between a token and TRX.
         Token Name should be a CASE SENSITIVE string.
         Note: PLEASE VERIFY THIS ON TRONSCAN.
@@ -542,6 +590,10 @@ class TransactionBuilder(object):
             trx_balance (int): balance of the second token
             account (str): Owner Address
         """
+
+        # If the address of the sender is not specified, we prescribe the default
+        if account is None:
+            account = self.tron.default_address.hex
 
         if not self.tron.isAddress(account):
             raise TronError('Invalid address provided')
@@ -562,7 +614,7 @@ class TransactionBuilder(object):
                               first_token_balance: int,
                               second_token_name: str,
                               second_token_balance: int,
-                              owner_address=None):
+                              owner_address: str=None):
         """Create an exchange between a token and another token.
         DO NOT USE THIS FOR TRX.
         Token Names should be a CASE SENSITIVE string.
@@ -596,8 +648,7 @@ class TransactionBuilder(object):
                                exchange_id: int,
                                token_name: str,
                                token_amount: int = 0,
-                               owner_address=None
-                               ):
+                               owner_address: str=None):
         """Adds tokens into a bancor style exchange.
         Will add both tokens at market rate.
 
@@ -606,8 +657,6 @@ class TransactionBuilder(object):
             token_name (str): token name
             token_amount (int): amount of token
             owner_address (str): token owner address in hex
-
-        Returns:
 
         """
         if owner_address is None:
@@ -768,7 +817,7 @@ class TransactionBuilder(object):
                                  exchange_id: int,
                                  token_name: str,
                                  token_amount: int = 0,
-                                 owner_address=None):
+                                 owner_address: str=None):
         """Withdraws tokens from a bancor style exchange.
         Will withdraw at market rate both tokens.
 
@@ -803,7 +852,7 @@ class TransactionBuilder(object):
                               token_name: str,
                               token_amount_sold: int = 0,
                               token_amount_expected: int = 0,
-                              owner_address=None):
+                              owner_address: str=None):
         """Trade tokens on a bancor style exchange.
         Expected value is a validation and used to cap the total amt of token 2 spent.
 
@@ -842,7 +891,7 @@ class TransactionBuilder(object):
     def update_setting(self,
                        contract_address,
                        user_fee_percentage,
-                       owner_address=None):
+                       owner_address: str=None):
         """Update userFeePercentage.
 
         Args:
@@ -876,7 +925,7 @@ class TransactionBuilder(object):
     def update_energy_limit(self,
                             contract_address,
                             origin_energy_limit,
-                            owner_address=None):
+                            owner_address: str=None):
         """Update energy limit.
 
         Args:
