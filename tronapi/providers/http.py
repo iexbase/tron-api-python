@@ -15,6 +15,7 @@
     :license: MIT License
 """
 
+import logging
 from collections import namedtuple
 from urllib.parse import urlparse
 
@@ -30,6 +31,8 @@ from tronapi.exceptions import HTTP_EXCEPTIONS, TransportError
 
 HTTP_SCHEMES = {'http', 'https'}
 HttpResponse = namedtuple('HttpResponse', ('status_code', 'headers', 'data'))
+
+log = logging.getLogger(__name__)
 
 
 class HttpProvider(BaseProvider):
@@ -129,6 +132,8 @@ class HttpProvider(BaseProvider):
             raise ValueError(data['Error'])
 
         self.__error_manager(data)
+        # enabled log
+        log.debug(data)
 
         return HttpResponse(response.status_code, response.headers, data)
 
