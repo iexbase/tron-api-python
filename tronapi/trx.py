@@ -571,6 +571,18 @@ class Trx(Module):
             })
         return response
 
+    def sign_and_broadcast(self, transaction: Any):
+        """Sign and send to the network
+
+        Args:
+            transaction (Any): transaction details
+        """
+        if not is_object(transaction):
+            raise TronError('Invalid transaction provided')
+
+        signed_tx = self.sign(transaction)
+        return self.broadcast(signed_tx)
+
     def verify_message(self, message, signed_message=None, address=None, use_tron: bool = True):
         """ Get the address of the account that signed the message with the given hash.
         You must specify exactly one of: vrs or signature
@@ -927,7 +939,7 @@ class Trx(Module):
         """Get info about thre node"""
         return self.tron.manager.request('/wallet/getnodeinfo')
 
-    def get_token_list_name(self, token_id:  str) -> any:
+    def get_token_list_name(self, token_id: str) -> any:
         """Query token list by name.
 
             Args:
