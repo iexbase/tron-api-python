@@ -37,7 +37,7 @@ from tronapi import HttpProvider, constants
 from tronapi.transactionbuilder import TransactionBuilder
 from tronapi.trx import Trx
 from tronapi.base.validation import is_address
-from tronapi.utils.crypto import keccak
+from tronapi.utils.crypto import keccak as tron_keccak
 from tronapi.utils.currency import to_sun, from_sun
 from tronapi.utils.hexadecimal import remove_0x_prefix, add_0x_prefix
 from tronapi.utils.types import is_integer
@@ -301,19 +301,19 @@ class Tron:
             for abi_type, value
             in zip(abi_types, normalized_values)
         ))
-        return self.sha3(hexstr=hex_string)
+        return self.keccak(hexstr=hex_string)
 
     @staticmethod
     @apply_to_return_value(HexBytes)
-    def sha3(primitive=None, text=None, hexstr=None):
+    def keccak(primitive=None, text=None, hexstr=None):
         if isinstance(primitive, (bytes, int, type(None))):
             input_bytes = to_bytes(primitive, hexstr=hexstr, text=text)
-            return keccak(input_bytes)
+            return tron_keccak(input_bytes)
 
         raise TypeError(
-            "You called sha3 with first arg %r and keywords %r. You must call it with one of "
-            "these approaches: sha3(text='txt'), sha3(hexstr='0x747874'), "
-            "sha3(b'\\x74\\x78\\x74'), or sha3(0x747874)." % (
+            "You called keccak with first arg %r and keywords %r. You must call it with one of "
+            "these approaches: keccak(text='txt'), keccak(hexstr='0x747874'), "
+            "keccak(b'\\x74\\x78\\x74'), or keccak(0x747874)." % (
                 primitive,
                 {'text': text, 'hexstr': hexstr}
             )
