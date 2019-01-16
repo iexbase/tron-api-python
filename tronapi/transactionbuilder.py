@@ -66,7 +66,7 @@ class TransactionBuilder(object):
         Args:
             to (str): is the recipient address
             amount (int): is the amount of token to transfer. must be integer instead of float
-            token_id (str): Token Name(NOT SYMBOL)
+            token_id (any): Token Name and id
             account: (str): is the address of the withdrawal account
 
         Returns:
@@ -84,7 +84,7 @@ class TransactionBuilder(object):
         if not isinstance(amount, int) or amount <= 0:
             raise InvalidTronError('Invalid amount provided')
 
-        if not is_string(token_id) or not len(token_id):
+        if not token_id:
             raise InvalidTronError('Invalid token ID provided')
 
         if not self.tron.isAddress(account):
@@ -92,13 +92,13 @@ class TransactionBuilder(object):
 
         _to = self.tron.address.to_hex(to)
         _from = self.tron.address.to_hex(account)
-        _token_id = self.tron.toHex(text=token_id)
+        _token_id = self.tron.toHex(text=str(token_id))
 
         if _to == _from:
             raise TronError('Cannot transfer TRX to the same account')
 
         # In case if "TRX" is specified, we redirect to another method.
-        if token_id.upper() == 'TRX':
+        if is_string(token_id) and token_id.upper() == 'TRX':
             return self.send_transaction(_to, amount, _from)
 
         return self.tron.manager.request('/wallet/transferasset', {
