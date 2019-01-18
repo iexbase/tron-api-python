@@ -17,7 +17,6 @@
 import math
 from typing import Any
 
-from eth_account import Account
 from trx_utils import is_integer, is_hex
 from trx_utils.types import is_object, is_string
 
@@ -29,6 +28,7 @@ from tronapi.common.blocks import select_method_for_block
 from tronapi.common.toolz import (
     assoc
 )
+from tronapi.common.account import Account
 
 TRX_MESSAGE_HEADER = '\x19TRON Signed Message:\n'
 ETH_MESSAGE_HEADER = '\x19Ethereum Signed Message:\n'
@@ -529,7 +529,9 @@ class Trx(Module):
             message_hash = self.tron.sha3(
                 text=header + transaction
             )
-            signed_message = Account.signHash(message_hash, private_key=self.tron.private_key)
+            signed_message = Account.sign_hash(
+                message_hash, self.tron.private_key
+            )
 
             return signed_message
 
@@ -543,10 +545,10 @@ class Trx(Module):
             raise ValueError('Private key does not match address in transaction')
 
         # This option deals with signing of transactions, and writing to the array
-        signed_tx = Account.signHash(message_hash=transaction['txID'],
-                                     private_key=self.tron.private_key)
+        signed_tx = Account.sign_hash(
+            transaction['txID'], self.tron.private_key
+        )
         transaction['signature'] = [signed_tx['signature'].hex()[2:]]
-
         return transaction
 
     def broadcast(self, signed_transaction):
@@ -605,7 +607,7 @@ class Trx(Module):
         header = TRX_MESSAGE_HEADER if use_tron else ETH_MESSAGE_HEADER
 
         message_hash = self.tron.sha3(text=header + message)
-        recovered = Account.recoverHash(message_hash, signature=signed_message.signature)
+        recovered = Account.recover_hash(message_hash, signed_message.signature)
 
         tron_address = '41' + recovered[2:]
         base58address = self.tron.address.from_hex(tron_address).decode()

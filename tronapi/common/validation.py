@@ -38,7 +38,6 @@ from tronapi.common.abi import filter_by_type, abi_to_signature, is_recognized_t
     is_address_type, is_int_type, is_uint_type, is_bool_type, sub_type_of_array_type, is_array_type, \
     length_of_array_type
 from tronapi.exceptions import InvalidAddress
-from tronapi.utils.help import hex_to_base58
 
 
 def _prepare_selector_collision_msg(duplicates):

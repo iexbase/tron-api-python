@@ -26,7 +26,6 @@ from tronapi.common.abi import (
     merge_args_and_kwargs
 )
 
-from tronapi.common.function_identifiers import FallbackFn
 from tronapi.common.normalizers import (
     abi_address_to_hex,
     abi_bytes_to_bytes,
@@ -43,6 +42,10 @@ from eth_abi import (
 from eth_abi.exceptions import (
     EncodingError,
 )
+
+
+class FallbackFn:
+    pass
 
 
 def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):

@@ -15,7 +15,7 @@
     :license: MIT License
 """
 
-import ecdsa
+from eth_account.datastructures import AttributeDict
 from eth_utils import (
     apply_to_return_value,
     to_hex,
@@ -33,12 +33,8 @@ from trx_utils import (
 
 from tronapi.common.abi import map_abi_data
 
-from trx_account import (
-    Account,
-    PrivateKey,
-    AttributeDict
-)
 
+from tronapi.common.account import Address, PrivateKey, Account
 from tronapi.common.normalizers import abi_resolver
 from tronapi.common.encoding import (
     to_bytes,
@@ -256,7 +252,7 @@ class Tron:
         return response
 
     @property
-    def address(self):
+    def address(self) -> Address:
         """Helper object that allows you to convert
         between hex/base58 and private key representations of a TRON address.
 
@@ -265,7 +261,7 @@ class Tron:
             please use the function tron.to_hex.
 
         """
-        return Account()
+        return Address()
 
     @property
     def create_account(self) -> PrivateKey:
@@ -276,8 +272,7 @@ class Tron:
         provided by other or invoke this very API on a public network.
 
         """
-        generate_key = ecdsa.SigningKey.generate(curve=ecdsa.SECP256k1)
-        return PrivateKey(generate_key.to_string().hex())
+        return Account.create()
 
     @staticmethod
     def is_valid_provider(provider) -> bool:

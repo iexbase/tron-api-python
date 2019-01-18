@@ -10,6 +10,7 @@ from hexbytes import HexBytes
 from toolz import curry
 
 from tronapi.common.abi import process_type
+from tronapi.common.account import Address
 from tronapi.common.encoding import (
     to_bytes,
     text_if_str,
@@ -19,7 +20,6 @@ from tronapi.common.validation import (
     validate_abi,
     validate_address
 )
-from trx_account import Account
 
 
 def implicitly_identity(to_wrap):
@@ -75,7 +75,7 @@ def addresses_checksummed(abi_type, data):
 
 
 def to_checksum_address(address: str):
-    return Account().from_hex(address)
+    return Address().from_hex(address)
 
 
 @curry

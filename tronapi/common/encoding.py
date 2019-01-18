@@ -2,6 +2,7 @@ import json
 import re
 from typing import Union
 
+from eth_account.datastructures import AttributeDict
 from hexbytes import HexBytes
 
 from eth_utils import (
@@ -44,7 +45,6 @@ from tronapi.common.toolz import (
 )
 
 from tronapi.common.validation import assert_one_val
-from trx_account import AttributeDict
 
 
 def hex_encode_abi_type(abi_type, value, force_size=None):

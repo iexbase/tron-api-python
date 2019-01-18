@@ -8,12 +8,34 @@ import codecs
 from binascii import unhexlify
 
 import base58
-from eth_account.datastructures import AttributeDict
+import ecdsa
 from eth_keys import KeyAPI
+from eth_account import Account as ETHAccount
 from trx_utils import is_hex
 
 
-class Account(object):
+class Account:
+    @staticmethod
+    def create():
+        generate_key = ecdsa.SigningKey.generate(curve=ecdsa.SECP256k1)
+        return PrivateKey(generate_key.to_string().hex())
+
+    @staticmethod
+    def sign_hash(message_hash, private_key):
+        if not is_hex(message_hash):
+            raise ValueError('Invalid message_hash provided')
+
+        return ETHAccount.signHash(message_hash, private_key)
+
+    @staticmethod
+    def recover_hash(message_hash, signature):
+        if not is_hex(message_hash):
+            raise ValueError('Invalid message_hash provided')
+
+        return ETHAccount.recoverHash(message_hash, signature=signature)
+
+
+class Address(object):
     @staticmethod
     def from_hex(address):
         """Helper function that will convert a generic value from hex"""

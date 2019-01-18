@@ -31,11 +31,11 @@ from tronapi.common.abi import (
 from tronapi.common.contracts import (
     find_matching_fn_abi,
     encode_abi,
-    get_function_info
+    get_function_info,
+    FallbackFn
 )
 from tronapi.common.datatypes import PropertyCheckingFactory
 from tronapi.common.encoding import to_4byte_hex
-from tronapi.common.function_identifiers import FallbackFn
 from tronapi.common.normalizers import (
     normalize_abi,
     normalize_bytecode,
