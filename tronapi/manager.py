@@ -11,13 +11,13 @@
     This class is designed to configure and
     define nodes for different types.
 
-    :copyright: © 2018 by the iEXBase.
+    :copyright: © 2019 by the iEXBase.
     :license: MIT License
 """
+from trx_utils import is_string
 
 from tronapi import HttpProvider
 from tronapi.constants import DEFAULT_NODES
-from tronapi.utils.types import is_string
 
 # In this variable, you can specify the base paths
 # to test the connection with the nodes.

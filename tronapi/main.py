@@ -11,19 +11,36 @@
 
     Connect to the Tron network.
 
-    :copyright: © 2018 by the iEXBase.
+    :copyright: © 2019 by the iEXBase.
     :license: MIT License
 """
 
 import ecdsa
-from eth_utils import apply_to_return_value, to_hex
+from eth_utils import (
+    apply_to_return_value,
+    to_hex,
+    keccak as tron_keccak,
+)
 from hexbytes import HexBytes
-from tronapi.base.abi import map_abi_data
+from trx_utils import (
+    to_sun,
+    from_sun,
+    is_integer,
+    add_0x_prefix,
+    remove_0x_prefix,
+    is_address
+)
 
-from tronapi.base.account import Account, PrivateKey
-from tronapi.base.datastructures import AttributeDict
-from tronapi.base.normalizers import abi_resolver
-from tronapi.base.encoding import (
+from tronapi.common.abi import map_abi_data
+
+from trx_account import (
+    Account,
+    PrivateKey,
+    AttributeDict
+)
+
+from tronapi.common.normalizers import abi_resolver
+from tronapi.common.encoding import (
     to_bytes,
     to_int,
     to_text,
@@ -31,16 +48,15 @@ from tronapi.base.encoding import (
     hex_encode_abi_type
 )
 
-from tronapi.exceptions import InvalidTronError, TronError
+from tronapi.exceptions import (
+    InvalidTronError,
+    TronError
+)
 from tronapi.manager import TronManager
 from tronapi import HttpProvider, constants
 from tronapi.transactionbuilder import TransactionBuilder
 from tronapi.trx import Trx
-from tronapi.base.validation import is_address
-from tronapi.utils.crypto import keccak as tron_keccak
-from tronapi.utils.currency import to_sun, from_sun
-from tronapi.utils.hexadecimal import remove_0x_prefix, add_0x_prefix
-from tronapi.utils.types import is_integer
+
 
 DEFAULT_MODULES = {
     'trx': Trx

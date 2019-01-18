@@ -119,7 +119,7 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ],
-    packages=find_packages(exclude=['examples']),
+    packages=["tronapi", "trx_account"],
     include_package_data=True,
     install_requires=install_requires,
     tests_require=EXTRAS_REQUIRE['tester'],

@@ -12,7 +12,9 @@ from eth_utils import (
     to_hex,
     function_abi_to_4byte_selector
 )
-from tronapi.base.abi import (
+from trx_utils import is_text, encode_hex
+
+from tronapi.common.abi import (
     filter_by_name,
     filter_by_encodability,
     filter_by_argument_count,
@@ -24,14 +26,16 @@ from tronapi.base.abi import (
     merge_args_and_kwargs
 )
 
-from tronapi.base.function_identifiers import FallbackFn
-from tronapi.base.normalizers import abi_address_to_hex, abi_bytes_to_bytes, abi_string_to_text
-from tronapi.base.toolz import (
+from tronapi.common.function_identifiers import FallbackFn
+from tronapi.common.normalizers import (
+    abi_address_to_hex,
+    abi_bytes_to_bytes,
+    abi_string_to_text
+)
+from tronapi.common.toolz import (
     pipe,
     valmap,
 )
-from tronapi.utils.hexadecimal import encode_hex
-from tronapi.utils.types import is_text
 from eth_abi import (
     encode_abi as eth_abi_encode_abi,
 )

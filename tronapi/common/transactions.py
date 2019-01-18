@@ -1,4 +1,4 @@
-from tronapi.base.threads import Timeout
+from tronapi.common.threads import Timeout
 
 
 def wait_for_transaction_id(tron, tx_id, timeout=120, poll_latency=0.1):

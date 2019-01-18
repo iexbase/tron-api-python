@@ -5,14 +5,27 @@
 # --------------------------------------------------------------------
 
 from datetime import datetime
-from typing import Any, Tuple, List
+from typing import (
+    Any,
+    Tuple,
+    List
+)
 
 from eth_abi import encode_abi
+from trx_utils import (
+    is_string,
+    is_integer,
+    is_boolean,
+    is_hex,
+    encode_hex
+)
 
-from tronapi.exceptions import InvalidTronError, TronError, InvalidAddress
-from tronapi.utils.help import is_valid_url
-from tronapi.utils.hexadecimal import encode_hex, is_hex
-from tronapi.utils.types import is_string, is_integer, is_boolean
+from tronapi.exceptions import (
+    InvalidTronError,
+    TronError,
+    InvalidAddress
+)
+from tronapi.common.validation import is_valid_url
 
 DEFAULT_TIME = datetime.now()
 START_DATE = int(DEFAULT_TIME.timestamp() * 1000)

@@ -18,15 +18,15 @@ import math
 from typing import Any
 
 from eth_account import Account
+from trx_utils import is_integer, is_hex
+from trx_utils.types import is_object, is_string
 
-from tronapi.base.transactions import wait_for_transaction_id
+from tronapi.common.transactions import wait_for_transaction_id
 from tronapi.contract import Contract
 from tronapi.exceptions import InvalidTronError, TronError, TimeExhausted
 from tronapi.module import Module
-from tronapi.utils.blocks import select_method_for_block
-from tronapi.utils.hexadecimal import is_hex
-from tronapi.utils.types import is_integer, is_object, is_string
-from tronapi.base.toolz import (
+from tronapi.common.blocks import select_method_for_block
+from tronapi.common.toolz import (
     assoc
 )
 

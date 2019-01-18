@@ -1,16 +1,25 @@
 import functools
 import json
 
-
-from eth_utils import is_binary_address, to_hex, hexstr_if_str
+from eth_utils import (
+    is_binary_address,
+    to_hex,
+    hexstr_if_str
+)
 from hexbytes import HexBytes
 from toolz import curry
 
-from tronapi.base.abi import process_type
-from tronapi.base.encoding import to_bytes, text_if_str, to_text
-from tronapi.base.validation import (
+from tronapi.common.abi import process_type
+from tronapi.common.encoding import (
+    to_bytes,
+    text_if_str,
+    to_text
+)
+from tronapi.common.validation import (
     validate_abi,
-    is_address)
+    validate_address
+)
+from trx_account import Account
 
 
 def implicitly_identity(to_wrap):
@@ -41,7 +50,7 @@ def normalize_bytecode(bytecode):
 @implicitly_identity
 def abi_address_to_hex(abi_type, data):
     if abi_type == 'address':
-        is_address(data)
+        validate_address(data)
         if is_binary_address(data):
             return abi_type, to_hex(data)
 
@@ -59,6 +68,21 @@ def abi_bytes_to_bytes(abi_type, data):
         return abi_type, hexstr_if_str(to_bytes, data)
 
 
+@implicitly_identity
+def addresses_checksummed(abi_type, data):
+    if abi_type == 'address':
+        return abi_type, to_checksum_address(data)
+
+
+def to_checksum_address(address: str):
+    return Account().from_hex(address)
+
+
 @curry
 def abi_resolver(abi_type, val):
     return abi_type, val
+
+
+BASE_RETURN_NORMALIZERS = [
+    addresses_checksummed,
+]

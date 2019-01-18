@@ -1,7 +1,8 @@
-# --------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------
 # Copyright (c) iEXBase. All rights reserved.
-# Licensed under the MIT License. See License.txt in the project root for license information.
-# --------------------------------------------------------------------------------------------
+# Licensed under the MIT License.
+# See License.txt in the project root for license information.
+# --------------------------------------------------------------------
 
 import collections
 import numbers
@@ -31,6 +32,14 @@ def is_boolean(value: Any) -> bool:
 
 def is_list_like(obj: Any) -> bool:
     return not is_string(obj) and isinstance(obj, collections.Sequence)
+
+
+def is_list(obj: Any) -> bool:
+    return isinstance(obj, list)
+
+
+def is_tuple(obj: Any) -> bool:
+    return isinstance(obj, tuple)
 
 
 def is_dict(obj: Any) -> bool:

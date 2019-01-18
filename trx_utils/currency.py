@@ -1,13 +1,17 @@
-# --------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------
 # Copyright (c) iEXBase. All rights reserved.
-# Licensed under the MIT License. See License.txt in the project root for license information.
-# --------------------------------------------------------------------------------------------
+# Licensed under the MIT License.
+# See License.txt in the project root for license information.
+# --------------------------------------------------------------------
 
 import decimal
 from decimal import localcontext
 from typing import Union
 
-from tronapi.utils.types import is_string, is_integer
+from trx_utils.types import (
+    is_string,
+    is_integer
+)
 
 MIN_SUN = 0
 MAX_SUN = 2 ** 256 - 1

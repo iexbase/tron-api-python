@@ -14,9 +14,9 @@ from collections import (
 from eth_abi import is_encodable
 from eth_utils import to_tuple
 
-from tronapi.base.formatters import recursive_map
+from tronapi.common.formatters import recursive_map
 from tronapi.exceptions import FallbackNotFound
-from tronapi.base.toolz import (
+from tronapi.common.toolz import (
     curry,
     partial,
     pipe,

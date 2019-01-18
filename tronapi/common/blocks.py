@@ -2,9 +2,12 @@
 # Copyright (c) iEXBase. All rights reserved.
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
-
-from tronapi.utils.hexadecimal import remove_0x_prefix, is_hex
-from tronapi.utils.types import is_string, is_integer
+from trx_utils import (
+    is_string,
+    remove_0x_prefix,
+    is_hex,
+    is_integer
+)
 
 
 def is_hex_encoded_block_hash(value):

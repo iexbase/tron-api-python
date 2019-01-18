@@ -6,34 +6,46 @@
 
 import copy
 
-from eth_utils import function_abi_to_4byte_selector, to_hex
+from eth_abi import decode_abi
+from eth_utils import (
+    function_abi_to_4byte_selector,
+    to_hex
+)
+from hexbytes import HexBytes
+from trx_utils import (
+    encode_hex,
+    is_text,
+    deprecated_for,
+    combomethod
+)
 
-from tronapi.base.abi import (
+from tronapi.common.abi import (
     filter_by_type,
     merge_args_and_kwargs,
     abi_to_signature,
     fallback_func_abi_exists,
-    check_if_arguments_can_be_encoded
+    check_if_arguments_can_be_encoded,
+    map_abi_data
 )
-from tronapi.base.contracts import find_matching_fn_abi, encode_abi, get_function_info
-from tronapi.base.datatypes import PropertyCheckingFactory
-from tronapi.base.decorators import (
-    combomethod,
-    deprecated_for
+
+from tronapi.common.contracts import (
+    find_matching_fn_abi,
+    encode_abi,
+    get_function_info
 )
-from tronapi.base.encoding import to_4byte_hex
-from tronapi.base.function_identifiers import FallbackFn
-from tronapi.base.normalizers import (
+from tronapi.common.datatypes import PropertyCheckingFactory
+from tronapi.common.encoding import to_4byte_hex
+from tronapi.common.function_identifiers import FallbackFn
+from tronapi.common.normalizers import (
     normalize_abi,
-    normalize_bytecode
+    normalize_bytecode,
+    BASE_RETURN_NORMALIZERS
 )
 from tronapi.exceptions import (
     NoABIFunctionsFound,
     MismatchedABI,
     FallbackNotFound
 )
-from tronapi.utils.hexadecimal import encode_hex
-from tronapi.utils.types import is_text
 
 
 class NonExistentFallbackFunction:
@@ -308,6 +320,17 @@ class Contract:
 
         fns = find_functions_by_identifier(self.abi, self.tron, self.address, callable_check)
         return get_function_by_identifier(fns, 'selector')
+
+    @combomethod
+    def decode_function_input(self, data):
+        data = HexBytes(data)
+        selector, params = data[:4], data[4:]
+        func = self.get_function_by_selector(selector)
+        names = [x['name'] for x in func.abi['inputs']]
+        types = [x['type'] for x in func.abi['inputs']]
+        decoded = decode_abi(types, params)
+        normalized = map_abi_data(BASE_RETURN_NORMALIZERS, types, decoded)
+        return func, dict(zip(names, normalized))
 
     @combomethod
     def find_functions_by_args(self, *args):

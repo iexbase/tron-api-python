@@ -1,19 +1,27 @@
-# --------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------
 # Copyright (c) iEXBase. All rights reserved.
-# Licensed under the MIT License. See License.txt in the project root for license information.
-# --------------------------------------------------------------------------------------------
+# Licensed under the MIT License.
+# See License.txt in the project root for license information.
+# --------------------------------------------------------------------
 
 import binascii
 import codecs
 import string
 
-from typing import Any, AnyStr
-
-from .types import is_string, is_text
+from typing import (
+    Any,
+    AnyStr
+)
 
 
 # Type ignored for `codecs.decode()` due to lack of mypy support for 'hex' encoding
 # https://github.com/python/typeshed/issues/300
+from trx_utils.types import (
+    is_text,
+    is_string
+)
+
+
 def decode_hex(value: str) -> bytes:
     if not is_text(value):
         raise TypeError("Value must be an instance of str")

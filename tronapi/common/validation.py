@@ -3,26 +3,42 @@
 # Licensed under the MIT License.
 # See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
-
+import itertools
+import re
 from _sha256 import sha256
 from typing import Any
 
 import base58
-from eth_utils import function_abi_to_4byte_selector, apply_formatter_to_array
+from eth_utils import (
+    function_abi_to_4byte_selector,
+    apply_formatter_to_array
+)
 
-from tronapi.base.toolz import (
+from trx_utils import (
+    is_hex,
+    encode_hex,
+    is_0x_prefixed,
+    is_text,
+    is_list_like,
+    is_dict,
+    is_string,
+    is_bytes,
+    is_boolean,
+    is_integer,
+    is_binary_address, is_hex_address, is_checksum_address)
+
+from tronapi.common.toolz import (
     compose,
     groupby,
     valfilter,
     valmap,
 )
 
-from tronapi.base.abi import filter_by_type, abi_to_signature, is_recognized_type, is_string_type, is_bytes_type, \
+from tronapi.common.abi import filter_by_type, abi_to_signature, is_recognized_type, is_string_type, is_bytes_type, \
     is_address_type, is_int_type, is_uint_type, is_bool_type, sub_type_of_array_type, is_array_type, \
     length_of_array_type
+from tronapi.exceptions import InvalidAddress
 from tronapi.utils.help import hex_to_base58
-from tronapi.utils.hexadecimal import is_hex, encode_hex, is_0x_prefixed
-from tronapi.utils.types import is_text, is_list_like, is_dict, is_string, is_bytes, is_boolean, is_integer
 
 
 def _prepare_selector_collision_msg(duplicates):
@@ -32,50 +48,23 @@ def _prepare_selector_collision_msg(duplicates):
     return ' and\n'.join(func_sel_msg_list)
 
 
-def is_address(value: str) -> bool:
-    """Checks if the given string in a supported value is an address
-    in any of the known formats.
+def is_valid_url(value):
+    """Return whether or not given value is a valid URL.
 
     Args:
-        value (str): Address
-
+        value(str): URL address string to validate
     """
-    if is_checksum_address(value):
-        return True
-    elif is_hex_address(value):
-        return True
+    regex = re.compile(
+        r'^(?:http|ftp)s?://'
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'
+        r'localhost|'
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|'
+        r'\[?[A-F0-9]*:[A-F0-9:]+\]?)'
+        r'(?::\d+)?'
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
 
-    return False
-
-
-def is_hex_address(value: Any) -> bool:
-    """Checks if the given string of text type is an address in hexadecimal encoded form."""
-    if len(value) != 42:
-        return False
-    elif not is_text(value):
-        return False
-    elif not is_hex(value):
-        return False
-    else:
-        return is_address(
-            hex_to_base58(value)
-        )
-
-
-def is_checksum_address(value: str) -> bool:
-    if len(value) != 34:
-        return False
-
-    address = base58.b58decode(value)
-    if len(address) != 25:
-        return False
-
-    if address[0] != 0x41:
-        return False
-
-    check_sum = sha256(sha256(address[:-4]).digest()).digest()[:4]
-    if address[-4:] == check_sum:
-        return True
+    result = regex.match(value)
+    return bool(result)
 
 
 def validate_abi(abi):
@@ -143,7 +132,7 @@ def validate_abi_value(abi_type, value):
     elif is_int_type(abi_type) and is_integer(value):
         return
     elif is_address_type(abi_type):
-        is_address(value)
+        validate_address(value)
         return
     elif is_bytes_type(abi_type):
         if is_bytes(value):
@@ -162,3 +151,48 @@ def validate_abi_value(abi_type, value):
     raise TypeError(
         "The following abi value is not a '{abi_type}': {value}".format(abi_type=abi_type, value=value)
     )
+
+
+def validate_address(value):
+    """
+    Helper function for validating an address
+    """
+    if is_bytes(value):
+        if not is_binary_address(value):
+            raise InvalidAddress("Address must be 20 bytes when input type is bytes", value)
+        return
+
+    if not isinstance(value, str):
+        raise TypeError('Address {} must be provided as a string'.format(value))
+    if not is_hex_address(value):
+        raise InvalidAddress("Address must be 20 bytes, as a hex string with a 0x prefix", value)
+    if not is_checksum_address(value):
+        if value == value.lower():
+            raise InvalidAddress(
+                "Web3.py only accepts checksum addresses. "
+                "The software that gave you this non-checksum address should be considered unsafe, "
+                "please file it as a bug on their platform. "
+                "Try using an ENS name instead. Or, if you must accept lower safety, "
+                "use Web3.toChecksumAddress(lower_case_address).",
+                value,
+            )
+        else:
+            raise InvalidAddress(
+                "Address has an invalid EIP-55 checksum. "
+                "After looking up the address from the original source, try again.",
+                value,
+            )
+
+
+def has_one_val(*args, **kwargs):
+    vals = itertools.chain(args, kwargs.values())
+    not_nones = list(filter(lambda val: val is not None, vals))
+    return len(not_nones) == 1
+
+
+def assert_one_val(*args, **kwargs):
+    if not has_one_val(*args, **kwargs):
+        raise TypeError(
+            "Exactly one of the passed values can be specified. "
+            "Instead, values were: %r, %r" % (args, kwargs)
+        )

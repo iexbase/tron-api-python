@@ -7,12 +7,14 @@
 from collections import Mapping, Iterable
 
 from eth_utils import to_dict
+from trx_utils import (
+    reject_recursive_repeats,
+    is_string
+)
 
-from tronapi.base.decorators import reject_recursive_repeats
-from tronapi.base.toolz import (
+from tronapi.common.toolz import (
     curry
 )
-from tronapi.utils.types import is_string
 
 
 @curry

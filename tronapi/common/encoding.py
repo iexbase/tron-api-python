@@ -10,29 +10,41 @@ from eth_utils import (
     big_endian_to_int,
     int_to_big_endian
 )
-
-from tronapi.base.abi import size_of_type, sub_type_of_array_type, is_array_type, is_bool_type, is_uint_type, \
-    is_int_type, is_address_type, is_bytes_type, is_string_type
-from tronapi.base.validation import validate_abi_type, validate_abi_value
-from tronapi.utils.hexadecimal import (
+from trx_utils import (
     remove_0x_prefix,
-    decode_hex,
     encode_hex,
-    add_0x_prefix
-)
-
-from tronapi.base.toolz import (
-    curry
-)
-
-from tronapi.utils.types import (
+    add_0x_prefix,
+    decode_hex,
     is_boolean,
     is_integer,
     is_list_like,
-    is_bytes)
+    is_bytes
+)
 
-from tronapi.base.datastructures import AttributeDict
-from tronapi.utils.validation import assert_one_val
+from tronapi.common.abi import (
+    size_of_type,
+    sub_type_of_array_type,
+    is_array_type,
+    is_bool_type,
+    is_uint_type,
+    is_int_type,
+    is_address_type,
+    is_bytes_type,
+    is_string_type
+)
+
+
+from tronapi.common.validation import (
+    validate_abi_type,
+    validate_abi_value
+)
+
+from tronapi.common.toolz import (
+    curry
+)
+
+from tronapi.common.validation import assert_one_val
+from trx_account import AttributeDict
 
 
 def hex_encode_abi_type(abi_type, value, force_size=None):

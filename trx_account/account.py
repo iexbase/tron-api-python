@@ -1,7 +1,8 @@
-# --------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------
 # Copyright (c) iEXBase. All rights reserved.
-# Licensed under the MIT License. See License.txt in the project root for license information.
-# --------------------------------------------------------------------------------------------
+# Licensed under the MIT License.
+# See License.txt in the project root for license information.
+# --------------------------------------------------------------------
 
 import codecs
 from binascii import unhexlify
@@ -9,8 +10,7 @@ from binascii import unhexlify
 import base58
 from eth_account.datastructures import AttributeDict
 from eth_keys import KeyAPI
-
-from tronapi.utils.hexadecimal import is_hex
+from trx_utils import is_hex
 
 
 class Account(object):

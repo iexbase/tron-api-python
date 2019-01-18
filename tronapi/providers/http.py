@@ -14,7 +14,6 @@
     :copyright: © 2018 by the iEXBase.
     :license: MIT License
 """
-
 import logging
 from collections import namedtuple
 from urllib.parse import urlparse
@@ -25,7 +24,7 @@ from requests.exceptions import (
     ConnectionError as TrxConnectionError
 )
 
-from tronapi.base.encoding import to_text
+from tronapi.common.encoding import to_text
 from tronapi.providers.base import BaseProvider
 from tronapi.exceptions import HTTP_EXCEPTIONS, TransportError
 
@@ -126,14 +125,13 @@ class HttpProvider(BaseProvider):
             raise exc_cls(response.status_code, text, json, kwargs.get('url'))
 
         data = json if json is not None else text
+        log.debug(data)
 
         # Additional error interceptor that will occur in case of failed requests
         if 'Error' in data:
             raise ValueError(data['Error'])
 
         self.__error_manager(data)
-        # enabled log
-        log.debug(data)
 
         return HttpResponse(response.status_code, response.headers, data)
 
