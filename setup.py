@@ -82,6 +82,8 @@ install_requires = [
     "eth-account>=0.2.1,<0.4.0",
     "eth-utils>=1.3.0,<2.0.0",
 
+    "trx-utils",
+
     "hexbytes>=0.1.0,<1.0.0",
 
     "requests>=2.16.0,<3.0.0",
