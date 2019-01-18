@@ -112,6 +112,7 @@ class HttpProvider(BaseProvider):
     def _request(self, **kwargs):
 
         kwargs.setdefault('timeout', 60)
+
         response = self.session.request(**kwargs)
         text = response.text
 

@@ -13,6 +13,8 @@ from eth_keys import KeyAPI
 from eth_account import Account as ETHAccount
 from trx_utils import is_hex
 
+from tronapi.common.datastructures import AttributeDict
+
 
 class Account:
     @staticmethod

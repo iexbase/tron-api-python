@@ -25,7 +25,7 @@ class BaseProvider(object):
         """Add default headers"""
         return {
             'Content-Type': 'application/json',
-            'User-Agent': format_user_agent()
+            'User-Agent': BaseProvider.format_user_agent()
         }
 
     @staticmethod
