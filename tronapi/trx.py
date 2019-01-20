@@ -65,10 +65,13 @@ class Trx(Module):
             if_number={'url': '/wallet/getblockbynum', 'field': 'num'},
         )
 
-        response = self.tron.manager.request(method['url'], {
+        result = self.tron.manager.request(method['url'], {
             method['field']: block
         })
-        return response
+
+        if result:
+            return result
+        return ValueError("The call to {method['url']} did not return a value.")
 
     def get_transaction_count_by_blocknum(self, num: int):
         """Query transaction's count on a specified block by height
