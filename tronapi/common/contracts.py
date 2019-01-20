@@ -70,13 +70,16 @@ def find_matching_fn_abi(abi, fn_identifier=None, args=None, kwargs=None):
         encoding_filter,
     ])
     function_candidates = pipe(abi, *filters)
+
     if len(function_candidates) == 1:
         return function_candidates[0]
     else:
         matching_identifiers = name_filter(abi)
         matching_function_signatures = [abi_to_signature(func) for func in matching_identifiers]
+
         arg_count_matches = len(arg_count_filter(matching_identifiers))
         encoding_matches = len(encoding_filter(matching_identifiers))
+
         if arg_count_matches == 0:
             diagnosis = "\nFunction invocation failed due to improper number of arguments."
         elif encoding_matches == 0:

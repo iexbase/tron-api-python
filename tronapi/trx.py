@@ -805,14 +805,18 @@ class Trx(Module):
         })
 
     def contract(self, address=None, **kwargs):
-        contract_factory_class = kwargs.pop('contract_factory_class',
-                                            self.default_contract_factory)
-        contract_factory = contract_factory_class.factory(self.tron, **kwargs)
+        """Work with a contract
+
+        Args:
+            address (str): TRON Address
+            **kwargs (any): details (bytecode, abi)
+        """
+        factory_class = kwargs.pop('contract_factory_class', self.default_contract_factory)
+        contract_factory = factory_class.factory(self.tron, **kwargs)
 
         if address:
             return contract_factory(address)
-        else:
-            return contract_factory
+        return contract_factory
 
     def validate_address(self, address, _is_hex=False):
         """Validate address

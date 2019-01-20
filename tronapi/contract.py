@@ -208,7 +208,8 @@ class Contract:
             class_name or cls.__name__,
             (cls,),
             kwargs,
-            normalizers=normalizers)
+            normalizers=normalizers
+        )
 
         setattr(contract, 'functions', ContractFunctions(contract.abi, contract.tron))
         setattr(contract, 'fallback', Contract.get_fallback_function(contract.abi, contract.tron))
