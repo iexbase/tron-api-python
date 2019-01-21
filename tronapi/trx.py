@@ -239,11 +239,14 @@ class Trx(Module):
             raise InvalidTronError('Invalid direction provided: Expected "to", "from" or "all"')
 
         if direction == 'all':
-            from_direction = {'from': self.get_transactions_related(address, 'from', limit, offset)}
-            to_direction = {'to': self.get_transactions_related(address, 'to', limit, offset)}
+            _from = self.get_transactions_related(address, 'from', limit, offset)
+            _to = self.get_transactions_related(address, 'to', limit, offset)
 
-            callback = from_direction
-            callback.update(to_direction)
+            filter_from = [{**i, 'direction': 'from'} for i in _from]
+            filter_to = [{**i, 'direction': 'to'} for i in _to]
+
+            callback = filter_from
+            callback.extend(filter_to)
             return callback
 
         if address is None:
@@ -267,7 +270,8 @@ class Trx(Module):
             'offset': offset
         })
 
-        # response.update({'direction': direction})
+        if 'transaction' in response:
+            return response['transaction']
         return response
 
     def get_transactions_to_address(self, address=None, limit=30, offset=0):
