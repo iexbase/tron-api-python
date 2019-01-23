@@ -400,7 +400,7 @@ class TransactionBuilder(object):
             'proposal_id': int(proposal_id)
         })
 
-    def update_account(self, account_name, account: str=None):
+    def update_account(self, account_name, account: str = None):
         """Modify account name
 
         Note: Username is allowed to edit only once.
@@ -502,49 +502,44 @@ class TransactionBuilder(object):
         return self.tron.manager.request('/wallet/deploycontract',
                                          transaction)
 
-    def trigger_smart_contract(self, contract_address,
-                               function_selector,
-                               fee_limit: int = 1000000000,
-                               call_value: int = 0,
-                               parameters=None,
-                               issuer_address=None
-                               ):
-        """Trigger Smart Contract (Beta Version)
+    def trigger_smart_contract(self, **kwargs):
+        """Trigger Smart Contract
         Calls a function on a contract
 
         Args:
-            contract_address (str): Contract address, converted to a hex string
-            function_selector (str): Function signature. No spaces.
-            fee_limit (int): Maximum TRX consumption, measured in SUN（1TRX = 1,000,000SUN）
-            call_value (int): Amount of TRX transferred with this transaction, measured in SUN（1TRX = 1,000,000SUN）
-            parameters (any): Call the virtual machine format of the parameter [1, 2],
-                                use the js tool provided by remix, convert the parameter array [1, 2]
-                                called by the contract caller into
-                                the parameter format required by the virtual machine.
-
-            issuer_address (str): address that is trigger the contract
+            **kwargs: Fill in the required parameters
 
         Examples:
             >>> tron = Tron()
             >>> tron.transaction_builder.trigger_smart_contract(
-            >>> '413c8143e98b3e2fe1b1a8fb82b34557505a752390',
-            >>> 'set(uint256,uint256)',
-            >>> 30000,
-            >>> 0,
-            >>> [
-            >>>     {'type': 'int256', 'value': 1},
-            >>>     {'type': 'int256', 'value': 1}
-            >>> ])
+            >>>     contract_address='413c8143e98b3e2fe1b1a8fb82b34557505a752390',
+            >>>     function_selector='set(uint256,uint256)',
+            >>>     fee_limit=30000,
+            >>>     call_value=0,
+            >>>     parameters=[
+            >>>        {'type': 'int256', 'value': 1},
+            >>>        {'type': 'int256', 'value': 1}
+    ]
+)
 
         Returns:
             TransactionExtention, TransactionExtention contains unsigned Transaction
         """
 
-        if parameters is None:
-            parameters = []
+        contract_address = kwargs.setdefault('contract_address', None)
+        function_selector = kwargs.setdefault('function_selector', None)
+        parameters = kwargs.setdefault('parameters', [])
+        issuer_address = kwargs.setdefault('issuer_address', self.tron.default_address.hex)
+        call_value = kwargs.setdefault('call_value', 0)
+        fee_limit = kwargs.setdefault('fee_limit', 1000000000)
+        token_value = kwargs.setdefault('token_value', 0)
+        token_id = kwargs.setdefault('token_id', 0)
 
-        if issuer_address is None:
-            issuer_address = self.tron.default_address.hex
+        if not is_integer(token_value) or token_value < 0:
+            raise ValueError('Invalid options.tokenValue provided')
+
+        if not is_integer(token_id) or token_id < 0:
+            raise ValueError('Invalid options.tokenId provided')
 
         if not self.tron.isAddress(contract_address):
             raise InvalidAddress('Invalid contract address provided')
@@ -557,6 +552,8 @@ class TransactionBuilder(object):
 
         if not is_integer(fee_limit) or fee_limit <= 0 or fee_limit > 1000000000:
             raise ValueError('Invalid fee limit provided')
+
+        function_selector = function_selector.replace('/\s*/g', '')
 
         if len(parameters) > 0:
             types = []
@@ -579,20 +576,28 @@ class TransactionBuilder(object):
         else:
             parameters = ''
 
-        return self.tron.manager.request('/wallet/triggersmartcontract', {
+        data = {
             'contract_address': self.tron.address.to_hex(contract_address),
             'owner_address': self.tron.address.to_hex(issuer_address),
             'function_selector': function_selector,
             'fee_limit': int(fee_limit),
             'call_value': int(call_value),
             'parameter': parameters
-        })
+        }
+
+        if token_value:
+            data.call_token_value = int(token_value)
+
+        if token_id:
+            data.token_id = int(token_id)
+
+        return self.tron.manager.request('/wallet/triggersmartcontract', data)
 
     def create_trx_exchange(self,
                             token_name: str,
                             token_balance: int,
                             trx_balance: int,
-                            account: str=None):
+                            account: str = None):
         """Create an exchange between a token and TRX.
         Token Name should be a CASE SENSITIVE string.
         Note: PLEASE VERIFY THIS ON TRONSCAN.
@@ -627,7 +632,7 @@ class TransactionBuilder(object):
                               first_token_balance: int,
                               second_token_name: str,
                               second_token_balance: int,
-                              owner_address: str=None):
+                              owner_address: str = None):
         """Create an exchange between a token and another token.
         DO NOT USE THIS FOR TRX.
         Token Names should be a CASE SENSITIVE string.
@@ -661,7 +666,7 @@ class TransactionBuilder(object):
                                exchange_id: int,
                                token_name: str,
                                token_amount: int = 0,
-                               owner_address: str=None):
+                               owner_address: str = None):
         """Adds tokens into a bancor style exchange.
         Will add both tokens at market rate.
 
@@ -830,7 +835,7 @@ class TransactionBuilder(object):
                                  exchange_id: int,
                                  token_name: str,
                                  token_amount: int = 0,
-                                 owner_address: str=None):
+                                 owner_address: str = None):
         """Withdraws tokens from a bancor style exchange.
         Will withdraw at market rate both tokens.
 
@@ -865,7 +870,7 @@ class TransactionBuilder(object):
                               token_name: str,
                               token_amount_sold: int = 0,
                               token_amount_expected: int = 0,
-                              owner_address: str=None):
+                              owner_address: str = None):
         """Trade tokens on a bancor style exchange.
         Expected value is a validation and used to cap the total amt of token 2 spent.
 
@@ -904,7 +909,7 @@ class TransactionBuilder(object):
     def update_setting(self,
                        contract_address,
                        user_fee_percentage,
-                       owner_address: str=None):
+                       owner_address: str = None):
         """Update userFeePercentage.
 
         Args:
@@ -938,7 +943,7 @@ class TransactionBuilder(object):
     def update_energy_limit(self,
                             contract_address,
                             origin_energy_limit,
-                            owner_address: str=None):
+                            owner_address: str = None):
         """Update energy limit.
 
         Args:
