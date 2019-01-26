@@ -16,6 +16,7 @@
 """
 
 from eth_account.datastructures import AttributeDict
+from urllib.parse import urlencode
 from eth_utils import (
     apply_to_return_value,
     to_hex,
@@ -203,12 +204,15 @@ class Tron:
         """
 
         # Check the most necessary parameters
-        contract_address = kwargs.setdefault('contract_address', self.default_address.hex)
-        event_name = kwargs.setdefault('event_name', 'Notify')
         since_timestamp = kwargs.setdefault('since_timestamp', 0)
+        event_name = kwargs.setdefault('event_name', 'Notify')
         block_number = kwargs.setdefault('block_number', '')
         size = kwargs.setdefault('size', 20)
         page = kwargs.setdefault('page', 1)
+        only_confirmed = kwargs.setdefault('only_confirmed', None)
+        only_unconfirmed = kwargs.setdefault('only_unconfirmed', None)
+        previous_last = kwargs.setdefault('previous_last_event_fingerprint', None)
+        contract_address = kwargs.setdefault('contract_address', self.default_address.hex)
 
         if not self.isAddress(contract_address):
             raise InvalidTronError('Invalid contract address provided')
@@ -239,8 +243,24 @@ class Tron:
             route_params.append(block_number)
 
         route = '/'.join(route_params)
-        return self.manager.request("/event/contract/{0}?since={1}&size={2}&page={3}"
-                                    .format(route, since_timestamp, size, page), method='get')
+
+        qs = {
+            'since': since_timestamp,
+            'page': page,
+            'size': size
+        }
+
+        if only_confirmed is not None:
+            qs.update({'onlyConfirmed': only_confirmed})
+
+        if only_unconfirmed is not None and not only_confirmed:
+            qs.update({'onlyUnconfirmed': only_unconfirmed})
+
+        if previous_last is not None:
+            qs.update({'previousLastEventFingerprint': previous_last})
+
+        return self.manager.request("/event/contract/{0}?{1}"
+                                    .format(route, urlencode(qs)), method='get')
 
     def get_event_transaction_id(self, tx_id):
         """Will return all events within a transactionID.
