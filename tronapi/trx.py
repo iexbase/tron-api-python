@@ -162,8 +162,8 @@ class Trx(Module):
             'value': transaction_id
         })
 
-        if not response:
-            raise TronError('Transaction not found')
+        if 'txID' not in response:
+            raise ValueError('Transaction not found')
 
         return response
 
@@ -268,7 +268,7 @@ class Trx(Module):
             },
             'limit': limit,
             'offset': offset
-        })
+        }, 'get')
 
         if 'transaction' in response:
             return response['transaction']
