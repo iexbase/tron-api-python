@@ -4,6 +4,7 @@
 # See License.txt in the project root for license information.
 # --------------------------------------------------------------------
 
+import binascii
 import itertools
 import re
 
@@ -11,8 +12,25 @@ from collections import (
     namedtuple,
 )
 
-from eth_abi import is_encodable
+from eth_abi import (
+    encoding,
+    decoding
+)
+
+from eth_abi.codec import ABICodec
+from eth_abi.registry import (
+    BaseEquals,
+    registry as default_registry,
+)
+
 from eth_utils import to_tuple
+
+from trx_utils import (
+    decode_hex,
+    is_bytes,
+    is_text,
+    to_text
+)
 
 from tronapi.common.formatters import recursive_map
 from tronapi.exceptions import FallbackNotFound
@@ -330,6 +348,72 @@ def filter_by_encodability(args, kwargs, contract_abi):
         if check_if_arguments_can_be_encoded(function_abi, args, kwargs)
     ]
 
+class AcceptsHexStrMixin:
+    def validate_value(self, value):
+        if is_text(value):
+            try:
+                value = decode_hex(value)
+            except binascii.Error:
+                self.invalidate_value(
+                    value,
+                    msg='invalid hex string',
+                )
+
+        super().validate_value(value)
+
+
+class ByteStringEncoder(AcceptsHexStrMixin, encoding.ByteStringEncoder):
+    pass
+
+
+class BytesEncoder(AcceptsHexStrMixin, encoding.BytesEncoder):
+    pass
+
+
+class TextStringEncoder(encoding.TextStringEncoder):
+    @classmethod
+    def validate_value(cls, value):
+        if is_bytes(value):
+            try:
+                value = to_text(value)
+            except UnicodeDecodeError:
+                cls.invalidate_value(
+                    value,
+                    msg='not decodable as unicode string',
+                )
+
+        super().validate_value(value)
+
+
+# We make a copy here just to make sure that eth-abi's default registry is not
+# affected by our custom encoder subclasses
+registry = default_registry.copy()
+
+registry.unregister('address')
+registry.unregister('bytes<M>')
+registry.unregister('bytes')
+registry.unregister('string')
+
+registry.register(
+    BaseEquals('bytes', with_sub=True),
+    BytesEncoder, decoding.BytesDecoder,
+    label='bytes<M>',
+)
+
+registry.register(
+    BaseEquals('bytes', with_sub=False),
+    ByteStringEncoder, decoding.ByteStringDecoder,
+    label='bytes',
+)
+registry.register(
+    BaseEquals('string'),
+    TextStringEncoder, decoding.StringDecoder,
+    label='string',
+)
+
+codec = ABICodec(registry)
+is_encodable = codec.is_encodable
+
 
 def check_if_arguments_can_be_encoded(function_abi, args, kwargs):
     try:
@@ -483,10 +567,10 @@ def abi_data_tree(types, data):
 
 @curry
 def data_tree_map(func, data_tree):
-    '''
+    """
     Map func to every ABITypedData element in the tree. func will
     receive two args: abi_type, and data
-    '''
+    """
 
     def map_to_typed_data(elements):
         if isinstance(elements, ABITypedData) and elements.abi_type is not None:
@@ -498,7 +582,7 @@ def data_tree_map(func, data_tree):
 
 
 class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
-    '''
+    """
     This class marks data as having a certain ABI-type.
 
     >>> a1 = ABITypedData(['address', addr1])
@@ -514,7 +598,7 @@ class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
     Unlike a typical `namedtuple`, you initialize with a single
     positional argument that is iterable, to match the init
     interface of all other relevant collections.
-    '''
+    """
 
     def __new__(cls, iterable):
         return super().__new__(cls, *iterable)
