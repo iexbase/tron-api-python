@@ -24,7 +24,7 @@ from setuptools import (
 
 py_version = platform.python_version()
 
-PACKAGE_VERSION = '3.1.0'
+PACKAGE_VERSION = '3.1.3'
 
 EXTRAS_REQUIRE = {
     'tester': [
@@ -121,7 +121,7 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ],
-    packages=["tronapi"],
+    packages=find_packages(exclude=['examples']),
     include_package_data=True,
     install_requires=install_requires,
     tests_require=EXTRAS_REQUIRE['tester'],
