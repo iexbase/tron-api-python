@@ -18,7 +18,7 @@ import math
 from typing import Any
 
 from trx_utils import is_integer, is_hex
-from trx_utils.types import is_object, is_string
+from trx_utils.types import is_object, is_string, is_list
 
 from tronapi.common.transactions import wait_for_transaction_id
 from tronapi.contract import Contract
@@ -516,7 +516,7 @@ class Trx(Module):
             'privateKey': self.tron.private_key
         })
 
-    def sign(self, transaction: Any, use_tron: bool = True):
+    def sign(self, transaction: Any, use_tron: bool = True, multisig: bool = False):
         """Safe method for signing your transaction
 
         Warnings:
@@ -525,6 +525,7 @@ class Trx(Module):
         Args:
             transaction (Any): transaction details
             use_tron (bool): is Tron header
+            multisig (bool): multi sign
 
         """
 
@@ -546,21 +547,33 @@ class Trx(Module):
 
             return signed_message
 
-        if 'signature' in transaction:
+        if not multisig and 'signature' in transaction:
             raise TronError('Transaction is already signed')
 
-        address = self.tron.address.from_private_key(self.tron.private_key).hex.lower()
-        owner_address = transaction['raw_data']['contract'][0]['parameter']['value']['owner_address']
+        try:
+            if not multisig:
+                address = self.tron.address.from_private_key(self.tron.private_key).hex.lower()
+                owner_address = transaction['raw_data']['contract'][0]['parameter']['value']['owner_address']
 
-        if address != owner_address:
-            raise ValueError('Private key does not match address in transaction')
+                if address != owner_address:
+                    raise ValueError('Private key does not match address in transaction')
 
-        # This option deals with signing of transactions, and writing to the array
-        signed_tx = Account.sign_hash(
-            transaction['txID'], self.tron.private_key
-        )
-        transaction['signature'] = [signed_tx['signature'].hex()[2:]]
-        return transaction
+            # This option deals with signing of transactions, and writing to the array
+            signed_tx = Account.sign_hash(
+                transaction['txID'], self.tron.private_key
+            )
+            signature = signed_tx['signature'].hex()[2:]
+
+            # support multi sign
+            if 'signature' in transaction and is_list(transaction['signature']):
+                if not transaction['signature'].index(signature):
+                    transaction['signature'].append(signature)
+            else:
+                transaction['signature'] = [signature]
+
+            return transaction
+        except ValueError as err:
+            raise InvalidTronError(err)
 
     def broadcast(self, signed_transaction):
         """Broadcast the signed transaction
