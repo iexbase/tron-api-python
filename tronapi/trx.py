@@ -41,6 +41,10 @@ class Trx(Module):
         """Query the latest block"""
         return self.tron.manager.request(url='/wallet/getnowblock')
 
+    def get_confirmed_current_block(self):
+        """Query the confirmed latest block"""
+        return self.tron.manager.request('/walletsolidity/getnowblock')
+
     def get_block(self, block: Any = None):
         """Get block details using HashString or blockNumber
 
