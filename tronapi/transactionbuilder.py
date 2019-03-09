@@ -973,3 +973,66 @@ class TransactionBuilder(object):
             'contract_address': self.tron.address.to_hex(contract_address),
             'origin_energy_limit': origin_energy_limit
         })
+
+    def check_permissions(self, permissions, _type):
+        if permissions is not None:
+            if permissions['type'] != _type or \
+                    not permissions['permission_name'] or \
+                    not is_string(permissions['permission_name']) or \
+                    not is_integer(permissions['threshold']) or \
+                    permissions['threshold'] < 1 or not permissions['keys']:
+                return False
+
+        for key in permissions['key']:
+            if not self.tron.isAddress(key['address']) or \
+                    not is_integer(key['weight']) or \
+                    key['weight'] > permissions['threshold'] or \
+                    key['weight'] < 1 or _type == 2 and not permissions['operations']:
+                return False
+
+        return True
+
+    def update_account_permissions(self, owner_address=None,
+                                   owner_permissions=None,
+                                   witness_permissions=None,
+                                   actives_permissions=None
+                                   ):
+        """Role: update user permissions (for multi-signature)
+
+        Args:
+            owner_address (str): The address of the account whose permissions are to be modified
+            owner_permissions: Modified owner permission
+            witness_permissions: Modified witness permission (if it is a witness)
+            actives_permissions: Modified actives permission
+        """
+
+        if owner_address is None:
+            owner_address = self.tron.default_address.hex
+
+        if not self.check_permissions(owner_permissions, 0):
+            raise InvalidTronError('Invalid ownerPermissions provided')
+
+        if not self.check_permissions(witness_permissions, 1):
+            raise InvalidTronError('Invalid witnessPermissions provided')
+
+        for actives_permission in actives_permissions:
+            if not self.check_permissions(actives_permission, 2):
+                raise InvalidTronError('Invalid activesPermissions provided')
+
+        data = {
+            owner_address: owner_address
+        }
+
+        if owner_permissions:
+            data['owner'] = owner_permissions
+
+        if witness_permissions:
+            data['witness'] = witness_permissions
+
+        if actives_permissions:
+            if len(actives_permissions) == 1:
+                data['actives'] = actives_permissions[0]
+            else:
+                data['actives'] = actives_permissions
+
+        return self.tron.manager.request('wallet/accountpermissionupdate', data)
