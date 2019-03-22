@@ -78,16 +78,16 @@ install_requires = [
     "toolz>=0.9.0,<1.0.0;implementation_name=='pypy'",
     "cytoolz>=0.9.0,<1.0.0;implementation_name=='cpython'",
 
-    "eth-abi>=2.0.0b5,<3.0.0",
+    "eth-abi>=2.0.0b6,<3.0.0",
     "eth-account>=0.2.1,<0.4.0",
     "eth-utils>=1.3.0,<2.0.0",
+    "eth-hash[pycryptodome]>=0.2.0,<1.0.0",
 
     "trx-utils",
 
     "hexbytes>=0.1.0,<1.0.0",
 
     "requests>=2.16.0,<3.0.0",
-    "pycryptodome",
     "base58",
     "ecdsa",
     'attrdict',
