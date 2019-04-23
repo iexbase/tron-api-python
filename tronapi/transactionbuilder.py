@@ -475,6 +475,9 @@ class TransactionBuilder(object):
         # is an integer which should be greater than 0.
         origin_energy_limit = kwargs.setdefault('origin_energy_limit', 10000000)
 
+        if not is_integer(user_fee_percentage) and not user_fee_percentage:
+            user_fee_percentage = 100
+
         if not is_hex(kwargs.get('bytecode')):
             raise ValueError('Invalid bytecode provided')
 
