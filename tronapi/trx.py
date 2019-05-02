@@ -992,5 +992,5 @@ class Trx(Module):
             raise ValueError('Invalid token ID provided')
 
         return self.tron.manager.request('/wallet/getassetissuebyid', {
-            'value': self.tron.toHex(text=token_id)
+            'value': token_id
         })
