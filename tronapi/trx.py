@@ -171,6 +171,29 @@ class Trx(Module):
 
         return response
 
+    def get_account_by_id(self, id: str):
+        return self.get_account_info_by_id(id)
+
+    def get_account_info_by_id(self, id: str, options: object):
+
+        if id.startswith('0x'):
+            id = id[2:]
+
+        if 'confirmed' in options:
+            return self.tron.manager.request('/walletsolidity/getaccountbyid', {
+                'account_id': self.tron.toHex(text=id)
+            })
+
+        return self.tron.manager.request('/wallet/getaccountbyid', {
+            'account_id': self.tron.toHex(text=id)
+        })
+
+    def get_unconfirmed_account_by_id(self, id: str):
+
+        return self.get_account_info_by_id(id, {
+            'confirmed': True
+        })
+
     def get_account_resource(self, address=None):
         """Query the resource information of the account
 
