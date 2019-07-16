@@ -171,8 +171,8 @@ class Trx(Module):
 
         return response
 
-    def get_account_by_id(self, id: str):
-        return self.get_account_info_by_id(id)
+    def get_account_by_id(self, id: str, options: object):
+        return self.get_account_info_by_id(id, options)
 
     def get_account_info_by_id(self, id: str, options: object):
 
