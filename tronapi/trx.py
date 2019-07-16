@@ -171,26 +171,26 @@ class Trx(Module):
 
         return response
 
-    def get_account_by_id(self, id: str, options: object):
-        return self.get_account_info_by_id(id, options)
+    def get_account_by_id(self, account_id: str, options: object):
+        return self.get_account_info_by_id(account_id, options)
 
-    def get_account_info_by_id(self, id: str, options: object):
+    def get_account_info_by_id(self, account_id: str, options: object):
 
-        if id.startswith('0x'):
-            id = id[2:]
+        if account_id.startswith('0x'):
+            account_id = id[2:]
 
         if 'confirmed' in options:
             return self.tron.manager.request('/walletsolidity/getaccountbyid', {
-                'account_id': self.tron.toHex(text=id)
+                'account_id': self.tron.toHex(text=account_id)
             })
 
         return self.tron.manager.request('/wallet/getaccountbyid', {
-            'account_id': self.tron.toHex(text=id)
+            'account_id': self.tron.toHex(text=account_id)
         })
 
-    def get_unconfirmed_account_by_id(self, id: str):
+    def get_unconfirmed_account_by_id(self, account_id: str):
 
-        return self.get_account_info_by_id(id, {
+        return self.get_account_info_by_id(account_id, {
             'confirmed': True
         })
 
