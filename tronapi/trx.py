@@ -561,12 +561,9 @@ class Trx(Module):
             header = TRX_MESSAGE_HEADER if use_tron else ETH_MESSAGE_HEADER
             header += str(len(transaction))
 
-            message_hash = self.tron.keccak(text=header + transaction)
+            message_hash = self.tron.keccak(text=header+transaction)
 
-            signed_message = Account.sign_hash(
-                message_hash, self.tron.private_key
-            )
-
+            signed_message = Account.sign_hash(self.tron.toHex(message_hash), self.tron.private_key)
             return signed_message
 
         if not multisig and 'signature' in transaction:
@@ -652,8 +649,8 @@ class Trx(Module):
         # before encrypting or decrypting
         header = TRX_MESSAGE_HEADER if use_tron else ETH_MESSAGE_HEADER
 
-        message_hash = self.tron.keccak(text=header + message)
-        recovered = Account.recover_hash(message_hash, signed_message.signature)
+        message_hash = self.tron.keccak(text=header+message)
+        recovered = Account.recover_hash(self.tron.toHex(message_hash), signed_message.signature)
 
         tron_address = '41' + recovered[2:]
         base58address = self.tron.address.from_hex(tron_address).decode()
