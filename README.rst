@@ -1,5 +1,7 @@
+===================
 TRON API for Python
-=====
+===================
+
 A Python API for interacting with the Tron (TRX)
 
 .. image:: https://img.shields.io/pypi/v/tronapi.svg
@@ -47,8 +49,8 @@ Usage
 Specify the API endpoints:
 
 
-Example Smart Contract
--------
+Smart Contract
+--------------
 
 .. code-block:: python
 
@@ -102,7 +104,7 @@ Example Smart Contract
 ..
 
 Base Example
--------
+------------
 
 .. code-block:: python
     

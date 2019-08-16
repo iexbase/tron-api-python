@@ -24,7 +24,7 @@ from setuptools import (
 
 py_version = platform.python_version()
 
-PACKAGE_VERSION = '3.1.4'
+PACKAGE_VERSION = '3.1.5'
 
 EXTRAS_REQUIRE = {
     'tester': [
@@ -48,7 +48,7 @@ EXTRAS_REQUIRE = {
         "toposort>=1.4",
         "urllib3",
         "tronapi",
-        "wheel"
+        "wheel >= 0.31.0"
     ],
 
     'dev': [
@@ -60,8 +60,9 @@ EXTRAS_REQUIRE = {
         "pytest-pythonpath>=0.3",
         "pytest-watch==4.*",
         "pytest-xdist==1.*",
-        "setuptools>=36.2.0",
+        "setuptools>=38.6.0",
         "tox>=1.8.0",
+        "twine >= 1.11.0",
         "tqdm",
         "when-changed"
     ]
@@ -105,6 +106,7 @@ setup(
     version=PACKAGE_VERSION,
     description='A Python API for interacting with Tron (TRX)',
     long_description=PACKAGE_LONG_DESCRIPTION,
+    long_description_content_type='text/x-rst',
     keywords='tron tron-api tron-api-python iexbase',
     url='https://github.com/iexbase/tron-api-python',
     author='Shamsudin Serderov',

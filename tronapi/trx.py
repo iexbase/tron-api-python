@@ -648,6 +648,7 @@ class Trx(Module):
         # Determine which header to attach to the message
         # before encrypting or decrypting
         header = TRX_MESSAGE_HEADER if use_tron else ETH_MESSAGE_HEADER
+        header += str(len(message))
 
         message_hash = self.tron.keccak(text=header+message)
         recovered = Account.recover_hash(self.tron.toHex(message_hash), signed_message.signature)
