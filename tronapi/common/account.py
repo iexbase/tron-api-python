@@ -93,7 +93,7 @@ class PrivateKey(object):
 
         return AttributeDict({
             'hex': address,
-            'base58': to_base58.decode()
+            'base58': to_base58
         })
 
     def __str__(self):
