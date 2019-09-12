@@ -11,7 +11,7 @@ import base58
 import ecdsa
 from eth_keys import KeyAPI
 from eth_account import Account as ETHAccount
-from trx_utils import is_hex
+from trx_utils import is_hex, is_bytes
 
 from tronapi.common.datastructures import AttributeDict
 
@@ -91,9 +91,13 @@ class PrivateKey(object):
         address = '41' + public_key.to_address()[2:]
         to_base58 = base58.b58encode_check(bytes.fromhex(address))
 
+        # If bytecode then convert to string
+        if is_bytes(to_base58):
+            to_base58 = to_base58.decode()
+
         return AttributeDict({
             'hex': address,
-            'base58': to_base58.decode()
+            'base58': to_base58
         })
 
     def __str__(self):
