@@ -566,7 +566,7 @@ class TransactionBuilder(object):
                     raise ValueError('Invalid parameter type provided: ' + abi['type'])
 
                 if abi['type'] == 'address':
-                    abi['value'] = self.tron.address.to_hex(abi['value']).replace('41', '0x', 2)
+                    abi['value'] = self.tron.address.to_hex(abi['value']).replace('41', '0x', 1)
 
                 types.append(abi['type'])
                 values.append(abi['value'])
