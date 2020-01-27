@@ -589,10 +589,10 @@ class TransactionBuilder(object):
         }
 
         if token_value:
-            data.call_token_value = int(token_value)
+            data['call_token_value'] = int(token_value)
 
         if token_id:
-            data.token_id = int(token_id)
+            data['token_id'] = int(token_id)
 
         return self.tron.manager.request('/wallet/triggersmartcontract', data)
 
