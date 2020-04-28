@@ -4,9 +4,8 @@
 # See License.txt in the project root for license information.
 # --------------------------------------------------------------------
 
-# Here you can specify links to sites of different types.
-# The default is verified links.
-# If you do not know what links are used for, it is recommended not to change
+# Here we specify default values for the different needed urls.
+# They are verified. Don't change this unless you know what you're doing.
 DEFAULT_NODES = {
     'full_node': 'https://api.trongrid.io',
     'solidity_node': 'https://api.trongrid.io',
