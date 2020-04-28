@@ -84,7 +84,7 @@ class Trx(Module):
             num (int): block number
         """
         if not is_integer(num) or num < 0:
-            raise ValueError('Invalid num provider')
+            raise ValueError('Invalid num provided')
 
         return self.tron.manager.request('/wallet/gettransactioncountbyblocknum', {
             'num': num
