@@ -75,7 +75,7 @@ class Trx(Module):
 
         if result:
             return result
-        return ValueError("The call to {method['url']} did not return a value.")
+        raise ValueError("The call to {method['url']} did not return a value.")
 
     def get_transaction_count_by_blocknum(self, num: int):
         """Query transaction's count on a specified block by height
