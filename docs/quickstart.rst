@@ -39,12 +39,11 @@ To use the tron library you will need to initialize the
 .. code-block:: python
 
     >>> from tronapi import Tron
-    >>> full_node = HttpProvider('https://api.trongrid.io')
-    >>> solidity_node = HttpProvider('https://api.trongrid.io')
+    >>> full_node = 'https://api.trongrid.io'
+    >>> solidity_node = 'https://api.trongrid.io'
     >>> event_server = 'https://api.trongrid.io'
     >>>
-    >>> tron = Tron(full_node, solidity_node, event_server)
-    >>> tron.default_block = 'latest'
+    >>> tron = Tron(full_node=full_node, solidity_node=solidity_node, event_server=event_server)
 
 
 Getting Blockchain Info
@@ -54,7 +53,7 @@ It's time to start using TronAPI for Python! Try getting all the information abo
 
 .. code-block:: python
 
-    >>> tron.get_block('latest')
+    >>> tron.trx.get_block('latest')
     >>> {
     "blockID": "00000000003a5bbda4aea15cb5d99230674463e9d5f2c0c647316839b25fd5b9",
     "block_header": {
