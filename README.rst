@@ -120,7 +120,7 @@ Base Example
             solidity_node=solidity_node,
             event_server=event_server)
 
-    account = tron.create_account()
+    account = tron.create_account
     is_valid = bool(tron.trx.is_address(account.address.hex))
 
     logger.debug('Generated account: ')
