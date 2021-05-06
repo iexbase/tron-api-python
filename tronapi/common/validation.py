@@ -5,7 +5,7 @@
 # --------------------------------------------------------------------------------------------
 import itertools
 import re
-from _sha256 import sha256
+# from _sha256 import sha256
 from typing import Any
 
 import base58
