@@ -15,7 +15,7 @@
     :license: MIT License
 """
 
-from eth_account.datastructures import AttributeDict
+from tronapi.common.datastructures import AttributeDict
 from urllib.parse import urlencode
 from eth_utils import (
     apply_to_return_value,
