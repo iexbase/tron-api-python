@@ -2,7 +2,7 @@ import json
 import re
 from typing import Union
 
-from eth_account.datastructures import AttributeDict
+from tronapi.common.datastructures import AttributeDict
 from hexbytes import HexBytes
 
 from eth_utils import (
