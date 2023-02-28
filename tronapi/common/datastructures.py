@@ -1,10 +1,10 @@
-from collections import (
+from collections.abc import (
     Hashable,
     Mapping,
     MutableMapping,
-    OrderedDict,
     Sequence,
 )
+from collections import OrderedDict
 
 from trx_utils import (
     is_integer,
