@@ -4,7 +4,7 @@
 # See License.txt in the project root for license information.
 # --------------------------------------------------------------------
 
-from collections.abc Mapping, Iterable
+from collections.abc import Mapping, Iterable
 
 from eth_utils import to_dict
 from trx_utils import (
