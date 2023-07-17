@@ -17,6 +17,7 @@
 
 import os
 import platform
+
 from setuptools import (
     find_packages,
     setup,
@@ -79,16 +80,16 @@ install_requires = [
     "toolz>=0.9.0,<1.0.0;implementation_name=='pypy'",
     "cytoolz>=0.9.0,<1.0.0;implementation_name=='cpython'",
 
-    "eth-abi>=2.0.0b6,<3.0.0",
-    "eth-account==0.4.0",
-    "eth-utils>=1.3.0,<2.0.0",
-    "eth-hash[pycryptodome]>=0.2.0,<1.0.0",
+    "eth-abi",
+    "eth-account",
+    "eth-utils",
+    "eth-hash[pycryptodome]",
 
-    "trx-utils",
+    "trx-utils @ git+https://github.com/const-tmp/trx-utils.git",
 
     "hexbytes>=0.1.0,<1.0.0",
 
-    "requests>=2.16.0,<3.0.0",
+    "requests",
     "base58",
     "ecdsa",
     'attrdict',
@@ -99,7 +100,6 @@ readme_filename = os.path.join(this_dir, 'README.rst')
 
 with open(readme_filename) as f:
     PACKAGE_LONG_DESCRIPTION = f.read()
-
 
 setup(
     name='tronapi',

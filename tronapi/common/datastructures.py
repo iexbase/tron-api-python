@@ -1,10 +1,5 @@
-from collections import (
-    Hashable,
-    Mapping,
-    MutableMapping,
-    OrderedDict,
-    Sequence,
-)
+from collections import OrderedDict
+from collections.abc import Hashable, Mapping, MutableMapping, Sequence
 
 from trx_utils import (
     is_integer,
@@ -13,6 +8,7 @@ from trx_utils import (
 from tronapi.common.formatters import (
     recursive_map,
 )
+
 
 # Hashable must be immutable:
 # "the implementation of hashable collections requires that a key's hash value is immutable"
@@ -101,6 +97,7 @@ class NamedElementOnion(Mapping):
     Add layers to an onion-shaped structure. Optionally, inject to a specific layer.
     This structure is iterable, where the outermost layer is first, and innermost is last.
     """
+
     def __init__(self, init_elements, valid_element=callable):
         self._queue = OrderedDict()
         for element in reversed(init_elements):

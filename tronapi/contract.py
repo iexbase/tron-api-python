@@ -6,7 +6,7 @@
 
 import copy
 
-from eth_abi import decode_abi
+from eth_abi import decode
 from eth_utils import (
     function_abi_to_4byte_selector,
     to_hex
@@ -329,7 +329,7 @@ class Contract:
         func = self.get_function_by_selector(selector)
         names = [x['name'] for x in func.abi['inputs']]
         types = [x['type'] for x in func.abi['inputs']]
-        decoded = decode_abi(types, params)
+        decoded = decode(types, params)
         normalized = map_abi_data(BASE_RETURN_NORMALIZERS, types, decoded)
         return func, dict(zip(names, normalized))
 
