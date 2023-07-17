@@ -80,10 +80,10 @@ install_requires = [
     "toolz>=0.9.0,<1.0.0;implementation_name=='pypy'",
     "cytoolz>=0.9.0,<1.0.0;implementation_name=='cpython'",
 
-    "eth-abi>=4",
-    "eth-account>=0.9",
-    "eth-utils>=2.2",
-    "eth-hash[pycryptodome]>=0.5",
+    "eth-abi",
+    "eth-account",
+    "eth-utils",
+    "eth-hash[pycryptodome]",
 
     "trx-utils @ git+https://github.com/const-tmp/trx-utils.git",
 
