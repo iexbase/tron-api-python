@@ -17,6 +17,7 @@
 
 import os
 import platform
+
 from setuptools import (
     find_packages,
     setup,
@@ -84,7 +85,7 @@ install_requires = [
     "eth-utils>=2.2",
     "eth-hash[pycryptodome]>=0.5",
 
-    "trx-utils",
+    "trx-utils @ git+https://github.com/const-tmp/trx-utils.git@update-eth-deps",
 
     "hexbytes>=0.1.0,<1.0.0",
 
@@ -99,7 +100,6 @@ readme_filename = os.path.join(this_dir, 'README.rst')
 
 with open(readme_filename) as f:
     PACKAGE_LONG_DESCRIPTION = f.read()
-
 
 setup(
     name='tronapi',
