@@ -85,7 +85,7 @@ install_requires = [
     "eth-utils>=2.2",
     "eth-hash[pycryptodome]>=0.5",
 
-    "trx-utils @ git+https://github.com/const-tmp/trx-utils.git@update-eth-deps",
+    "trx-utils @ git+https://github.com/const-tmp/trx-utils.git",
 
     "hexbytes>=0.1.0,<1.0.0",
 
