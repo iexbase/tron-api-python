@@ -11,7 +11,7 @@ from typing import (
     List
 )
 
-from eth_abi import encode_abi
+from eth_abi import encode
 from trx_utils import (
     is_string,
     is_integer,
@@ -572,7 +572,7 @@ class TransactionBuilder(object):
                 values.append(abi['value'])
 
             try:
-                parameters = encode_hex(encode_abi(types, values)).replace('0x', '', 2)
+                parameters = encode_hex(encode(types, values)).replace('0x', '', 2)
             except ValueError as ex:
                 print(ex)
 
