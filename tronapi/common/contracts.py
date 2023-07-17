@@ -36,7 +36,7 @@ from tronapi.common.toolz import (
     valmap,
 )
 from eth_abi import (
-    encode_abi as eth_abi_encode_abi,
+    encode as eth_abi_encode_abi,
 )
 
 from eth_abi.exceptions import (
