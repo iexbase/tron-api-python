@@ -79,10 +79,10 @@ install_requires = [
     "toolz>=0.9.0,<1.0.0;implementation_name=='pypy'",
     "cytoolz>=0.9.0,<1.0.0;implementation_name=='cpython'",
 
-    "eth-abi",
-    "eth-account",
-    "eth-utils",
-    "eth-hash[pycryptodome]",
+    "eth-abi>=4",
+    "eth-account>=0.9",
+    "eth-utils>=2.2",
+    "eth-hash[pycryptodome]>=0.5",
 
     "trx-utils",
 
