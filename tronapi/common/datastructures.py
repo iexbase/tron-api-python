@@ -1,5 +1,5 @@
-from collections import Mapping, MutableMapping, OrderedDict, Sequence
-from collections.abc import Hashable
+from collections import OrderedDict
+from collections.abc import Hashable, Mapping, MutableMapping, Sequence
 
 from trx_utils import (
     is_integer,
